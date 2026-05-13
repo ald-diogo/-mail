@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+  <title>AgroLux | Mercado Agrícola Moderno</title>
+  <!-- Bootstrap 5 + Ícones + Google Fonts -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Leaflet (mapa) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Chart.js para estatísticas admin -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <!-- QRCode -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    * { 
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box; 
+        font-family: 'Times New Roman', Times, serif;
+      }
+    body {
+      background: #0f1a15;
+      transition: background 0.3s, color 0.2s;
+      overflow-x: hidden;
+    }
+    body.light {
+      background: #eef5ef;
+      color: #1a3a2b;
+    }
+    /* Glassmorphism base */
+    .glass-card {
+      background: rgba(30, 45, 38, 0.65);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(90, 180, 120, 0.4);
+      border-radius: 28px;
+    }
+    body.light .glass-card {
+      background: rgba(240, 250, 240, 0.85);
+      border-color: rgba(40, 100, 60, 0.3);
+      color: #1a3a2b;
+    }
+    /* botões e transições */
+    .btn-modern {
+      background: transparent;
+      border: 1px solid #6fde9c;
+      border-radius: 60px;
+      padding: 8px 20px;
+      transition: all 0.2s ease;
+      color: inherit;
+      font-weight: 500;
+    }
+    .btn-modern:hover {
+      background: #6fde9c;
+      color: #0f1a15;
+      transform: scale(0.98);
+    }
+    .product-card {
+      background: rgba(20, 35, 28, 0.7);
+      backdrop-filter: blur(10px);
+      border-radius: 28px;
+      padding: 1rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 1px solid rgba(111, 222, 156, 0.3);
+      height: 100%;
+    }
+    body.light .product-card {
+      background: rgba(255, 255, 255, 0.8);
+      border-color: #c8e6d0;
+    }
+    .product-card:hover { transform: translateY(-6px); box-shadow: 0 20px 30px -12px rgba(0,0,0,0.3); }
+    .product-img {
+      height: 180px;
+      object-fit: cover;
+      border-radius: 20px;
+      width: 100%;
+      transition: transform 0.3s;
+    }
+    .product-card:hover .product-img { transform: scale(1.02); }
+    .discount-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: #ff7e5e;
+      color: white;
+      border-radius: 40px;
+      padding: 4px 12px;
+      font-size: 0.7rem;
+      font-weight: bold;
+    }
+    .stock-indicator {
+      font-size: 0.75rem;
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 30px;
+    }
+    .star-rating i { color: #ffb347; margin-right: 2px; font-size: 0.8rem; }
+    /* Carrinho lateral drawer */
+    .cart-drawer {
+      position: fixed;
+      top: 0;
+      right: -450px;
+      width: 400px;
+      max-width: 90vw;
+      height: 100vh;
+      background: rgba(18, 32, 28, 0.96);
+      backdrop-filter: blur(20px);
+      z-index: 2000;
+      transition: right 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+      box-shadow: -5px 0 25px rgba(0,0,0,0.5);
+      border-left: 1px solid #6fde9c;
+      display: flex;
+      flex-direction: column;
+    }
+    body.light .cart-drawer { background: rgba(250, 255, 245, 0.96); border-left-color: #2e7d5e; }
+    .cart-drawer.open { right: 0; }
+    .cart-header { padding: 1.5rem; border-bottom: 1px solid rgba(111,222,156,0.3); display: flex; justify-content: space-between; align-items: center; }
+    .cart-items-area { flex: 1; overflow-y: auto; padding: 1rem; }
+    .cart-item { display: flex; gap: 12px; margin-bottom: 1rem; background: rgba(0,0,0,0.2); border-radius: 20px; padding: 10px; }
+    body.light .cart-item { background: #e9f3ec; }
+    .qty-control { display: flex; align-items: center; gap: 8px; }
+    .qty-control button { background: #6fde9c20; border: none; width: 28px; border-radius: 30px; }
+    /* Toasts */
+    .toast-notify {
+      position: fixed;
+      bottom: 30px;
+      left: 20px;
+      background: #1e3a2b;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 60px;
+      z-index: 2100;
+      backdrop-filter: blur(12px);
+      border-left: 4px solid #6fde9c;
+      transition: opacity 0.2s;
+      font-weight: 500;
+    }
+    /* switch tema */
+    .theme-switch { position: relative; display: inline-block; width: 56px; height: 28px; }
+    .theme-switch input { opacity: 0; width: 0; height: 0; }
+    .slider-round {
+      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #2c523a; border-radius: 34px; transition: 0.3s;
+    }
+    .slider-round:before { position: absolute; content: ""; height: 22px; width: 22px; left: 3px; bottom: 3px; background-color: white; border-radius: 50%; transition: 0.3s; }
+    input:checked + .slider-round:before { transform: translateX(28px); }
+    .grid-view .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 1.8rem; }
+    .list-view .products-grid { display: flex; flex-direction: column; gap: 1.2rem; }
+    .list-view .product-card { display: flex; gap: 1rem; align-items: center; text-align: left; }
+    .list-view .product-img { width: 120px; height: 120px; margin-bottom: 0; }
+    .favorite-btn.active { color: #ff4d6d; }
+    .wishlist-btn.active { color: #ffb347; }
+    .floating-chat {
+      position: fixed; bottom: 20px; right: 20px; z-index: 1050;
+      background: #1e6b46; border-radius: 60px; padding: 12px 18px; cursor: pointer; box-shadow: 0 4px 15px black;
+    }
+    /* admin dashboard panel */
+    .admin-panel {
+      background: rgba(0,0,0,0.7);
+      border-radius: 30px;
+      padding: 1rem;
+    }
+    @media (max-width: 768px) {
+      .cart-drawer { width: 100%; right: -100%; }
+      .list-view .product-card { flex-wrap: wrap; }
+    }
+    .rating-stars-display { cursor: pointer; }
+    .modal-content-custom { background: #1e2f28; border-radius: 32px; }
+    body.light .modal-content-custom { background: #f9fff9; }
+      
+      /*====================================Outher  Css=======================================*/
+       .logo-maker{
+      border-radius: 50px;
+      width: 50px;
+      height: 50px;
+    }
+    
+    .logo-panel{
+      border-radius: 50px;
+      width: 30px;
+      height: 30px;
+    }
+        
+        .logo-panel { 
+            width: 24px;
+            height: 24px; 
+            vertical-align: middle;
+            margin-right: 5px; 
+        }
+        
+        .logo-point {
+            width: 100px; 
+            height: 50px;
+        }
+  </style>
+</head>
+<body>
+
+<!-- CARRINHO LATERAL SLIDING DRAWER -->
+<div id="cartDrawer" class="cart-drawer">
+  <div class="cart-header">
+    <h5><i class="fas fa-shopping-basket"></i> Meu Carrinho</h5>
+    <button id="closeCartBtn" class="btn-close btn-close-white" style="filter: invert(1);"></button>
+  </div>
+  <div id="cartItemsList" class="cart-items-area">Carregando...</div>
+  <div class="p-3 border-top" style="border-color:rgba(111,222,156,0.3)">
+    <div class="d-flex justify-content-between mb-2"><span>Subtotal:</span><span id="cartSubtotal">0 Kz</span></div>
+    <div class="d-flex justify-content-between mb-3"><strong>Total:</strong><strong id="cartTotal">0 Kz</strong></div>
+    <div class="d-flex gap-2">
+      <button id="continueShoppingBtn" class="btn-modern flex-grow-1">Continuar Comprando</button>
+      <button id="checkoutBtnMain" class="btn-modern" style="background:#6fde9c; color:#0f1a15;">Finalizar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toasts container -->
+<div id="toastContainer" style="position:fixed; bottom:20px; left:20px; z-index:2200;"></div>
+
+<!-- MAIN LAYOUT -->
+<div class="container-fluid px-3 px-md-4 py-3" style="max-width: 1600px; margin: 0 auto;">
+  <!-- Top Bar -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div class="d-flex align-items-center gap-3">
+      <h2 class="mb-0 fw-bold"> <a href="index.html">
+        <img src="images/Lux-logo-bg.png" class="logo-point" onerror="this.style.display='none'"/></a></h2>
+      <span class="badge bg-success">Mercado Vivo</span>
+    </div>
+    <div class="d-flex gap-3 align-items-center flex-wrap">
+      <!-- view toggles -->
+      <div class="btn-group" role="group" style="color: green">
+        <button id="gridViewBtn" class="btn-modern active"><i class="fas fa-th-large"></i> Grade</button>
+        <button id="listViewBtn" class="btn-modern"><i class="fas fa-list"></i> Lista</button>
+      </div>
+      <!-- theme toggle -->
+      <label class="theme-switch mb-0">
+        <input type="checkbox" id="darkModeToggle">
+        <span class="slider-round"></span>
+      </label>
+      <button class="btn-modern" id="cartIconBtn"><i class="fas fa-shopping-cart"></i> <span id="cartCountBadge" class="ms-1 bg-danger rounded-circle px-1" style="font-size:12px;">0</span></button>
+      <div class="dropdown" style="color: greenyellow">
+        <button class="btn-modern dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-user"></i> Minha Conta</button>
+        <ul class="dropdown-menu dropdown-menu-dark">
+          <li><a class="dropdown-item" id="quickLoginBtn"><i class="fas fa-sign-in-alt"></i> Login Rápido</a></li>
+          <li><a class="dropdown-item" id="myWishlistBtn"><i class="fas fa-heart"></i> Minha Lista de Desejos</a></li>
+          <li><a class="dropdown-item" id="myFavoritesBtn"><i class="fas fa-star"></i> Favoritos</a></li>
+          <li><a class="dropdown-item" id="adminDashboardBtn"><i class="fas fa-chart-line"></i> Painel do Vendedor</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Banner principal campanhas -->
+  <div id="mainBanner" class="glass-card p-4 mb-4 text-center" style="background: linear-gradient(120deg, #6fde9c, #0a2f21);">
+    <h3><i class="fas fa-leaf"></i>   
+  <i class="fas fa-snowflake"></i>Campanha de Inverno 2026</h3>
+    <p>Descontos até 20% em fertilizantes e sementes certificadas! Use cupom: COLHEITA20</p>
+    <button class="btn-modern" id="applyCouponBtn"><i class="fas fa-gift"></i> Aplicar Cupom</button>
+  </div>
+
+  <!-- Filtros, pesquisa, ordenação -->
+  <div class="row g-3 mb-4 align-items-end">
+    <div class="col-md-3">
+      <label><i class="fas fa-search-minus"></i> Pesquisar produto</label>
+      <input type="text" id="searchInput" class="form-control" placeholder="Milho, adubo, mandioca...">
+    </div>
+    <div class="col-md-3">
+      <label>Categoria</label>
+      <select id="categoryFilter" class="form-select">
+        <option value="all">Todas</option>
+        <option value="Frutas">Frutas</option>
+        <option value="Legumes">Legumes</option>
+        <option value="Cereais">Cereais</option>
+        <option value="Fertilizantes">Fertilizantes</option>
+        <option value="Sementes">Sementes</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label>Ordenar por</label>
+      <select id="sortSelect" class="form-select">
+        <option value="name">Nome</option>
+        <option value="price_asc">Preço (menor→maior)</option>
+        <option value="price_desc">Preço (maior→menor)</option>
+        <option value="rating">Popularidade (avaliação)</option>
+        <option value="best">Mais Vendidos</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <button id="resetFiltersBtn" class="btn-modern w-100 mt-2"><i class="fas fa-undo-alt"></i> Redefinir</button>
+    </div>
+  </div>
+
+  <!-- Área de produtos (grid/list) -->
+  <div id="productsContainer" class="grid-view">
+    <div id="productsGrid" class="products-grid"></div>
+  </div>
+
+  <!-- Seção de recomendados e mais vendidos -->
+  <div class="row mt-5 g-4">
+    <div class="col-md-6">
+      <div class="glass-card p-3"><h5><i class="fas fa-fire"></i> Mais Vendidos</h5><div id="bestSellersList" class="d-flex flex-wrap gap-2"></div></div>
+    </div>
+    <div class="col-md-6">
+      <div class="glass-card p-3"><h5><i class="fas fa-newspaper"></i> Novos Produtos</h5><div id="newProductsList" class="d-flex flex-wrap gap-2"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL COMPARAR PRODUTOS -->
+<div class="modal fade" id="compareModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content modal-content-custom">
+            <div class="modal-header">
+                <h5>⚖️ Comparar Produtos</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div><div class="modal-body" id="compareTableBody"></div></div></div></div>
+
+<!-- MODAL DETALHES PRODUTO + AVALIAÇÕES -->
+<div class="modal fade" id="productDetailModal" tabindex="-1"><div class="modal-dialog modal-lg">
+    <div class="modal-content modal-content-custom"><div id="detailContent"></div></div></div></div>
+
+<!-- MODAL ADMIN DASHBOARD -->
+<div class="modal fade" id="adminModal" tabindex="-1"><div class="modal-dialog modal-xl"><div class="modal-content modal-content-custom"><div class="modal-header"><h5><i class="fas fa-chart-simple"></i> Dashboard do Vendedor</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row"><div class="col-md-6"><canvas id="salesChart" width="400" height="200"></canvas></div><div class="col-md-6"><h6>Gestão de Produtos</h6><div id="adminProductList"></div><button id="addNewProductAdmin" class="btn-modern mt-2">+ Adicionar Produto</button></div></div><div class="mt-3"><h6>Estatísticas de Vendas (últimos 30 dias)</h6><p id="salesStatsText">Carregando...</p><h6>Localização dos Produtores</h6><div id="adminMap" style="height:200px; border-radius:20px;"></div></div></div></div></div></div>
+
+<!-- MODAL LOGIN RÁPIDO -->
+<div class="modal fade" id="loginModal" tabindex="-1">
+    <div class="modal-dialog"><div class="modal-content modal-content-custom">
+        <div class="modal-header">
+            <h5>Acesso Rápido</h5>
+        </div>
+        <div class="modal-body">
+            <input id="loginName" class="form-control mb-2" placeholder="Seu nome / Apelido">
+            <button id="doLoginBtn" class="btn-modern w-100">Entrar e salvar carrinho/favoritos</button>
+            <small>Carrinho e listas ficarão salvos no seu dispositivo!</small>
+        </div>
+        </div>
+    </div>
+    </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // ---------- DADOS DE PRODUTOS AGRÍCOLAS COMPLETOS ----------
+  let products = [
+    { id: 1, name: "Milho Branco Premium", price: 1250, category: "Cereais", stock: 150, image: "https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=400", rating: 4.8, reviews: ["Ótima qualidade!","Produto fresco"], bestSeller: true, isNew: false, discount: 10, origin: "Malanje", sellerLocation: "Malanje, Angola", quality: "Certificado" },
+    { id: 2, name: "Adubo Orgânico 5kg", price: 3800, category: "Fertilizantes", stock: 42, image: "images/adubo.png", rating: 4.5, reviews: ["Planta cresceu muito"], bestSeller: true, isNew: false, discount: 0, origin: "Bengo", sellerLocation: "Bengo", quality: "EcoCert" },
+    { id: 3, name: "Tomate Cereja", price: 850, category: "Legumes", stock: 200, image: "images/tomate-cereja.png", rating: 4.9, reviews: ["Doces e frescos"], bestSeller: false, isNew: true, discount: 0, origin: "Huíla", sellerLocation: "Lubango", quality: "Bio" },
+    { id: 4, name: "Semente de Alface", price: 320, category: "Sementes", stock: 500, image: "images/alface-semente.png", rating: 4.3, bestSeller: false, isNew: true, discount: 5, origin: "Malanje", sellerLocation: "Malanje", quality: "Sementes selecionadas" },
+    { id: 5, name: "Mandioca (raiz)", price: 550, category: "Legumes", stock: 300, image: "images/mandioca.png", rating: 4.7, reviews: ["Excelente para farinha"], bestSeller: true, isNew: false, discount: 0, origin: "Malanje" },
+    { id: 6, name: "Fertilizante Foliar", price: 2100, category: "Fertilizantes", stock: 79, image: "images/fertilizante.png", rating: 4.2, bestSeller: false, isNew: false, discount: 15, origin: "Huambo", quality: "Alta eficiência" }
+  ];
+  // Adicionar mais alguns
+  products.push({ id:7, name:"Abacaxi Ananás", price: 980, category:"Frutas", stock:65, image:"https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=400", rating:4.9, bestSeller:true, isNew:false, discount:0, origin:"Kwanza Sul" });
+  products.push({ id:8, name:"Cebola Roxa", price: 490, category:"Legumes", stock:280, image:"images/cebola-roxa.png", rating:4.4, bestSeller:false, isNew:true, discount:8, origin:"Huíla" });
+  products.push({ id:9, name:"Morango", price: 980, category:"Frutas", stock:65, image:"images/morangos.png", rating:4.9, bestSeller:true, isNew:false, discount:0, origin:"Huambo" });
+  products.push({ id:10, name:"Trigo", price: 980, category:"Cereais", stock:65, image:"images/trigo.png", rating:4.9, bestSeller:true, isNew:false, discount:0, origin:"Malanje" });
+    products.push({ id:11, name:"Cenoura", price: 490, category:"Legumes", stock:280, image:"images/cenoura.png", rating:4.4, bestSeller:false, isNew:true, discount:8, origin:"Huíla" });
+    products.push({ id:12, name:"Salsa", price: 490, category:"Legumes", stock:280, image:"images/salsa.png", rating:4.4, bestSeller:false, isNew:true, discount:8, origin:"Huíla" });
+    products.push({ id:13, name:"Brocúlos", price: 490, category:"Legumes", stock:280, image:"images/broculos.png", rating:4.4, bestSeller:false, isNew:true, discount:8, origin:"Huíla" });
+     products.push({ id:14, name:"Repolho", price: 490, category:"Legumes", stock:280, image:"images/repolho.png", rating:4.4, bestSeller:false, isNew:true, discount:8, origin:"Huíla" });
+    products.push({ id:15, name:"Batata Rena", price: 490, category:"Legumes", stock:280, image:"images/batata-rena.png", rating:4.4, bestSeller:false, isNew:true, discount:8, origin:"Huíla" });
+    products.push({ id:16, name:"Batata Doce", price: 490, category:"Legumes", stock:280, image:"images/batata-doce.png", rating:4.4, bestSeller:false, isNew:true, discount:8, origin:"Kwanza Sul" });
+   products.push({ id:17, name:"Alho", price: 490, category:"Legumes", stock:280, image:"images/alho.png", rating:4.4, bestSeller:false, isNew:true, discount:8, origin:"Huíla & Benguela" });
+    products.push({ id:18, name:"Feijão", price: 490, category:"Legumes", stock:280, image:"images/feijao.png", rating:4.4, bestSeller:false, isNew:true, discount:8, origin:"Bié" });
+  
+     products.push({ id:19, name:"Beringela", price: 490, category:"Legumes", stock:280, image:"images/beringela.png", rating:4.4, bestSeller:false, isNew:true, discount:8, origin:"Huíla" });
+     products.push({ id:20, name:"Pepino", price: 490, category:"Legumes", stock:280, image:"images/pepino.png", rating:4.4, bestSeller:false, isNew:true, discount:8, origin:"Huíla" });
+     products.push({ id:21, name:"Alface", price: 490, category:"Legumes", stock:280, image:"images/alface.png", rating:4.4, bestSeller:false, isNew:true, discount:8, origin:"Huíla" });
+     products.push({ id:22, name:"Quiabo", price: 490, category:"Legumes", stock:280, image:"images/quiabo.png", rating:4.4, bestSeller:false, isNew:true, discount:8, origin:"Kwanza Sul" });
+     products.push({ id:23, name:"Pimentos", price: 490, category:"Legumes", stock:280, image:"images/pimentos.png", rating:4.4, bestSeller:false, isNew:true, discount:8, origin:"Huíla" });
+     products.push({ id:24, name:"Ervilha", price: 490, category:"Legumes", stock:280, image:"images/ervilha.png", rating:4.4, bestSeller:false, isNew:true, discount:8, origin:"Bié" });
+    products.push({ id:25, name:"Abóbora", price: 490, category:"Legumes", stock:280, image:"images/abobora.png", rating:4.4, bestSeller:false, isNew:true, discount:8, origin:"Kwanza Sul" });
+    products.push({ id:26, name:"Jindungo", price: 490, category:"Legumes", stock:280, image:"images/jindungo.png", rating:4.4, bestSeller:false, isNew:true, discount:8, origin:"Kwanza Sul" });
+    
+    products.push({ id:27, name:"Bananas", price: 980, category:"Frutas", stock:65, image:"images/banana.png", rating:4.9, bestSeller:true, isNew:false, discount:0, origin:"Uíge" });
+    products.push({ id:28, name:"Cocos", price: 980, category:"Frutas", stock:65, image:"images/cocos.png", rating:4.9, bestSeller:true, isNew:false, discount:0, origin:"Zaire, Cabinda & Benguela" });
+    products.push({ id:29, name:"Azeitonas", price: 980, category:"Frutas", stock:65, image:"images/azeitona.png", rating:4.9, bestSeller:true, isNew:false, discount:0, origin:"Huíla" });
+    products.push({ id:30, name:"Uvas", price: 980, category:"Frutas", stock:65, image:"images/uva.png", rating:4.9, bestSeller:true, isNew:false, discount:0, origin:"Huíla" });
+    products.push({ id:31, name:"Mamão", price: 980, category:"Frutas", stock:65, image:"images/mamao.png", rating:4.9, bestSeller:true, isNew:false, discount:0, origin:"Kwanza Sul" });
+    products.push({ id:32, name:"Maçã", price: 980, category:"Frutas", stock:65, image:"images/maca.png", rating:4.9, bestSeller:true, isNew:false, discount:0, origin:"Huíla" });
+    products.push({ id:33, name:"Manga", price: 980, category:"Frutas", stock:65, image:"images/manga.png", rating:4.9, bestSeller:true, isNew:false, discount:0, origin:"Benguela" });
+    products.push({ id:34, name:"Goiaba", price: 980, category:"Frutas", stock:65, image:"images/goiaba.png", rating:4.9, bestSeller:true, isNew:false, discount:0, origin:"Kwanza Sul" });
+    products.push({ id:35, name:"Limão", price: 980, category:"Frutas", stock:65, image:"images/limao.png", rating:4.9, bestSeller:true, isNew:false, discount:0, origin:"Benguela" });
+    products.push({ id:36, name:"Laranja", price: 980, category:"Frutas", stock:65, image:"images/laranja.png", rating:4.9, bestSeller:true, isNew:false, discount:0, origin:"Benguela" });
+    
+     products.push({ id:37, name:"Melancia", price: 980, category:"Frutas", stock:65, image:"images/melancia.png", rating:4.9, bestSeller:true, isNew:false, discount:0, origin:"Kwanza Sul" });
+    products.push({ id:38, name:"Maracujá", price: 980, category:"Frutas", stock:65, image:"images/maracuja.png", rating:4.9, bestSeller:true, isNew:false, discount:0, origin:"Kwanza Sul" });
+    products.push({ id:39, name:"Tangerina", price: 980, category:"Frutas", stock:65, image:"images/tangerina.png", rating:4.9, bestSeller:true, isNew:false, discount:0, origin:"Benguela" });
+    products.push({ id:40, name:"Turanja", price: 980, category:"Frutas", stock:65, image:"images/turanjas.png", rating:4.9, bestSeller:true, isNew:false, discount:0, origin:"Benguela" });
+    products.push({ id:41, name:"Pera", price: 980, category:"Frutas", stock:65, image:"images/pera.png", rating:4.9, bestSeller:true, isNew:false, discount:0, origin:"Huíla" });
+    products.push({ id:42, name:"Cereja", price: 980, category:"Frutas", stock:65, image:"images/cereja.png", rating:4.9, bestSeller:true, isNew:false, discount:0, origin:"Huíla" });
+    products.push({ id:43, name:"Cajú", price: 980, category:"Frutas", stock:65, image:"images/caju.png", rating:4.9, bestSeller:true, isNew:false, discount:0, origin:"Kwanza Norte" });
+     products.push({ id:44, name:"Abacate", price: 980, category:"Frutas", stock:65, image:"images/abacate.png", rating:4.9, bestSeller:true, isNew:false, discount:0, origin:"Kwanza Sul" });
+    products.push({ id:45, name:"Tamarindo", price: 980, category:"Frutas", stock:65, image:"images/tamarindo.png", rating:4.9, bestSeller:true, isNew:false, discount:0, origin:"Huíla" });
+    
+     products.push({ id:46, name:"Arroz", price: 980, category:"Cereais", stock:65, image:"images/arroz.png", rating:4.9, bestSeller:true, isNew:false, discount:0, origin:"Malanje" });
+     products.push({ id:47, name:"Soja", price: 980, category:"CereaisFrutas", stock:65, image:"images/sojas.png", rating:4.9, bestSeller:true, isNew:false, discount:0, origin:"Malanje" });
+    products.push({ id:48, name:"Aveia", price: 980, category:"Cereais", stock:65, image:"images/aveia.png", rating:4.9, bestSeller:true, isNew:false, discount:0, origin:"Huíla" });
+    
+    products.push({ id:49, name:"Café", price: 980, category:"Sementes", stock:65, image:"images/cafe.png", rating:4.9, bestSeller:true, isNew:false, discount:0, origin:"Uíge" });
+     products.push({ id:50, name:"Grão de Bico", price: 980, category:"Sementes", stock:65, image:"images/grao.png", rating:4.9, bestSeller:true, isNew:false, discount:0, origin:"Huíla" });
+     products.push({ id:51, name:"Algodão", price: 980, category:"Sementes", stock:65, image:"images/algodao.png", rating:4.9, bestSeller:true, isNew:false, discount:0, origin:"Kwanza sul" });
+     products.push({ id:52, name:"Semente de Girassol", price: 980, category:"Sementes", stock:65, image:"images/girassol.png", rating:4.9, bestSeller:true, isNew:false, discount:0, origin:"Huíla" });
+     products.push({ id:53, name:"Amendoim(Ginguba)", price: 980, category:"Sementes", stock:65, image:"images/amendoin.png", rating:4.9, bestSeller:true, isNew:false, discount:0, origin:"Malanje" });
+    
+    products.push({ id:54, name:"Múcua", price: 980, category:"Frutas", stock:65, image:"images/mucua.png", rating:4.9, bestSeller:true, isNew:false, discount:0, origin:"Huíla" });
+     products.push({ id:55, name:"Amora", price: 980, category:"Frutas", stock:65, image:"images/amora.png", rating:4.9, bestSeller:true, isNew:false, discount:0, origin:"Huíla" });
+    
+    
+    // LocalStorage auxiliares
+  let cart = JSON.parse(localStorage.getItem('agro_cart')) || [];
+  let favorites = JSON.parse(localStorage.getItem('agro_favorites')) || [];   // coração
+  let wishlist = JSON.parse(localStorage.getItem('agro_wishlist')) || [];     // lista de desejos separada
+  let currentUser = localStorage.getItem('agro_user') || "Convidado";
+  let salesHistory = JSON.parse(localStorage.getItem('agro_sales')) || [];
+  
+  function saveCart() { localStorage.setItem('agro_cart', JSON.stringify(cart)); updateCartUI(); updateCartBadge(); }
+  function saveFav() { localStorage.setItem('agro_favorites', JSON.stringify(favorites)); }
+  function saveWish() { localStorage.setItem('agro_wishlist', JSON.stringify(wishlist)); }
+  function updateCartBadge() { let totalItems = cart.reduce((s,i)=>s+i.qty,0); document.getElementById('cartCountBadge').innerText = totalItems; }
+  
+  // Toast
+  function showToast(msg, type='success') { let toastDiv = document.createElement('div'); toastDiv.className = 'toast-notify'; toastDiv.innerHTML = `<i class="fas fa-${type==='success'?'check-circle':'info-circle'}"></i> ${msg}`; document.getElementById('toastContainer').appendChild(toastDiv); setTimeout(()=>toastDiv.remove(),3000); }
+  
+  // renderização catálogo com filtros
+  let currentView = 'grid';
+  let currentCategory = 'all', searchTerm = '', sortBy = 'name';
+  function renderCatalog() {
+    let filtered = products.filter(p => (currentCategory==='all' || p.category===currentCategory) && p.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    if(sortBy === 'price_asc') filtered.sort((a,b)=>a.price-b.price);
+    else if(sortBy === 'price_desc') filtered.sort((a,b)=>b.price-a.price);
+    else if(sortBy === 'rating') filtered.sort((a,b)=>b.rating-a.rating);
+    else if(sortBy === 'best') filtered.sort((a,b)=>(b.bestSeller?1:0)-(a.bestSeller?1:0));
+    else filtered.sort((a,b)=>a.name.localeCompare(b.name));
+    const container = document.getElementById('productsGrid');
+    container.innerHTML = filtered.map(p => `
+      <div class="product-card position-relative">
+        ${p.discount>0?`<div class="discount-badge">-${p.discount}%</div>`:''}
+        <img src="${p.image}" class="product-img w-100" style="height:170px; object-fit:cover; border-radius:20px;">
+        <div class="mt-2"><h6 class="fw-bold">${p.name}</h6>
+        <div class="star-rating">${Array(5).fill(0).map((_,i)=>`<i class="fa${i<Math.floor(p.rating)?'fas':'far'} fa-star"></i>`).join('')} ${p.rating}</div>
+        <p class="mb-0"><span class="fw-bold">${p.price} Kz</span> ${p.discount>0?`<del class="text-muted ms-2">${Math.round(p.price/(1-p.discount/100))} Kz</del>`:''}</p>
+        <div class="stock-indicator ${p.stock>20?'bg-success':'bg-warning'} text-dark">${p.stock>0?`Estoque: ${p.stock}`:'Esgotado'}</div>
+        <div class="mt-2 d-flex flex-wrap gap-2 justify-content-between">
+          <button class="btn-modern addCartBtn" data-id="${p.id}"><i class="fas fa-cart-plus"></i> Carrinho</button>
+          <button class="btn-modern favoriteBtn ${favorites.includes(p.id)?'active':''}" data-id="${p.id}"><i class="fas fa-heart"></i></button>
+          <button class="btn-modern wishlistBtn ${wishlist.includes(p.id)?'active':''}" data-id="${p.id}"><i class="fas fa-bookmark"></i></button>
+          <button class="btn-modern compareBtn" data-id="${p.id}"><i class="fas fa-chart-simple"></i> Comparar</button>
+          <button class="btn-modern detailBtn" data-id="${p.id}"><i class="fas fa-eye"></i></button>
+          <button class="btn-modern shareBtn" data-id="${p.id}"><i class="fas fa-share-alt"></i></button>
+        </div>
+        <div><small><i class="fas fa-map-marker-alt"></i> ${p.origin || 'Angola'}</small></div>
+        </div>
+      </div>
+    `).join('');
+    attachProductEvents();
+  }
+  function attachProductEvents() {
+    document.querySelectorAll('.addCartBtn').forEach(btn=>btn.addEventListener('click',(e)=>{ let id=parseInt(btn.dataset.id); addToCart(id); }));
+    document.querySelectorAll('.favoriteBtn').forEach(btn=>btn.addEventListener('click',()=>{ let id=parseInt(btn.dataset.id); toggleFav(id); renderCatalog(); }));
+    document.querySelectorAll('.wishlistBtn').forEach(btn=>btn.addEventListener('click',()=>{ let id=parseInt(btn.dataset.id); toggleWish(id); renderCatalog(); }));
+    document.querySelectorAll('.compareBtn').forEach(btn=>btn.addEventListener('click',()=>{ let id=parseInt(btn.dataset.id); openCompare(id); }));
+    document.querySelectorAll('.detailBtn').forEach(btn=>btn.addEventListener('click',()=>{ let id=parseInt(btn.dataset.id); openProductDetail(id); }));
+    document.querySelectorAll('.shareBtn').forEach(btn=>btn.addEventListener('click',()=>{ let id=parseInt(btn.dataset.id); shareProduct(id); }));
+  }
+  function addToCart(id) { let prod = products.find(p=>p.id===id); if(!prod) return; let item = cart.find(i=>i.id===id); if(item) item.qty+=1; else cart.push({id, name:prod.name, price:prod.price, qty:1, image:prod.image}); saveCart(); showToast(`${prod.name} adicionado ao carrinho!`); }
+  function toggleFav(id) { if(favorites.includes(id)) favorites = favorites.filter(i=>i!==id); else favorites.push(id); saveFav(); showToast(favorites.includes(id)?"Adicionado aos favoritos":"Removido dos favoritos"); }
+  function toggleWish(id) { if(wishlist.includes(id)) wishlist = wishlist.filter(i=>i!==id); else wishlist.push(id); saveWish(); showToast(wishlist.includes(id)?"Adicionado à lista de desejos":"Removido da lista de desejos"); }
+  
+  // atualizar carrinho lateral
+  function updateCartUI() { let container = document.getElementById('cartItemsList'); if(!container) return;
+    if(cart.length===0){ container.innerHTML = '<p class="text-center">Carrinho vazio</p>'; document.getElementById('cartSubtotal').innerText="0 Kz"; document.getElementById('cartTotal').innerText="0 Kz"; return; }
+    let html = ''; let subtotal = 0;
+    cart.forEach((item,idx) => { let prod = products.find(p=>p.id===item.id); let price = prod.price; let total = price*item.qty; subtotal+=total;
+      html += `<div class="cart-item"><img src="${prod.image}" width="50" height="50" style="border-radius:12px;"><div class="flex-grow-1"><strong>${item.name}</strong><br>${price} Kz</div><div class="qty-control"><button class="cart-dec" data-idx="${idx}">-</button><span class="mx-1">${item.qty}</span><button class="cart-inc" data-idx="${idx}">+</button><button class="cart-remove ms-2 text-danger" data-idx="${idx}"><i class="fas fa-trash"></i></button></div></div>`;
+    });
+    container.innerHTML = html;
+    document.getElementById('cartSubtotal').innerText = subtotal + " Kz";
+    document.getElementById('cartTotal').innerText = subtotal + " Kz";
+    document.querySelectorAll('.cart-dec').forEach(btn=>btn.addEventListener('click',()=>{ let idx=btn.dataset.idx; if(cart[idx].qty>1) cart[idx].qty--; else cart.splice(idx,1); saveCart(); updateCartUI(); }));
+    document.querySelectorAll('.cart-inc').forEach(btn=>btn.addEventListener('click',()=>{ let idx=btn.dataset.idx; cart[idx].qty++; saveCart(); updateCartUI(); }));
+    document.querySelectorAll('.cart-remove').forEach(btn=>btn.addEventListener('click',()=>{ let idx=btn.dataset.idx; cart.splice(idx,1); saveCart(); updateCartUI(); }));
+  }
+  
+  // Abrir carrinho
+  document.getElementById('cartIconBtn').addEventListener('click',()=>document.getElementById('cartDrawer').classList.add('open'));
+  document.getElementById('closeCartBtn').addEventListener('click',()=>document.getElementById('cartDrawer').classList.remove('open'));
+  document.getElementById('continueShoppingBtn').addEventListener('click',()=>document.getElementById('cartDrawer').classList.remove('open'));
+  document.getElementById('checkoutBtnMain').addEventListener('click',()=>{ if(cart.length===0){ showToast("Carrinho vazio","info"); return; } alert("Simulação de finalização: enviaremos pedido por WhatsApp. Integração futura com pagamento online."); });
+  
+  // Histórico visualizações & recomendações
+  let viewedProducts = JSON.parse(localStorage.getItem('viewedHistory')) || [];
+  function addViewed(id){ viewedProducts = viewedProducts.filter(i=>i!==id); viewedProducts.unshift(id); if(viewedProducts.length>5) viewedProducts.pop(); localStorage.setItem('viewedHistory',JSON.stringify(viewedProducts)); }
+  function openProductDetail(id){ addViewed(id); let prod = products.find(p=>p.id===id); let reviewsHtml = (prod.reviews||[]).map(r=>`<div class="border-bottom p-2">⭐ ${r}</div>`).join('');
+    document.getElementById('detailContent').innerHTML = `<div class="p-4"><div class="row"><div class="col-md-5"><img src="${prod.image}" class="img-fluid rounded-4"></div><div class="col-md-7"><h3>${prod.name}</h3><p><strong>Origem:</strong> ${prod.origin || "Angola"}  |  <strong>Qualidade:</strong> ${prod.quality||"Alta"}</p><p>Preço: ${prod.price} Kz | Estoque: ${prod.stock} | Avaliação: ${prod.rating}★</p><p>Localização produtor: <i class="fas fa-location-dot"></i> ${prod.sellerLocation||"Huambo"}</p><button class="btn-modern addCartBtn" data-id="${prod.id}"><i class="fas fa-cart-shopping"></i> Comprar</button> <button id="shareQRBtn" class="btn-modern"><i class="fas fa-qrcode"></i> Gerar QR</button></div><div class="col-12 mt-4"><h6>Avaliações e comentários</h6>${reviewsHtml||"Nenhum comentário"}<textarea id="newReviewTxt" class="form-control mt-2" placeholder="Deixe seu feedback..."></textarea><button id="submitReviewBtn" data-id="${prod.id}" class="btn-modern mt-2">Enviar avaliação</button></div></div></div>`;
+    document.querySelector('#detailContent .addCartBtn')?.addEventListener('click',()=>addToCart(prod.id));
+    document.getElementById('shareQRBtn')?.addEventListener('click',()=>shareProduct(prod.id));
+    document.getElementById('submitReviewBtn')?.addEventListener('click',()=>{ let rev = document.getElementById('newReviewTxt').value; if(rev) { if(!prod.reviews) prod.reviews=[]; prod.reviews.push(rev); showToast("Comentário adicionado"); openProductDetail(id); } });
+    new bootstrap.Modal(document.getElementById('productDetailModal')).show();
+  }
+  function shareProduct(id){ let prod = products.find(p=>p.id===id); let url = window.location.href; let text = `🌿 ${prod.name} - ${prod.price} Kz - AgroCampo`; if(confirm("Partilhar via WhatsApp?")) window.open(`https://wa.me/?text=${encodeURIComponent(text+" "+url)}`); else { let qrDiv = document.createElement('div'); new QRCode(qrDiv, {text: `${url}?produto=${id}`, width:150}); alert("QR Code gerado!","info"); showToast("Código QR pronto para partilha"); } }
+  function openCompare(selectedId){ let compareList = JSON.parse(localStorage.getItem('compareList')) || []; if(!compareList.includes(selectedId) && compareList.length<3) compareList.push(selectedId); localStorage.setItem('compareList',JSON.stringify(compareList)); let prods = products.filter(p=>compareList.includes(p.id)); let html = `<table class="table"><thead><tr>${prods.map(p=>`<th>${p.name}</th>`).join('')}</tr></thead><tbody><tr>${prods.map(p=>`<td><img src="${p.image}" width="100"></td>`).join('')}</tr><tr>${prods.map(p=>`<td>Preço: ${p.price} Kz<br>Rating: ${p.rating}★<br>Estoque: ${p.stock}</td>`).join('')}</tr></tbody></table><button id="clearCompareBtn" class="btn-modern">Limpar comparação</button>`;
+    document.getElementById('compareTableBody').innerHTML = html; document.getElementById('clearCompareBtn')?.addEventListener('click',()=>{ localStorage.removeItem('compareList'); document.getElementById('compareTableBody').innerHTML="<p>Sem produtos para comparar</p>"; }); new bootstrap.Modal(document.getElementById('compareModal')).show(); }
+  
+  // ADMIN DASHBOARD
+  let salesChart; function loadAdminDashboard() { let ctx = document.getElementById('salesChart').getContext('2d'); if(salesChart) salesChart.destroy(); salesChart = new Chart(ctx, { type: 'line', data: { labels: ['Sem1','Sem2','Sem3','Sem4'], datasets: [{ label: 'Vendas (Kz)', data: [12500,18400,14200,22600], borderColor: '#6fde9c' }] } }); document.getElementById('salesStatsText').innerHTML = `Total Vendas Simuladas: 67.700 Kz | Produtos vendidos: 342 unidades`; let adminList = document.getElementById('adminProductList'); adminList.innerHTML = products.map(p=>`<div class="d-flex justify-content-between mb-1"><span>${p.name} - Estoque: ${p.stock}</span><button class="btn-sm btn-modern editProdAdmin" data-id="${p.id}">Editar</button></div>`).join(''); document.querySelectorAll('.editProdAdmin').forEach(btn=>btn.addEventListener('click',()=>{ let id = parseInt(btn.dataset.id); let prod=products.find(p=>p.id===id); let newStock = prompt("Novo stock", prod.stock); if(newStock) prod.stock=parseInt(newStock); localStorage.setItem('agro_products',JSON.stringify(products)); renderCatalog(); loadAdminDashboard(); })); if(window.L) { let map = L.map('adminMap').setView([-12.78,15.74],6); L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map); L.marker([-12.78,15.74]).bindPopup("Huambo (Agricultores)").addTo(map); } }
+  document.getElementById('adminDashboardBtn').addEventListener('click',()=>{ loadAdminDashboard(); new bootstrap.Modal(document.getElementById('adminModal')).show(); });
+  document.getElementById('addNewProductAdmin')?.addEventListener('click',()=>{ let newName = prompt("Nome produto"); if(newName){ let newId = Date.now(); products.push({ id:newId, name:newName, price:1000, category:"Outros", stock:50, image:"https://images.unsplash.com/photo-1523741548819-248aa1db8c1c?w=400", rating:0, bestSeller:false }); renderCatalog(); loadAdminDashboard(); } });
+  
+  // FILTROS EVENTOS
+  document.getElementById('searchInput').addEventListener('input',e=>{ searchTerm=e.target.value; renderCatalog(); });
+  document.getElementById('categoryFilter').addEventListener('change',e=>{ currentCategory=e.target.value; renderCatalog(); });
+  document.getElementById('sortSelect').addEventListener('change',e=>{ sortBy=e.target.value; renderCatalog(); });
+  document.getElementById('resetFiltersBtn').addEventListener('click',()=>{ searchTerm=''; currentCategory='all'; sortBy='name'; document.getElementById('searchInput').value=''; document.getElementById('categoryFilter').value='all'; document.getElementById('sortSelect').value='name'; renderCatalog(); });
+  document.getElementById('gridViewBtn').addEventListener('click',()=>{ document.getElementById('productsContainer').className='grid-view'; currentView='grid'; renderCatalog(); });
+  document.getElementById('listViewBtn').addEventListener('click',()=>{ document.getElementById('productsContainer').className='list-view'; currentView='list'; renderCatalog(); });
+  document.getElementById('myWishlistBtn').addEventListener('click',()=>{ let wishProds = products.filter(p=>wishlist.includes(p.id)); alert("Lista de desejos:\n"+wishProds.map(p=>p.name).join("\n")); });
+  document.getElementById('myFavoritesBtn').addEventListener('click',()=>{ let favProds = products.filter(p=>favorites.includes(p.id)); alert("Favoritos:\n"+favProds.map(p=>p.name).join("\n")); });
+  document.getElementById('quickLoginBtn').addEventListener('click',()=>new bootstrap.Modal(document.getElementById('loginModal')).show());
+  document.getElementById('doLoginBtn').addEventListener('click',()=>{ let name=document.getElementById('loginName').value; if(name) localStorage.setItem('agro_user',name); showToast(`Bem-vindo ${name||"Visitante"}!`); });
+  document.getElementById('applyCouponBtn').addEventListener('click',()=>{ showToast("Cupom COLHEITA20 aplicado! 20% de desconto total (simulação)"); });
+  // Inicializar
+  renderCatalog(); updateCartUI(); updateCartBadge();
+  // Tema escuro
+  document.getElementById('darkModeToggle').addEventListener('change',(e)=>{ if(e.target.checked) document.body.classList.add('light'); else document.body.classList.remove('light'); localStorage.setItem('theme',e.target.checked?'light':'dark'); });
+  if(localStorage.getItem('theme')==='light'){ document.getElementById('darkModeToggle').checked=true; document.body.classList.add('light'); }
+  // Popular best sellers e novos produtos
+  document.getElementById('bestSellersList').innerHTML = products.filter(p=>p.bestSeller).slice(0,3).map(p=>`<span class="badge bg-warning text-dark">${p.name}</span>`).join(' ');
+  document.getElementById('newProductsList').innerHTML = products.filter(p=>p.isNew).slice(0,3).map(p=>`<span class="badge bg-info">${p.name}</span>`).join(' ');
+  // Inicializar favicon extra
+  console.log("AgroCampo moderno carregado com todos os recursos: carrinho drawer, favoritos, lista desejos, comparação, dashboard admin, QR, partilha");
+</script>
+</body>
+</html>

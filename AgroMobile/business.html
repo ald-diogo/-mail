@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>AgroLux | Sala de Negociação — Assistente Inteligente</title>
+    <!-- Bootstrap 5 + Ícones + Fonts -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Times New Roman', Times, serif; }
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #EFFAF5;
+            transition: background 0.3s ease, color 0.2s;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        .carousel-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            overflow: hidden;
+        }
+        .carousel-bg .carousel-inner, .carousel-bg .carousel-item { height: 100%; }
+        .carousel-bg .carousel-item img { width: 100%; height: 100%; object-fit: cover; }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: -1;
+            pointer-events: none;
+            transition: background 0.3s;
+        }
+        body.light::before { background: rgba(230, 245, 235, 0.88); }
+        body.light { color: #143523; }
+        body.light .glass-bg { background: rgba(240, 250, 245, 0.92); border-color: rgba(60, 110, 80, 0.25); color: #143523; }
+        body.light .sidebar { background: rgba(230, 245, 235, 0.95); border-right-color: rgba(60, 110, 80, 0.3); }
+        body.light .sidebar .nav-link { color: #1C4F3A; }
+        body.light .sidebar .nav-link.active { background: rgba(30, 100, 70, 0.2); color: #0A3B28; }
+        body.light .card-flat { background: rgba(235, 248, 240, 0.85); border-color: rgba(60, 110, 80, 0.2); }
+        body.light .lead-card { background: rgba(200, 220, 200, 0.9); color: #0A2E1F; border-color: #6FDE9C; }
+        body.light .chat-widget { background: rgba(240, 248, 242, 0.98); color: #143523; }
+        .app-container { display: flex; height: 100vh; width: 100%; overflow: hidden; }
+        .sidebar {
+            width: 260px;
+            flex-shrink: 0;
+            background: rgba(12, 24, 20, 0.85);
+            backdrop-filter: blur(12px);
+            border-right: 1px solid rgba(90, 180, 120, 0.3);
+            transition: width 0.3s, left 0.3s;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+        .sidebar.collapsed { width: 80px; }
+        .sidebar.collapsed .sidebar-brand span,
+        .sidebar.collapsed .nav-link span:not(.menu-icon) { display: none; }
+        .sidebar-brand { padding: 24px 20px; font-size: 1.6rem; font-weight: 800; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(90, 180, 120, 0.3); }
+        .nav-link { color: #E2F0E8; padding: 12px 20px; margin: 4px 8px; display: flex; align-items: center; gap: 14px; font-weight: 500; border-radius: 12px; }
+        .nav-link.active { background: rgba(111, 222, 156, 0.2); border-left: 3px solid #6FDE9C; }
+        .menu-icon { width: 28px; font-size: 1.2rem; }
+        .sidebar-footer { margin-top: auto; padding: 20px; font-size: 0.7rem; text-align: center; border-top: 1px solid rgba(90, 180, 120, 0.2); }
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            background: rgba(10, 18, 16, 0.4);
+            position: relative;
+            z-index: 1;
+        }
+        .topbar {
+            padding: 12px 24px;
+            background: rgba(12, 24, 20, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(90, 180, 120, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 1010;
+        }
+        .datetime-extenso {
+            margin: 12px 20px 0 20px;
+            border-radius: 28px;
+            padding: 12px 20px;
+            font-weight: 500;
+            backdrop-filter: blur(12px);
+            background: rgba(18, 32, 28, 0.65);
+            border: 1px solid rgba(90, 180, 120, 0.3);
+            font-size: 0.95rem;
+        }
+        .card-flat {
+            background: rgba(18, 32, 28, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(90, 180, 120, 0.25);
+            border-radius: 20px;
+            padding: 1.2rem;
+            transition: 0.2s;
+            height: 100%;
+        }
+        .lead-card {
+            background: rgba(30, 50, 40, 0.85);
+            backdrop-filter: blur(8px);
+            border-radius: 20px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #6FDE9C;
+            transition: 0.2s;
+        }
+        .btn-icon-sm {
+            background: none;
+            border: none;
+            color: #6FDE9C;
+            margin: 0 4px;
+            transition: 0.2s;
+            font-size: 1.1rem;
+        }
+        .btn-icon-sm:hover { transform: scale(1.1); color: white; }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #E3FFED, #A5E0BB);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1.2;
+        }
+        .btn-outline-glass {
+            background: transparent;
+            border: 1px solid rgba(111, 222, 156, 0.6);
+            color: inherit;
+            padding: 6px 16px;
+            transition: 0.2s;
+            border-radius: 40px;
+        }
+        .btn-outline-glass:hover { background: rgba(111, 222, 156, 0.2); }
+        .theme-switch-wrapper { display: flex; align-items: center; }
+        .theme-switch { position: relative; display: inline-block; width: 60px; height: 30px; }
+        .theme-switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #2c3e2f;
+            transition: 0.3s;
+            border-radius: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 6px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 24px;
+            width: 24px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+            z-index: 2;
+        }
+        input:checked + .slider { background-color: #6FDE9C; }
+        input:checked + .slider:before { transform: translateX(30px); }
+        .avatar-img { width: 42px; height: 42px; object-fit: cover; border-radius: 50%; border: 1px solid #6FDE9C; cursor: pointer; }
+        .dropdown-menu { background: rgba(20, 35, 30, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(111, 222, 156, 0.5); border-radius: 20px; }
+        .dropdown-item { border-radius: 12px; color: #EFFAF5; }
+        .dropdown-item:hover { background: rgba(111, 222, 156, 0.2); color: #6FDE9C; }
+        @media (max-width: 768px) {
+            .sidebar { position: fixed; left: -280px; top: 0; height: 100%; width: 260px; transition: left 0.3s ease; z-index: 1050; }
+            .sidebar.mobile-open { left: 0; }
+            .menu-toggle { display: block !important; }
+        }
+        .menu-toggle { display: none; font-size: 1.5rem; cursor: pointer; background: none; border: none; color: #6FDE9C; }
+        .modal-content { background: #1A2E26; color: #EFFAF5; border-radius: 24px; }
+        body.light .modal-content { background: #F0F8F2; color: #143523; }
+        .floating-social {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 1100;
+        }
+        .social-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            color: white;
+            transition: 0.2s;
+            text-decoration: none;
+            border: 1px solid rgba(111, 222, 156, 0.5);
+            cursor: pointer;
+        }
+        .social-icon:hover { transform: scale(1.1); background: #6FDE9C; color: #0A1210; }
+        .chat-widget {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 320px;
+            background: rgba(20, 35, 30, 0.95);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            border: 1px solid #6FDE9C;
+            z-index: 1150;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .chat-header { background: #0F2A20; padding: 12px 15px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #6FDE9C; }
+        .chat-messages { height: 260px; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+        .chat-bubble-user { background-color: #dcf8c5; border-radius: 15px 15px 5px 15px; padding: 8px 12px; max-width: 85%; text-align: right; color: #000; }
+        .chat-bubble-bot { background-color: #f1f0f0; border-radius: 15px 15px 15px 5px; padding: 8px 12px; max-width: 85%; text-align: left; color: #000; }
+        .chat-input-area { display: flex; border-top: 1px solid rgba(111,222,156,0.4); padding: 8px; gap: 6px; }
+        .chat-input-area input { flex: 1; background: rgba(255,255,255,0.1); border: none; outline: none; color: inherit; padding: 8px 12px; border-radius: 50px; }
+        .signature-pad { border: 1px dashed #6FDE9C; border-radius: 12px; background: rgba(255,255,255,0.1); height: 120px; width: 100%; margin-top: 10px; cursor: crosshair; }
+        .logo-panel { width: 24px; height: 24px; vertical-align: middle; margin-right: 5px; border-radius: 50%; }
+        .logo-point { width: 100px; height: 50px; }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #1A2E26; }
+        ::-webkit-scrollbar-thumb { background: #6FDE9C; }
+        .info-text { font-size: 0.8rem; color: #a0d6b0; margin-top: 8px; }
+      
+      
+      
+         .chatbot-btn { background: #1B6B48; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .chat-widget {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 320px;
+            background: rgba(20, 35, 30, 0.95);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            border: 1px solid #6FDE9C;
+            z-index: 1150;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+        .chat-header {
+            background: #0F2A20;
+            padding: 12px 15px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #6FDE9C;
+        }
+        .chat-messages {
+            height: 260px;
+            overflow-y: auto;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .chat-msg-wrapper { display: flex; width: 100%; margin-bottom: 6px; }
+        .chat-msg-user { justify-content: flex-end; }
+        .chat-msg-bot { justify-content: flex-start; }
+        .chat-bubble-user {
+            background-color: #dcf8c5;
+            border-radius: 15px 15px 5px 15px;
+            padding: 8px 12px;
+            max-width: 85%;
+            text-align: right;
+            color: #000000;
+        }
+        .chat-bubble-bot {
+            background-color: #f1f0f0;
+            border-radius: 15px 15px 15px 5px;
+            padding: 8px 12px;
+            max-width: 85%;
+            text-align: left;
+            color: #000000;
+        }
+        .logo-maker, .logo-panel { border-radius: 50px; width: 30px; height: 30px; }
+        .chat-input-area { 
+            display: flex;
+            border-top: 1px solid rgba(111,222,156,0.4); 
+            padding: 8px;
+            gap: 6px;
+        }
+        .chat-input-area input { flex: 1; background: rgba(255,255,255,0.1); border: none; outline: none; color: inherit; padding: 8px 12px; border-radius: 50px; }
+        .product-image-thumb { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; margin-right: 10px; }
+        .share-buttons i { font-size: 1.2rem; margin: 0 4px; cursor: pointer; color: #6FDE9C; }
+        .btn-outline-adaptive { 
+            background: transparent;
+            border: 1px solid #6FDE9C; border-radius: 40px; 
+            padding: 4px 12px; color: inherit; text-decoration: none; font-size: 0.8rem; }
+        
+              /* Outher CSS */
+    .logo-maker{
+      border-radius: 50px;
+      width: 50px;
+      height: 50px;
+    }
+    
+    .logo-panel{
+      border-radius: 50px;
+      width: 30px;
+      height: 30px;
+    }
+        
+        .logo-panel { 
+            width: 24px;
+            height: 24px; 
+            vertical-align: middle;
+            margin-right: 5px; 
+        }
+        
+        .logo-point {
+            width: 100px; 
+            height: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div id="bgCarousel" class="carousel-bg carousel slide" data-bs-ride="carousel" data-bs-interval="8000">
+        <div class="carousel-inner">
+            <div class="carousel-item active"><img src="https://images.unsplash.com/photo-1523348837708-15c4f6fee8b4?q=80&w=2070&auto=format" alt="Campo"></div>
+            <div class="carousel-item"><img src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?q=80&w=2070&auto=format" alt="Colheita"></div>
+            <div class="carousel-item"><img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2070&auto=format" alt="Trator"></div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#bgCarousel" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
+        <button class="carousel-control-next" type="button" data-bs-target="#bgCarousel" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>
+    </div>
+
+    <div class="app-container">
+        <div class="main-content">
+            <div class="topbar">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="menu-toggle" id="mobileMenuToggle"><i class="fas fa-bars fa-lg"></i></div>
+                    <h5 class="mb-0">
+                        <a href="index.html" >
+                            <img 
+                                 src="images/Lux-logo-bg.png" 
+                                 class="logo-point" 
+                                 onerror="this.style.display='none'"/>
+                        </a>
+                    </h5>
+                </div>
+                <div class="d-flex gap-3 align-items-center flex-wrap">
+                    <div id="weatherWidget"><i class="fas fa-cloud-sun"></i> <span id="weatherTemp">--°C</span> <span id="weatherDesc">carregando...</span></div>
+                    <div class="timer-ring" id="timerWidget" style="position:relative; width:48px; height:48px; cursor:pointer;">
+                        <svg width="48" height="48"><circle cx="24" cy="24" r="21" fill="none" stroke="rgba(200,240,210,0.3)" stroke-width="3"></circle><circle cx="24" cy="24" r="21" fill="none" stroke="#6FDE9C" stroke-width="3" stroke-dasharray="131.95" stroke-dashoffset="0" id="timerProgressCircle"></circle></svg>
+                        <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:0.65rem; font-weight:700;" id="timerText">15:00</div>
+                    </div>
+                    <div class="theme-switch-wrapper"><label class="theme-switch"><input type="checkbox" id="themeToggleCheckbox"><div class="slider"><i class="fas fa-sun"></i><i class="fas fa-moon"></i></div></label></div>
+                    <div class="dropdown">
+                        <button class="btn-outline-glass dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-globe"></i> <span id="langLabel">PT</span></button>
+                        <ul class="dropdown-menu dropdown-menu-dark"><li><a class="dropdown-item lang-opt" data-lang="pt">🇵🇹 Português</a></li><li><a class="dropdown-item lang-opt" data-lang="en">🇺🇸 English</a></li></ul>
+                    </div>
+                    <div class="dropdown">
+                        <img id="profileAvatar" class="avatar-img" src="https://randomuser.me/api/portraits/men/32.jpg" data-bs-toggle="dropdown">
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" id="profileOption"><i class="fas fa-id-card"></i> Meu Perfil</a></li>
+                            <li><a class="dropdown-item" id="changeAvatarOption"><i class="fas fa-camera"></i> Alterar foto</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a href="#" class="dropdown-item" id="logoutOption"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="datetime-extenso d-flex justify-content-between"><span><i class="far fa-calendar-alt me-2"></i> <span id="fullDateExtenso">Carregando...</span></span><span><i class="far fa-clock me-2"></i> <span id="fullTimeExtenso">--:--:--</span></span></div>
+            
+            <div class="p-3" style="overflow-y: auto;">
+                <!-- Cabeçalho com perfil e indicadores -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card-flat d-flex align-items-center gap-3">
+                            <img id="farmerAvatar" src="https://randomuser.me/api/portraits/men/32.jpg" style="width:70px; height:70px; border-radius: 50%; border:2px solid #6FDE9C;">
+                            <div>
+                                <h3><span id="farmerName">António Diogo</span> <i class="fas fa-check-circle text-success"></i></h3>
+                                <p><i class="fas fa-tractor"></i> Fazenda: <span id="farmLocation">Huambo, Angola</span><br><i class="fas fa-map-marker-alt"></i> <span id="farmerBio">Produtor sustentável</span></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card-flat">
+                            <div class="row text-center">
+                                <div class="col-3"><div class="stat-value" id="negociacoesAtivas">0</div><small>Negociações</small></div>
+                                <div class="col-3"><div class="stat-value" id="propostasEnviadas">0</div><small>Propostas</small></div>
+                                <div class="col-3"><div class="stat-value" id="reunioesAgendadas">0</div><small>Reuniões</small></div>
+                                <div class="col-3"><div class="stat-value" id="taxaResposta">0%</div><small>Taxa resp.</small></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Explicação realista -->
+                <div class="alert alert-info bg-transparent border-info text-info mb-3" role="alert">
+                    <i class="fas fa-lightbulb"></i> <strong>Como funciona:</strong> A conversa real acontece no WhatsApp, Facebook ou Instagram. Esta sala organiza os seus contactos, ajuda a criar propostas e agendar reuniões. Clique nos botões para falar directamente com o interessado na rede social dele.
+                </div>
+
+                <!-- Central de Leads + Dashboard lateral -->
+                <div class="row g-3">
+                    <div class="col-lg-8">
+                        <div class="card-flat">
+                            <h5><i class="fas fa-users"></i> Central de Leads <small class="text-muted">(Pessoas que demonstraram interesse)</small></h5>
+                            <div id="leadsContainer">Carregando leads...</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card-flat">
+                            <h5><i class="fas fa-chart-simple"></i> Dashboard de Negócios</h5>
+                            <canvas id="negociosChart" height="180" style="max-height:180px;"></canvas>
+                            <hr>
+                            <div><i class="fas fa-box"></i> Produto mais procurado: <strong id="topProduto">Milho</strong></div>
+                            <div><i class="fas fa-user-check"></i> Clientes ativos: <span id="clientesAtivos">0</span></div>
+                            <button class="btn-outline-glass w-100 mt-2" id="gerarRelatorioBtn"><i class="fas fa-file-pdf"></i> Exportar Relatório</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAIS -->
+    <div class="modal fade" id="profileEditModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5><i class="fas fa-user-edit"></i> Editar Perfil</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="text" id="editNome" class="form-control mb-2" placeholder="Nome completo"><input type="text" id="editFazenda" class="form-control mb-2" placeholder="Localização da fazenda"><textarea id="editBio" class="form-control mb-2" rows="2" placeholder="Biografia"></textarea><label>Foto</label><input type="file" id="editAvatarInput" accept="image/*" class="form-control"></div><div class="modal-footer"><button class="btn-outline-glass" data-bs-dismiss="modal">Cancelar</button><button class="btn-outline-glass" id="saveProfileBtn">Guardar</button></div></div></div></div>
+
+    <div class="modal fade" id="propostaModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5><i class="fas fa-file-signature"></i> Criar Proposta Comercial</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="text" id="propLeadId" hidden><div class="mb-2"><label>Produto</label><input id="propProduto" class="form-control" placeholder="Ex: Milho branco"></div><div class="mb-2"><label>Quantidade (kg)</label><input id="propQuantidade" type="number" class="form-control"></div><div class="mb-2"><label>Preço (Kz/kg)</label><input id="propPreco" type="number" class="form-control"></div><div class="mb-2"><label>Transporte</label><select id="propTransporte" class="form-control"><option>Por minha conta</option><option>Comprador assume</option><option>Negociável</option></select></div><div class="mb-2"><label>Pagamento</label><select id="propPagamento" class="form-control"><option>Transferência bancária</option><option>Cash na entrega</option><option>Emoldurado</option></select></div><div class="mb-2"><label>Prazo entrega</label><input type="date" id="propPrazo" class="form-control"></div><div class="mb-2"><label>Assinatura digital (desenhe abaixo)</label><canvas id="signatureCanvas" class="signature-pad" width="400" height="120" style="background:white; border-radius:12px;"></canvas><button type="button" id="clearSignature" class="btn-sm btn-outline-glass mt-1">Limpar</button></div><div class="mb-2"><label>Confirmar com OTP (simulado)</label><input id="otpCode" class="form-control" placeholder="Digite 1234 para aceitar"></div></div><div class="modal-footer"><button class="btn-outline-glass" data-bs-dismiss="modal">Cancelar</button><button class="btn-outline-glass" id="finalizarPropostaBtn">Enviar Proposta</button></div></div></div></div>
+
+    <div class="modal fade" id="reuniaoModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5><i class="fas fa-calendar-plus"></i> Agendar Reunião</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input id="meetingLeadId" hidden><div class="mb-2"><label>Data e Hora</label><input type="datetime-local" id="meetingDateTime" class="form-control"></div><div class="mb-2"><label>Tipo</label><select id="meetingType" class="form-control"><option>Online (Google Meet)</option><option>Presencial</option><option>WhatsApp Video</option></select></div><div class="form-check mb-2"><input class="form-check-input" type="checkbox" id="lembreteCheck"> <label>Enviar lembrete automático</label></div></div><div class="modal-footer"><button class="btn-outline-glass" data-bs-dismiss="modal">Cancelar</button><button class="btn-outline-glass" id="salvarReuniaoBtn">Agendar</button></div></div></div></div>
+
+    <div class="modal fade" id="denunciarModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5><i class="fas fa-flag"></i> Denunciar Comprador</h5></div><div class="modal-body"><p>Informe o motivo:</p><textarea id="denunciaMotivo" class="form-control" rows="2"></textarea><div class="mt-2"><button class="btn-outline-glass" id="bloquearBtn">Bloquear Utilizador</button></div></div><div class="modal-footer"><button class="btn-outline-glass" data-bs-dismiss="modal">Cancelar</button><button class="btn-outline-glass" id="confirmDenuncia">Enviar Denúncia</button></div></div></div></div>
+
+    <div class="modal fade" id="iaSugestaoModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5><i class="fas fa-robot"></i> Sugestão da IA</h5></div><div class="modal-body" id="iaSugestaoTexto"></div></div></div></div>
+
+    <!-- Elementos flutuantes + Chatbot assistente -->
+    <div class="floating-social">
+        <a href="https://facebook.com/agrolux.ao" target="_blank" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://instagram.com/agrolux.ao" target="_blank" class="social-icon"><i class="fab fa-instagram"></i></a>
+        <a href="https://wa.me/244923456789" target="_blank" class="social-icon"><i class="fab fa-whatsapp"></i></a>
+       
+      <div class="social-icon chatbot-btn" id="chatWidgetBtn">
+            <img class="logo-maker" src="images/agri-bot.png"/> 
+      </div>
+      
+    </div>
+  
+     <!-- CHATBOT AVANÇADO -->
+    <div id="chatWidget" class="chat-widget">
+        <div class="chat-header">
+            <span><img class="logo-panel" src="images/ia-busy.jpg" onerror="this.src='https://via.placeholder.com/24'"> AgroBot</span>
+            <i class="fas fa-times" id="closeChatBtn" style="cursor:pointer;"></i>
+        </div>
+        <div id="chatMessages" class="chat-messages"></div>
+        <div class="container-especialista text-center">
+            <a href="front-busy.html" class="btn btn-outline-adaptive" id="falarEspecialista">Falar com Agrobusy</a>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="chatInput" placeholder="Pergunte...">
+            <button id="chatSend" class="btn btn-sm btn-success" style="border-radius: 50px;">➤</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // LEADS (interessados simulados)
+        let leads = JSON.parse(localStorage.getItem("negociacao_leads")) || [
+            { id: 1, nome: "Carlos Mendes", localizacao: "Luanda", produtoInteresse: "Mandioca", origem: "whatsapp", estado: "em negociação", confianca: 85, ultimaAtividade: new Date().toISOString(), bloqueado: false, denunciado: false, reuniao: null, proposta: null, telefone: "244923456789" },
+            { id: 2, nome: "Fernanda Kiala", localizacao: "Benguela", produtoInteresse: "Milho", origem: "facebook", estado: "proposta enviada", confianca: 92, ultimaAtividade: new Date().toISOString(), bloqueado: false, denunciado: false, reuniao: { data: "2025-03-01T14:00", tipo: "Online (Google Meet)" }, proposta: null, telefone: "244912345678" },
+            { id: 3, nome: "João Victor", localizacao: "Huíla", produtoInteresse: "Feijão", origem: "instagram", estado: "primeiro contato", confianca: 70, ultimaAtividade: new Date().toISOString(), bloqueado: false, denunciado: false, reuniao: null, proposta: null, telefone: "244933334444" }
+        ];
+        let propostas = JSON.parse(localStorage.getItem("negociacao_propostas")) || [];
+        let reunioes = JSON.parse(localStorage.getItem("negociacao_reunioes")) || [];
+
+        // PERFIL
+        let userProfile = JSON.parse(localStorage.getItem("agrolux_userProfile")) || { nome: "António Diogo", telefone: "+244 938 089 671", fazenda: "Huambo, Angola", bio: "Agricultor focado em produção sustentável.", avatar: "https://randomuser.me/api/portraits/men/32.jpg" };
+        function atualizarPerfilUI() { 
+            document.getElementById('farmerName').innerText = userProfile.nome; 
+            document.getElementById('farmLocation').innerText = userProfile.fazenda;
+            document.getElementById('farmerBio').innerText = userProfile.bio;
+            if(userProfile.avatar) document.getElementById('farmerAvatar').src = userProfile.avatar;
+            document.getElementById('profileAvatar').src = userProfile.avatar || "https://randomuser.me/api/portraits/men/32.jpg";
+        }
+        function salvarPerfil() { localStorage.setItem("agrolux_userProfile", JSON.stringify(userProfile)); atualizarPerfilUI(); }
+
+        // INDICADORES E GRÁFICO
+        function atualizarIndicadores() {
+            let ativas = leads.filter(l => !l.bloqueado && l.estado !== "fechado").length;
+            let propostasEnviadas = leads.filter(l => l.proposta !== null).length + propostas.length;
+            let reunioesAgendadas = leads.filter(l => l.reuniao !== null).length + reunioes.length;
+            let taxa = leads.length ? Math.round((propostasEnviadas / leads.length) * 100) : 0;
+            document.getElementById('negociacoesAtivas').innerText = ativas;
+            document.getElementById('propostasEnviadas').innerText = propostasEnviadas;
+            document.getElementById('reunioesAgendadas').innerText = reunioesAgendadas;
+            document.getElementById('taxaResposta').innerText = taxa;
+            document.getElementById('clientesAtivos').innerText = leads.filter(l => !l.bloqueado).length;
+            let produtosCount = {};
+            leads.forEach(l => { produtosCount[l.produtoInteresse] = (produtosCount[l.produtoInteresse] || 0) + 1; });
+            let top = Object.keys(produtosCount).length ? Object.keys(produtosCount).reduce((a,b) => produtosCount[a] > produtosCount[b] ? a : b) : "Milho";
+            document.getElementById('topProduto').innerText = top;
+            atualizarGraficoNegocios();
+        }
+        let negociosChart = null;
+        function atualizarGraficoNegocios() {
+            const ctx = document.getElementById('negociosChart').getContext('2d');
+            const estados = ["primeiro contato", "em negociação", "proposta enviada", "fechado"];
+            const counts = estados.map(e => leads.filter(l => l.estado === e).length);
+            if(negociosChart) negociosChart.destroy();
+            negociosChart = new Chart(ctx, { type: 'doughnut', data: { labels: estados, datasets: [{ data: counts, backgroundColor: ['#6FDE9C', '#FFC107', '#17A2B8', '#6c757d'] }] }, options: { responsive: true, maintainAspectRatio: true } });
+        }
+
+        // RENDER LEADS - com redirecionamento para redes sociais
+        function renderLeads() {
+            const container = document.getElementById('leadsContainer');
+            if(!leads.length) { container.innerHTML = '<p class="text-muted">Ainda não há leads. Publique produtos e compartilhe nas redes sociais para atrair interessados.</p>'; return; }
+            let html = '';
+            leads.forEach(lead => {
+                if(lead.bloqueado) return;
+                let origemIcon = { whatsapp: '<i class="fab fa-whatsapp"></i>', facebook: '<i class="fab fa-facebook"></i>', instagram: '<i class="fab fa-instagram"></i>' }[lead.origem] || '<i class="fas fa-globe"></i>';
+                let estadoBadge = { 'primeiro contato':'secondary', 'em negociação':'warning', 'proposta enviada':'info', 'fechado':'success' }[lead.estado] || 'light';
+                // Números de telefone simulados (podem ser personalizados)
+                let phoneNumber = lead.telefone || "244923456789";
+                let whatsappLink = `https://wa.me/${phoneNumber}?text=Olá ${lead.nome}, vi seu interesse em ${lead.produtoInteresse}. Vamos conversar!`;
+                let messengerLink = `https://m.me/agrolux.ao?text=Olá!`;
+                let instagramLink = `https://instagram.com/agrolux.ao`;
+                html += `<div class="lead-card" data-id="${lead.id}">
+                    <div class="d-flex justify-content-between">
+                        <div><strong>${lead.nome}</strong> ${origemIcon} <span class="badge bg-${estadoBadge}">${lead.estado}</span></div>
+                        <div><i class="fas fa-star" style="color:gold"></i> ${lead.confianca}%</div>
+                    </div>
+                    <div><small><i class="fas fa-map-marker-alt"></i> ${lead.localizacao} • 🌽 ${lead.produtoInteresse}</small></div>
+                    <div class="mt-2">
+                        <button class="btn-icon-sm" onclick="abrirContacto('${whatsappLink}')" title="Abrir WhatsApp"><i class="fab fa-whatsapp"></i></button>
+                        <button class="btn-icon-sm" onclick="abrirContacto('${messengerLink}')" title="Abrir Messenger"><i class="fab fa-facebook-messenger"></i></button>
+                        <button class="btn-icon-sm" onclick="abrirContacto('${instagramLink}')" title="Abrir Instagram"><i class="fab fa-instagram"></i></button>
+                        <button class="btn-icon-sm" onclick="abrirContacto('tel:${phoneNumber}')" title="Ligar"><i class="fas fa-phone-alt"></i></button>
+                        <button class="btn-icon-sm" onclick="criarProposta(${lead.id})"><i class="fas fa-file-contract"></i> Proposta</button>
+                        <button class="btn-icon-sm" onclick="agendarReuniao(${lead.id})"><i class="fas fa-calendar-alt"></i> Reunião</button>
+                        <button class="btn-icon-sm" onclick="sugestaoIA(${lead.id})"><i class="fas fa-robot"></i> IA</button>
+                        <button class="btn-icon-sm" onclick="denunciarLead(${lead.id})"><i class="fas fa-flag"></i></button>
+                    </div>
+                    <div class="mt-1 small text-muted"><i class="far fa-clock"></i> Última atividade: ${new Date(lead.ultimaAtividade).toLocaleString()}</div>
+                </div>`;
+            });
+            container.innerHTML = html;
+            atualizarIndicadores();
+        }
+        // Função para redirecionar (abrir link externo)
+        window.abrirContacto = (url) => { window.open(url, '_blank'); };
+        
+        // PROPOSTA COMERCIAL
+        let currentLeadId = null;
+        window.criarProposta = (id) => { currentLeadId = id; let lead = leads.find(l=>l.id===id); document.getElementById('propLeadId').value = id; document.getElementById('propProduto').value = lead.produtoInteresse; document.getElementById('propQuantidade').value = ''; document.getElementById('propPreco').value = ''; new bootstrap.Modal(document.getElementById('propostaModal')).show(); };
+        let canvas = null, ctxCanvas = null, drawing = false;
+        function initSignature() { canvas = document.getElementById('signatureCanvas'); if(!canvas) return; ctxCanvas = canvas.getContext('2d'); ctxCanvas.strokeStyle = '#000'; ctxCanvas.lineWidth = 2; canvas.addEventListener('mousedown', (e) => { drawing = true; ctxCanvas.beginPath(); ctxCanvas.moveTo(e.offsetX, e.offsetY); }); canvas.addEventListener('mousemove', (e) => { if(drawing) { ctxCanvas.lineTo(e.offsetX, e.offsetY); ctxCanvas.stroke(); } }); canvas.addEventListener('mouseup', () => drawing = false); canvas.addEventListener('touchstart', (e) => { e.preventDefault(); drawing = true; let rect = canvas.getBoundingClientRect(); let x = e.touches[0].clientX - rect.left; let y = e.touches[0].clientY - rect.top; ctxCanvas.beginPath(); ctxCanvas.moveTo(x, y); }); canvas.addEventListener('touchmove', (e) => { e.preventDefault(); if(drawing) { let rect = canvas.getBoundingClientRect(); let x = e.touches[0].clientX - rect.left; let y = e.touches[0].clientY - rect.top; ctxCanvas.lineTo(x, y); ctxCanvas.stroke(); } }); canvas.addEventListener('touchend', () => drawing = false); document.getElementById('clearSignature').addEventListener('click', () => ctxCanvas.clearRect(0, 0, canvas.width, canvas.height)); }
+        document.getElementById('finalizarPropostaBtn').addEventListener('click', () => {
+            let leadId = parseInt(document.getElementById('propLeadId').value);
+            let produto = document.getElementById('propProduto').value;
+            let qtd = document.getElementById('propQuantidade').value;
+            let preco = document.getElementById('propPreco').value;
+            let transporte = document.getElementById('propTransporte').value;
+            let pagamento = document.getElementById('propPagamento').value;
+            let prazo = document.getElementById('propPrazo').value;
+            let codigo = document.getElementById('otpCode').value;
+            if(codigo !== "1234") { alert("Código OTP inválido. Use 1234 para simular assinatura."); return; }
+            let signatureData = canvas.toDataURL();
+            let novaProposta = { leadId, produto, quantidade: qtd, preco, transporte, pagamento, prazo, assinatura: signatureData, data: new Date() };
+            propostas.push(novaProposta);
+            let lead = leads.find(l => l.id === leadId);
+            if(lead) { lead.estado = "proposta enviada"; lead.proposta = novaProposta; }
+            localStorage.setItem("negociacao_leads", JSON.stringify(leads));
+            localStorage.setItem("negociacao_propostas", JSON.stringify(propostas));
+            bootstrap.Modal.getInstance(document.getElementById('propostaModal')).hide();
+            renderLeads();
+            alert(`✅ Proposta para ${lead.nome} criada. Envie o PDF por WhatsApp usando o botão de contacto.`);
+        });
+        
+        // REUNIÃO
+        window.agendarReuniao = (id) => { currentLeadId = id; document.getElementById('meetingLeadId').value = id; new bootstrap.Modal(document.getElementById('reuniaoModal')).show(); };
+        document.getElementById('salvarReuniaoBtn').addEventListener('click', () => {
+            let leadId = parseInt(document.getElementById('meetingLeadId').value);
+            let dataHora = document.getElementById('meetingDateTime').value;
+            let tipo = document.getElementById('meetingType').value;
+            if(!dataHora) { alert("Selecione data e hora."); return; }
+            let lead = leads.find(l => l.id === leadId);
+            if(lead) { lead.reuniao = { data: dataHora, tipo }; lead.ultimaAtividade = new Date().toISOString(); }
+            reunioes.push({ leadId, data: dataHora, tipo });
+            localStorage.setItem("negociacao_leads", JSON.stringify(leads));
+            localStorage.setItem("negociacao_reunioes", JSON.stringify(reunioes));
+            bootstrap.Modal.getInstance(document.getElementById('reuniaoModal')).hide();
+            renderLeads();
+            alert(`Reunião agendada com ${lead.nome}. Envie o lembrete pelo WhatsApp.`);
+        });
+        
+        // IA SUGESTÃO
+        window.sugestaoIA = (id) => {
+            let lead = leads.find(l => l.id === id);
+            let sugestoes = {
+                'primeiro contato': `🤖 Sugestão IA: Responda rapidamente pelo WhatsApp: "Olá ${lead.nome}, obrigado pelo interesse. O ${lead.produtoInteresse} está disponível. Posso enviar preços e fotos."`,
+                'em negociação': `🤖 Análise: Confiança ${lead.confianca}%. Recomendo oferecer uma pequena amostra ou desconto progressivo para volume. Use o WhatsApp para negociar.`,
+                'proposta enviada': `🤖 Estratégia: Envie uma mensagem amanhã lembrando a proposta. Pergunte se precisa de ajustes no prazo ou pagamento.`
+            };
+            let texto = sugestoes[lead.estado] || `Utilize o nosso assistente para criar uma proposta personalizada e enviar pelo WhatsApp.`;
+            if(lead.confianca < 70) texto += " ⚠️ Atenção: confiança baixa. Solicite referências ou pagamento antecipado.";
+            document.getElementById('iaSugestaoTexto').innerHTML = texto;
+            new bootstrap.Modal(document.getElementById('iaSugestaoModal')).show();
+        };
+        
+        // DENÚNCIA E BLOQUEIO
+        window.denunciarLead = (id) => { currentLeadId = id; new bootstrap.Modal(document.getElementById('denunciarModal')).show(); };
+        document.getElementById('confirmDenuncia').addEventListener('click', () => {
+            let motivo = document.getElementById('denunciaMotivo').value;
+            let lead = leads.find(l => l.id === currentLeadId);
+            if(lead) { lead.denunciado = true; alert(`Denúncia registada contra ${lead.nome}. A equipa irá analisar.`); }
+            bootstrap.Modal.getInstance(document.getElementById('denunciarModal')).hide();
+            renderLeads();
+        });
+        document.getElementById('bloquearBtn').addEventListener('click', () => {
+            let lead = leads.find(l => l.id === currentLeadId);
+            if(lead) { lead.bloqueado = true; alert(`${lead.nome} bloqueado. Não receberá mais contactos.`); }
+            bootstrap.Modal.getInstance(document.getElementById('denunciarModal')).hide();
+            renderLeads();
+        });
+        
+        // EXPORTAR RELATÓRIO
+        document.getElementById('gerarRelatorioBtn').addEventListener('click', () => {
+            let content = document.getElementById('leadsContainer').innerHTML;
+            let win = window.open('', '_blank');
+            win.document.write(`<html><head><title>Relatório AgroLux</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"></head><body><div class="container"><h1>Relatório de Negociações</h1>${content}</div></body></html>`);
+            win.print();
+        });
+        
+        // CHATBOT ASSISTENTE (não é chat de negociação, só dicas)
+        function addChatMessage(text, isUser) { let wrapper = document.createElement("div"); wrapper.className = `chat-msg-wrapper ${isUser ? "chat-msg-user" : "chat-msg-bot"}`; wrapper.innerHTML = `<div class="${isUser ? "chat-bubble-user" : "chat-bubble-bot"}"><strong>${isUser ? "Você" : "AgroBot"}:</strong> ${text}</div>`; document.getElementById("chatMessages").appendChild(wrapper); wrapper.scrollIntoView(); }
+        document.getElementById("chatWidgetBtn").onclick = () => { let w = document.getElementById("chatWidget"); w.style.display = w.style.display === "flex" ? "none" : "flex"; if(document.getElementById("chatMessages").children.length === 0) addChatMessage("Olá! Sou o assistente de negociações. Posso dar dicas de preços, sugestões de resposta e análise de risco. Lembre-se: a conversa real acontece no WhatsApp, Facebook ou Instagram.", false); };
+        document.getElementById("closeChatBtn").onclick = () => document.getElementById("chatWidget").style.display = "none";
+        document.getElementById("chatSend").onclick = () => { let inp = document.getElementById("chatInput"); let msg = inp.value.trim(); if(!msg) return; addChatMessage(msg, true); inp.value = ""; setTimeout(() => addChatMessage("Dica: Use os botões de contacto para falar directamente com o cliente. Quer que eu analise algum lead específico?", false), 800); };
+        
+        // INICIALIZAÇÃO GERAL
+        function init() {
+            atualizarPerfilUI();
+            renderLeads();
+            initSignature();
+            setInterval(() => { atualizarIndicadores(); }, 30000);
+            // Tema
+            const themeCheckbox = document.getElementById('themeToggleCheckbox');
+            const applyTheme = (isLight) => { if(isLight) document.body.classList.add('light'); else document.body.classList.remove('light'); themeCheckbox.checked = isLight; localStorage.setItem('theme', isLight ? 'light' : 'dark'); if(negociosChart) negociosChart.update(); };
+            if(localStorage.getItem('theme') === 'light') applyTheme(true); else applyTheme(false);
+            themeCheckbox.addEventListener('change', function() { applyTheme(!document.body.classList.contains('light')); });
+            // Weather mock
+            document.getElementById('weatherTemp').innerText = "26°C"; document.getElementById('weatherDesc').innerText = "Ensolarado";
+            // Timer
+            let timeLeft = 900; setInterval(() => { if(timeLeft>0) timeLeft--; let mins=Math.floor(timeLeft/60), secs=timeLeft%60; document.getElementById('timerText').innerText=`${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`; if(timeLeft===0) alert("Sessão expirada. Recarregue."); }, 1000);
+            document.getElementById('timerWidget').addEventListener('click', () => { timeLeft=900; alert("Sessão renovada!"); });
+            setInterval(() => { document.getElementById('fullDateExtenso').innerHTML = new Date().toLocaleDateString('pt-PT', { weekday:'long', year:'numeric', month:'long', day:'numeric' }).replace(/^\w/,c=>c.toUpperCase()); document.getElementById('fullTimeExtenso').innerHTML = new Date().toLocaleTimeString('pt-PT'); }, 1000);
+            // Perfil modal
+            document.getElementById('profileOption').addEventListener('click', () => { document.getElementById('editNome').value = userProfile.nome; document.getElementById('editFazenda').value = userProfile.fazenda; document.getElementById('editBio').value = userProfile.bio; new bootstrap.Modal(document.getElementById('profileEditModal')).show(); });
+            document.getElementById('saveProfileBtn').addEventListener('click', () => { userProfile.nome = document.getElementById('editNome').value; userProfile.fazenda = document.getElementById('editFazenda').value; userProfile.bio = document.getElementById('editBio').value; let file = document.getElementById('editAvatarInput').files[0]; if(file) { let reader = new FileReader(); reader.onload = e => { userProfile.avatar = e.target.result; salvarPerfil(); }; reader.readAsDataURL(file); } else salvarPerfil(); bootstrap.Modal.getInstance(document.getElementById('profileEditModal')).hide(); renderLeads(); });
+            document.getElementById('changeAvatarOption').addEventListener('click', () => document.getElementById('editAvatarInput').click());
+            document.getElementById('logoutOption').addEventListener('click', () => { localStorage.clear(); location.reload(); });
+            // Sidebar
+            document.getElementById('compactSidebarBtn').addEventListener('click', () => document.getElementById('mainSidebar').classList.toggle('collapsed'));
+            document.getElementById('mobileMenuToggle').addEventListener('click', () => document.getElementById('mainSidebar').classList.toggle('mobile-open'));
+        }
+        init();
+      
+      
+      
+      // ============================================================
+    // DEFINA AQUI OS LINKS REAIS DAS SUAS REDES SOCIAIS
+    // ============================================================
+    // Para Facebook: cole o link completo do seu perfil/página
+    // Para Instagram: link do seu perfil (ex: https://instagram.com/seuusuario)
+    // Para WhatsApp: utilize o formato https://wa.me/55SEUNUMERO (código país + DDD + número)
+    //                exemplo: https://wa.me/5511999999999
+    // ============================================================
+
+    const SOCIAL_LINKS = {
+        facebook: "https://facebook.com/seu-perfil-aqui",    // <-- COLOQUE SEU LINK DO FACEBOOK
+        instagram: "https://instagram.com/seu-usuario-aqui", // <-- COLOQUE SEU INSTAGRAM
+        whatsapp: "https://wa.me/5511999999999"              // <-- COLOQUE SEU NÚMERO (formato internacional)
+    };
+
+    // ---- IMPORTANTE: Atualize os campos acima com os endereços corretos ----
+    // Caso queira testar redirecionamento imediato com exemplos funcionais (páginas oficiais)
+    // descomente as linhas abaixo apenas para testes rápidos, mas prefira os links reais:
+    /*
+    SOCIAL_LINKS.facebook = "https://www.facebook.com/facebook";
+    SOCIAL_LINKS.instagram = "https://www.instagram.com/instagram";
+    SOCIAL_LINKS.whatsapp = "https://wa.me/5511999999999";
+    */
+
+    // Elementos dos ícones (usando os IDs fornecidos)
+    const fbIcon = document.getElementById('fakeFb');
+    const igIcon = document.getElementById('fakeIg');
+    const waIcon = document.getElementById('fakeWa');
+
+    // Função auxiliar para redirecionamento (abre nova aba de forma segura)
+    function redirectTo(url, nomeRede) {
+        if (!url || url === "#" || url === "") {
+            console.warn(`[Aviso] Link do ${nomeRede} não configurado corretamente.`);
+            alert(`⚠️ O link do ${nomeRede} ainda não foi definido.\nPor favor, edite o código JavaScript no objeto SOCIAL_LINKS.`);
+            return;
+        }
+        
+        // Validação simples para evitar links maliciosos ou vazios
+        try {
+            // Se for um link whatsapp com wa.me ou api.whatsapp, permite normalmente
+            if (url.startsWith('https://wa.me/') || url.startsWith('https://api.whatsapp.com/')) {
+                window.open(url, '_blank', 'noopener,noreferrer');
+                return;
+            }
+            // Para outras URLs, verifica se é um endereço http/https válido
+            const urlObj = new URL(url);
+            if (urlObj.protocol === 'http:' || urlObj.protocol === 'https:') {
+                window.open(url, '_blank', 'noopener,noreferrer');
+            } else {
+                throw new Error('protocolo inválido');
+            }
+        } catch (err) {
+            console.error("Link mal formatado:", url);
+            alert(`Endereço do ${nomeRede} parece inválido.\nVerifique o link no código.`);
+        }
+    }
+
+    // ---- Eventos de clique/toque para cada ícone ----
+    if (fbIcon) {
+        fbIcon.addEventListener('click', (event) => {
+            event.preventDefault();  // impede o href="#"
+            redirectTo(SOCIAL_LINKS.facebook, "Facebook");
+        });
+    }
+
+    if (igIcon) {
+        igIcon.addEventListener('click', (event) => {
+            event.preventDefault();
+            redirectTo(SOCIAL_LINKS.instagram, "Instagram");
+        });
+    }
+
+    if (waIcon) {
+        waIcon.addEventListener('click', (event) => {
+            event.preventDefault();
+            redirectTo(SOCIAL_LINKS.whatsapp, "WhatsApp");
+        });
+    }
+
+    // Acessibilidade e dica extra para desenvolvedor: exibe os links configurados no console
+    console.log("✅ Redirecionadores ativos:");
+    console.log(`📘 Facebook: ${SOCIAL_LINKS.facebook}`);
+    console.log(`📷 Instagram: ${SOCIAL_LINKS.instagram}`);
+    console.log(`💬 WhatsApp: ${SOCIAL_LINKS.whatsapp}`);
+    console.log("🔁 Ao tocar nos ícones, serão redirecionados para esses endereços (nova aba).");
+    </script>
+</body>
+</html>

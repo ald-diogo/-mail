@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Comunidade Agrícola | Central de Ajuda Inteligente</title>
+    <!-- Bootstrap 5 + Icons + Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Times New Roman', Times, serif;
+        }
+        :root {
+            --bg-gradient: linear-gradient(135deg, #f5f7fc 0%, #eef2f5 100%);
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --text-primary: #1e2a3e;
+            --text-secondary: #2c3e50;
+            --accent: #2b7a3e;
+            --accent-light: #3c9e5c;
+            --shadow-sm: 0 8px 20px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 20px 30px -12px rgba(0, 0, 0, 0.15);
+            --border-light: rgba(0, 0, 0, 0.08);
+        }
+        body.dark {
+            --bg-gradient: linear-gradient(135deg, #121826 0%, #1a212e 100%);
+            --card-bg: rgba(30, 35, 48, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #eef2ff;
+            --text-secondary: #cbd5e6;
+            --accent: #4caf7a;
+            --accent-light: #6fbf93;
+            --border-light: rgba(255, 255, 255, 0.1);
+        }
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-primary);
+            transition: background 0.3s ease, color 0.2s ease;
+            padding-bottom: 75px;
+            position: relative;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('images/Bg-entregas.jpg');
+            background-size: cover;
+            background-position: center 30%;
+            background-repeat: no-repeat;
+            opacity: 0.13;
+            pointer-events: none;
+            z-index: -1;
+        }
+        .glass-card, .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border-radius: 28px;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .glass-card:hover, .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+        }
+        .btn-primary-custom {
+            background: var(--accent);
+            border: none;
+            border-radius: 60px;
+            padding: 10px 22px;
+            font-weight: 600;
+            color: white;
+            transition: all 0.2s;
+        }
+        .btn-primary-custom:hover {
+            background: var(--accent-light);
+            transform: scale(0.98);
+            box-shadow: 0 8px 18px rgba(43, 122, 62, 0.3);
+        }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--glass-border);
+            padding: 8px 20px;
+            z-index: 1050;
+            border-radius: 28px 28px 0 0;
+        }
+        .nav-icon {
+            font-size: 1.5rem;
+            transition: 0.2s;
+            cursor: pointer;
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+        .nav-icon.active, .nav-icon:hover {
+            color: var(--accent);
+        }
+        .search-bar {
+            border-radius: 60px;
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            padding: 10px 18px;
+            color: var(--text-primary);
+        }
+        .badge-cat {
+            background: var(--accent-light);
+            color: white;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            padding: 5px 12px;
+        }
+        .icon-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            transition: 0.2s;
+        }
+        .icon-btn:hover {
+            color: var(--accent);
+            transform: scale(1.05);
+        }
+        .vote-up, .vote-down {
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .vote-up:hover { color: #2b7a3e; }
+        .vote-down:hover { color: #c0392b; }
+        .ai-widget {
+            background: rgba(76, 175, 122, 0.15);
+            border-left: 4px solid var(--accent);
+            border-radius: 24px;
+        }
+        .animate-fade {
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px);}
+            to { opacity: 1; transform: translateY(0px);}
+        }
+        .logo-point {
+            width: 100px; 
+            height: 50px;
+        }
+        /* Estilos específicos da Central de Ajuda */
+        .faq-answer {
+            display: none;
+            background: rgba(0,0,0,0.03);
+            border-radius: 20px;
+            margin-top: 8px;
+            padding: 8px;
+        }
+        body.dark .faq-answer {
+            background: rgba(255,255,255,0.05);
+        }
+        .chat-messages {
+            background: rgba(0,0,0,0.05);
+            border-radius: 24px;
+            padding: 12px;
+            height: 180px;
+            overflow-y: auto;
+        }
+        body.dark .chat-messages {
+            background: rgba(0,0,0,0.3);
+        }
+        .btn-outline-accent {
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            border-radius: 40px;
+        }
+        .btn-outline-accent:hover {
+            background: var(--accent);
+            color: white;
+        }
+        .status-badge {
+            background: var(--accent-light);
+            color: white;
+            border-radius: 30px;
+            padding: 4px 12px;
+            font-size: 0.75rem;
+        }
+        .help-section {
+            scroll-margin-top: 20px;
+        }
+        .view-section {
+            display: none;
+        }
+        .view-section.active-view {
+            display: block;
+        }
+        .tutorial-card {
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .tutorial-card:hover {
+            background: rgba(76,175,122,0.1);
+        }
+      
+        /* CORREÇÃO: Vídeos responsivos dentro dos cards da Central de Ajuda */
+        #viewHelp .tutorial-card video {
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            margin-top: 10px;
+        }
+
+        .logo-maker{
+            border-radius: 50px;
+            width: 50px;
+            height: 50px;
+        }
+        
+        .logo-panel{
+            border-radius: 50px;
+            width: 30px;
+            height: 30px;
+        }
+        
+        .logo-panel { 
+            width: 24px;
+            height: 24px; 
+            vertical-align: middle;
+            margin-right: 5px; 
+        }
+    </style>
+</head>
+<body>
+
+<div class="container py-3">
+    <!-- Header fixo -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h1 class="display-6 fw-bold" 
+                style="background: linear-gradient(135deg, var(--accent), #6fbf93); 
+                       -webkit-background-clip: text; background-clip: text; color: transparent;">
+                <img src="images/Lux-logo-bg.png" class="logo-point" onerror="this.style.display='none'" alt="Logo"> Comunidade Agrícola
+            </h1>
+        </div>
+        <div class="d-flex gap-2">
+            <button id="themeToggle" class="btn btn-outline-secondary rounded-circle p-2" style="width: 42px;"><i class="fas fa-moon"></i></button>
+            <button id="langToggle" class="btn btn-outline-secondary rounded-circle p-2" style="width: 42px;"><i class="fas fa-globe"></i></button>
+        </div>
+    </div>
+
+    <!-- ========== VIEW: INÍCIO (FÓRUM) ========== -->
+    <div id="viewFeed" class="view-section active-view">
+        <div class="glass-card p-4 mb-4 text-center">
+            <p id="welcomeMsg" class="fs-5 fw-semibold">
+                <i class="fas fa-comments"></i> Bem-vindo ao fórum dos agricultores! Compartilhe suas experiências e aumente suas vendas!
+            </p>
+            <p id="motivationMsg" class="text-secondary">📢 Divulgue seus produtos com sucesso, reduza desperdícios e conecte-se com outros agricultores.</p>
+            <button class="btn btn-primary-custom mt-2" data-bs-toggle="modal" data-bs-target="#createPostModal"><i class="fas fa-plus-circle me-2"></i><span id="createPostBtnText">Criar Nova Publicação</span></button>
+        </div>
+
+        <div class="row g-2 mb-3">
+            <div class="col-md-6">
+                <input type="text" id="searchInput" class="form-control search-bar" placeholder="🔍 Buscar tópicos...">
+            </div>
+            <div class="col-md-6">
+                <select id="categoryFilter" class="form-select search-bar">
+                    <option value="all">📌 Todas categorias</option>
+                    <option value="Venda de produtos agrícolas">🌽 Venda de produtos agrícolas</option>
+                    <option value="Divulgação no Facebook">📘 Divulgação no Facebook</option>
+                    <option value="Estratégias de vendas no WhatsApp">💬 Estratégias no WhatsApp</option>
+                    <option value="Promoção visual no Instagram">📸 Promoção no Instagram</option>
+                    <option value="Técnicas de fotografia para produtos">📷 Técnicas de fotografia</option>
+                    <option value="Como atrair mais clientes">🎯 Atrair clientes</option>
+                    <option value="Preços e negociação">💰 Preços e negociação</option>
+                    <option value="Transporte e entrega">🚚 Transporte e entrega</option>
+                    <option value="Conservação de produtos perecíveis">❄️ Conservação</option>
+                    <option value="Dicas de produção agrícola">🌿 Produção agrícola</option>
+                    <option value="Problemas comuns no campo">⚠️ Problemas no campo</option>
+                    <option value="Parcerias entre agricultores">🤝 Parcerias</option>
+                </select>
+            </div>
+        </div>
+        <div class="d-flex flex-wrap gap-2 mb-4 justify-content-between align-items-center">
+            <div class="d-flex gap-2">
+                <button class="btn sort-btn" data-sort="recent"><i class="far fa-clock"></i> Mais Recentes</button>
+                <button class="btn sort-btn" data-sort="comments"><i class="fas fa-comment-dots"></i> Mais Comentados</button>
+                <button class="btn sort-btn" data-sort="likes"><i class="fas fa-thumbs-up"></i> Mais Úteis</button>
+            </div>
+            <div id="statsInfo" class="small text-secondary"></div>
+        </div>
+
+        <div id="postsContainer" class="row g-4"></div>
+
+        <div class="row mt-5 g-4">
+            <div class="col-lg-4">
+                <div class="glass-card p-3 h-100">
+                    <h5><i class="fas fa-star-of-life text-warning"></i> Top Dicas da Semana</h5>
+                    <ul class="list-unstyled mt-2">
+                        <li><i class="fa-solid fa-image"></i> <strong>Fotos que Chamam Atenção</strong> – luz natural e fundo limpo.</li>
+                        <li><i class="fa-solid fa-chart-line"></i> <strong>Promoção no Instagram</strong> – Reels mostrando a colheita.</li>
+                        <li><i class="fa-solid fa-tags"></i> <strong>Preços Competitivos</strong> – combo por atacado.</li>
+                    </ul>
+                    <hr class="border-light">
+                    <div class="ai-widget p-3 mt-2">
+                        <i class="fas fa-robot text-success me-2"></i> <strong>Consultor Comunitário IA</strong>
+                        <div id="aiSuggestion" class="small mt-2"><i class="fas fa-tomato"></i> <em>#TomatesOrgânicos | Melhor horário: 18h-20h | Frase: "Direto do campo pra você!"</em></div>
+                        <button id="refreshAiTip" class="btn btn-sm btn-outline-success mt-2 w-100"><i class="fas fa-magic"></i> Nova sugestão</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="glass-card p-3 h-100">
+                    <h5><i class="fas fa-hands-helping"></i> Área de Ajuda Coletiva</h5>
+                    <div id="helpQuestionsContainer"></div>
+                    <div class="mt-2 d-flex justify-content-between align-items-center">
+                        <div><i class="fas fa-trophy text-warning"></i> <span id="topRankFarmer">🌾 Agricultor da semana: Seu Zé</span></div>
+                        <button class="btn btn-sm btn-outline-primary" id="newHelpQuestionBtn"><i class="fas fa-question"></i> Nova pergunta rápida</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="glass-card p-3">
+                    <h5><i class="fas fa-lightbulb"></i> Publicações Sugeridas para Você</h5>
+                    <div id="suggestedPosts" class="d-flex flex-wrap gap-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== VIEW: FAVORITOS ========== -->
+    <div id="viewFavorites" class="view-section">
+        <div class="glass-card p-4 mb-3 text-center">
+            <h4><i class="fas fa-bookmark"></i> Meus Favoritos</h4>
+            <p>Publicações que você salvou para consultar depois.</p>
+        </div>
+        <div id="favoritesContainer" class="row g-4"></div>
+    </div>
+
+    <!-- ========== VIEW: CENTRAL DE AJUDA INTELIGENTE (estrutura completa) ========== -->
+    <div id="viewHelp" class="view-section">
+        <div class="glass-card p-4 mb-4 text-center">
+            <h3><i class="fas fa-headset text-success me-2"></i>Central de Ajuda</h3>
+            <p class="fs-5 fst-italic">🌾 “Seu sucesso também é nossa colheita. Estamos aqui para ajudar o agricultor a crescer.”</p>
+        </div>
+
+        <!-- 1. Barra de pesquisa -->
+        <div class="mb-4">
+            <input type="text"
+                   id="helpSearchInput" 
+                   class="form-control search-bar" 
+                   placeholder="🔍 Digite sua dúvida aqui… (ex: Como vender no WhatsApp?)">
+        </div>
+
+        <!-- 2. FAQ com botões Ver resposta -->
+        <div class="glass-card p-3 mb-4">
+            <h5><i class="fas fa-question-circle me-2"></i> Perguntas Frequentes</h5>
+            <div id="faqContainer"></div>
+        </div>
+
+        <!-- 3. Tutoriais rápidos -->
+        <div class="glass-card p-3 mb-4">
+            <h5><i class="fas fa-graduation-cap"></i> Tutoriais Rápidos</h5>
+            <div id="tutorialsContainer" class="row g-3"></div>
+        </div>
+
+        <!-- 4. Chatbot com IA -->
+        <div class="glass-card p-3 mb-4">
+            <h5><img class="logo-maker" src="images/agri-bot.png"/> Assistente IA (Chatbot)</h5>
+            <div id="chatMessages" class="chat-messages mb-2 small">
+            <video id="meuVideo" controls preload="metadata" poster="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerBlazes.jpg">
+            <source src="video/IA-2.mp4" type="video/mp4">
+            <!-- Mensagem de fallback -->
+            Seu navegador não suporta a tag de vídeo. Atualize para uma versão recente.
+          </video>
+            </div>
+             
+            <div class="input-group">
+                <input type="text" id="chatInput" class="form-control" placeholder="Digite sua pergunta...">
+                <button id="sendChatBtn" class="btn btn-primary-custom">Enviar</button>
+            </div>
+            <div class="mt-2 text-muted small">🤖 Ex: "Como divulgar no Facebook?" ou "Melhor horário para vender"</div>
+        </div>
+
+        <!-- 5. Suporte Humano -->
+        <div class="glass-card p-3 mb-4">
+            <h5><i class="fas fa-user-headset"></i> Suporte Humano</h5>
+            <div class="d-flex flex-wrap gap-3 mt-2">
+                <a href="https://wa.me/5511999999999?text=Preciso%20de%20ajuda%20no%20app%20agrícola" target="_blank" class="btn btn-outline-success"><i class="fab fa-whatsapp"></i> Falar no WhatsApp</a>
+                <a href="mailto:suporte@comunidadeagricola.com.br" class="btn btn-outline-primary"><i class="fas fa-envelope"></i> Enviar E-mail</a>
+                <button class="btn btn-outline-secondary" id="requestSupportBtn"><i class="fas fa-ticket-alt"></i> Solicitar Atendimento</button>
+            </div>
+            <div id="supportStatusMsg" class="mt-3 small text-secondary"></div>
+        </div>
+
+        <!-- 6. Denúncia e Segurança -->
+        <div class="glass-card p-3 mb-4">
+            <h5><i class="fas fa-shield-alt text-danger"></i> Denúncia e Segurança</h5>
+            <p class="small">Reporte problemas, fraudes ou comportamentos suspeitos.</p>
+            <div class="d-flex flex-wrap gap-2">
+                <button class="btn btn-sm btn-outline-danger report-btn" data-report="fraude">
+                    <a href="fraude.html">⚠ Reportar fraude</a>
+                </button>
+                <button class="btn btn-sm btn-outline-danger report-btn" data-report="comprador">⚠ Denunciar comprador falso</button>
+                <button class="btn btn-sm btn-outline-danger report-btn" data-report="pagamento">💰 Problemas de pagamento</button>
+                <button class="btn btn-sm btn-outline-danger report-btn" data-report="conteudo">🚫 Conteúdo suspeito</button>
+            </div>
+            <div id="reportFeedback" class="mt-2 small text-success"></div>
+        </div>
+
+        <!-- 7. Dicas de Vendas -->
+        <div class="glass-card p-3 mb-4">
+            <h5><i class="fas fa-chart-simple"></i> Dicas de Vendas</h5>
+            <ul class="list-unstyled">
+                <li><i class="fas fa-clock text-warning"></i> <strong>Melhor horário para anunciar:</strong> 18h-20h (pico de compradores)</li>
+                <li><i class="fas fa-tag"></i> <strong>Preço justo:</strong> compare com a feira local + frete</li>
+                <li><i class="fas fa-camera"></i> <strong>Boas fotos:</strong> luz natural, fundo limpo e destaque o produto</li>
+                <li><i class="fas fa-comment-dots"></i> <strong>Responda rápido:</strong> clientes confiam mais em respostas rápidas</li>
+                <li><i class="fas fa-handshake"></i> <strong>Selos de confiança:</strong> participe do fórum e ganhe reputação</li>
+            </ul>
+        </div>
+
+        <!-- 8. Vídeos Explicativos (CORRIGIDOS: responsivos) -->
+        <div class="glass-card p-3 mb-4">
+            <h5><i class="fas fa-video"></i> Vídeos Explicativos</h5>
+            <div class="row g-2">
+                <div class="col-md-4">
+                  <div class="p-2 border rounded-3 text-center tutorial-card" data-video="wa">
+                      <i class="fab fa-whatsapp fa-2x"></i>
+                      <br>Vender no WhatsApp
+                      <video id="VideoWhatsApp" controls preload="metadata" poster="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerBlazes.jpg">
+                        <source src="video/WApp.mp4" type="video/mp4">
+                        Seu navegador não suporta a tag de vídeo.
+                      </video>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-2 border rounded-3 text-center tutorial-card" data-video="fb">
+                        <i class="fab fa-facebook fa-2x"></i>
+                        <br>Divulgar no Facebook
+                        <video id="VideoFacebook" controls preload="metadata" poster="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerBlazes.jpg">
+                            <source src="video/FB-2.mp4" type="video/mp4">
+                            Seu navegador não suporta a tag de vídeo.
+                        </video>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-2 border rounded-3 text-center tutorial-card" data-video="nego">
+                        <i class="fas fa-hand-holding-usd fa-2x"></i>
+                        <br>Negociar com compradores
+                        <video id="VideoComprador" 
+                               controls preload="metadata" 
+                               poster="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerBlazes.jpg">
+                            <source src="video/compradores.mp4" type="video/mp4">
+                            Seu navegador não suporta a tag de vídeo.
+                        </video>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 9. Status do Suporte -->
+        <div class="glass-card p-3 mb-4">
+            <h5><i class="fas fa-chart-line"></i> Status do Suporte</h5>
+            <div class="d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-inbox"></i> Última solicitação: </span>
+                <span id="lastTicketStatus" class="status-badge">Nenhuma pendente</span>
+            </div>
+            <div class="progress mt-2" style="height: 6px;">
+                <div id="supportProgress" class="progress-bar bg-success" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== VIEW: NOTIFICAÇÕES ========== -->
+    <div id="viewNotifications" class="view-section">
+        <div class="glass-card p-4 text-center">
+            <h4><i class="fas fa-bell"></i> Notificações</h4>
+            <p>Aqui você verá alertas sobre novas respostas, menções e dicas.</p>
+            <div id="notificationsList" class="text-start mt-3">
+                <div class="border-bottom py-2">🌾 Novo comentário no seu post "Tomates Orgânicos"</div>
+                <div class="border-bottom py-2">🤖 Dica IA: Melhor horário para postar agora é 19h.</div>
+                <div class="py-2">📢 Seu post foi favoritado por 3 pessoas.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bottom Menu -->
+<div class="bottom-nav d-flex justify-content-around align-items-center">
+    <div class="nav-icon" data-view="feed"><i class="fas fa-home"></i><span class="d-none d-sm-inline ms-1">Início</span></div>
+    <div class="nav-icon" data-view="favorites"><i class="fas fa-bookmark"></i><span class="d-none d-sm-inline ms-1">Favoritos</span></div>
+    <div class="nav-icon" data-view="help"><i class="fas fa-question-circle"></i><span class="d-none d-sm-inline ms-1">Ajuda</span></div>
+    <div class="nav-icon" data-view="notifications"><i class="fas fa-bell"></i><span class="d-none d-sm-inline ms-1">Notificações</span></div>
+</div>
+
+<!-- Modal Criar Publicação (original) -->
+<div class="modal fade" id="createPostModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h5 class="modal-title">🌱 Nova Publicação</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="newTitle" class="form-control mb-2" placeholder="Título">
+                <textarea id="newDesc" class="form-control mb-2" rows="2" placeholder="Descrição"></textarea>
+                <input type="text" id="newFarmer" class="form-control mb-2" placeholder="Seu nome">
+                <select id="newCategory" class="form-select mb-2">
+                    <option>Venda de produtos agrícolas</option><option>Divulgação no Facebook</option><option>Estratégias de vendas no WhatsApp</option>
+                    <option>Promoção visual no Instagram</option><option>Técnicas de fotografia para produtos</option><option>Como atrair mais clientes</option>
+                    <option>Preços e negociação</option><option>Transporte e entrega</option><option>Conservação de produtos perecíveis</option>
+                    <option>Dicas de produção agrícola</option><option>Problemas comuns no campo</option><option>Parcerias entre agricultores</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary-custom" id="confirmCreatePost">Publicar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // ====================== DATA MODEL (FÓRUM) ========================
+    let posts = [
+        { id: 1, title: "Oferta de Tomates Orgânicos", desc: "Lote fresco de tomates colhidos hoje! Entrega rápida.", author: "Carlos Silva", date: "2026-04-26", category: "Venda de produtos agrícolas", replies: 23, likes: 112, favorited: false },
+        { id: 2, title: "Dicas para Vender no WhatsApp", desc: "Melhores horários e frases prontas pra aumentar vendas.", author: "Ana Souza", date: "2026-04-27", category: "Estratégias de vendas no WhatsApp", replies: 45, likes: 89, favorited: false },
+        { id: 3, title: "Fotos que Vendem no Instagram", desc: "Como usar a luz natural para destacar legumes.", author: "Marcos Lima", date: "2026-04-25", category: "Promoção visual no Instagram", replies: 12, likes: 203, favorited: false },
+        { id: 4, title: "Negociação justa com compradores", desc: "Aprenda a precificar seus produtos sem prejuízo.", author: "Joana Pereira", date: "2026-04-24", category: "Preços e negociação", replies: 32, likes: 76, favorited: false },
+        { id: 5, title: "Resfriamento de hortaliças", desc: "Mantenha alfaces crocantes na geladeira ventilada.", author: "Ricardo Almeida", date: "2026-04-23", category: "Conservação de produtos perecíveis", replies: 18, likes: 67, favorited: false }
+    ];
+    let nextId = 6;
+    let currentSort = "recent";
+    let currentFilterCat = "all";
+    let searchText = "";
+    let favPostsIds = JSON.parse(localStorage.getItem("agriFavPosts") || "[]");
+    let helpQuestions = [
+        { id: 1, question: "Como conservar alfaces?", answer: "Mantenha na geladeira bem ventilada, use saco perfurado.", votes: 12, author: "Ricardo", best: true },
+        { id: 2, question: "Melhor adubo para tomate?", answer: "Composto orgânico e esterco curtido.", votes: 8, author: "Clara", best: false }
+    ];
+    let farmerPoints = { "Carlos Silva": 5, "Ana Souza": 8, "Ricardo Almeida": 12, "Clara": 6, "Joana Pereira": 3 };
+    
+    function saveFavToLocal() { localStorage.setItem("agriFavPosts", JSON.stringify(favPostsIds)); }
+    function updateFavStatus() { posts.forEach(p => p.favorited = favPostsIds.includes(p.id)); }
+    updateFavStatus();
+    
+    function getFilteredSortedPosts() {
+        let filtered = posts.filter(p => (currentFilterCat === "all" || p.category === currentFilterCat) && 
+            (p.title.toLowerCase().includes(searchText.toLowerCase()) || p.desc.toLowerCase().includes(searchText.toLowerCase()) || p.author.toLowerCase().includes(searchText.toLowerCase())));
+        if (currentSort === "recent") return filtered.sort((a,b) => new Date(b.date) - new Date(a.date));
+        if (currentSort === "comments") return filtered.sort((a,b) => b.replies - a.replies);
+        if (currentSort === "likes") return filtered.sort((a,b) => b.likes - a.likes);
+        return filtered;
+    }
+    
+    function renderPosts() {
+        const container = document.getElementById("postsContainer");
+        const filtered = getFilteredSortedPosts();
+        if(filtered.length === 0) { container.innerHTML = `<div class="col-12 text-center py-5">Nenhuma publicação encontrada 🌾</div>`; return; }
+        container.innerHTML = filtered.map(post => `
+            <div class="col-md-6 col-lg-4 animate-fade">
+                <div class="card h-100 p-3 glass-card">
+                    <div class="d-flex justify-content-between"><span class="badge-cat">${post.category}</span>
+                        <i class="far fa-bookmark favorite-star ${post.favorited ? 'fas text-success' : 'far'}" style="cursor:pointer" data-id="${post.id}"></i>
+                    </div>
+                    <h5 class="mt-2 fw-bold">${post.title}</h5>
+                    <p class="small">${post.desc.substring(0, 80)}...</p>
+                    <div class="d-flex justify-content-between text-secondary small"><span> <i class="fas fa-user"></i> ${post.author}</span><span> <i class="fas fa-calendar"></i>  ${post.date}</span></div>
+                    <hr class="my-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div><i class="far fa-comment-dots"></i> ${post.replies} respostas</div>
+                        <div class="like-heart" style="cursor:pointer" data-id="${post.id}"><i class="fa-heart ${post.likes > 0 ? 'fas text-danger' : 'far'}"></i> ${post.likes}</div>
+                        <div class="d-flex gap-2">
+                            <button class="icon-btn share-wa" data-title="${post.title}" data-desc="${post.desc}"><i class="fab fa-whatsapp"></i></button>
+                            <button class="icon-btn share-fb" data-title="${post.title}"><i class="fab fa-facebook"></i></button>
+                            <button class="icon-btn comment-reply" data-id="${post.id}"><i class="fas fa-reply"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        attachPostEvents();
+    }
+    
+    function attachPostEvents() {
+        document.querySelectorAll('.favorite-star').forEach(el => {
+            el.addEventListener('click', (e) => { e.stopPropagation(); let id = parseInt(el.dataset.id); if(favPostsIds.includes(id)) favPostsIds = favPostsIds.filter(i => i !== id); else favPostsIds.push(id); saveFavToLocal(); updateFavStatus(); renderPosts(); renderFavorites(); showToast("Favoritos atualizados!"); });
+        });
+        document.querySelectorAll('.like-heart').forEach(el => {
+            el.addEventListener('click', (e) => { let id = parseInt(el.dataset.id); let post = posts.find(p => p.id === id); if(post) { post.likes += 1; renderPosts(); renderFavorites(); } });
+        });
+        document.querySelectorAll('.share-wa').forEach(btn => {
+            btn.addEventListener('click', (e) => { let t = btn.dataset.title; let d = btn.dataset.desc; window.open(`https://wa.me/?text=🌾 *${t}* - ${d} (Comunidade Agrícola)`); });
+        });
+        document.querySelectorAll('.share-fb').forEach(btn => {
+            btn.addEventListener('click', () => { window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(location.href)}`); });
+        });
+        document.querySelectorAll('.comment-reply').forEach(btn => {
+            btn.addEventListener('click', (e) => { let pid = parseInt(btn.dataset.id); let newReply = prompt("Adicione uma resposta/comentário:"); if(newReply) { let post = posts.find(p => p.id === pid); if(post) { post.replies += 1; renderPosts(); renderFavorites(); showToast("Comentário adicionado!"); } } });
+        });
+    }
+    
+    function renderFavorites() {
+        const container = document.getElementById("favoritesContainer");
+        const favs = posts.filter(p => favPostsIds.includes(p.id));
+        if(favs.length === 0) { container.innerHTML = `<div class="col-12 text-center py-5">Nenhum favorito salvo ainda. ❤️</div>`; return; }
+        container.innerHTML = favs.map(post => `
+            <div class="col-md-6 col-lg-4 animate-fade">
+                <div class="card h-100 p-3 glass-card">
+                    <div class="d-flex justify-content-between"><span class="badge-cat">${post.category}</span>
+                        <i class="fas fa-bookmark text-success" style="cursor:pointer" data-id="${post.id}"></i>
+                    </div>
+                    <h5 class="mt-2 fw-bold">${post.title}</h5>
+                    <p class="small">${post.desc.substring(0, 80)}...</p>
+                    <div class="d-flex justify-content-between text-secondary small"><span> <i class="fas fa-user"></i> ${post.author}</span><span> <i class="fas fa-calendar"></i>  ${post.date}</span></div>
+                    <hr class="my-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div><i class="far fa-comment-dots"></i> ${post.replies} respostas</div>
+                        <div><i class="fas fa-heart text-danger"></i> ${post.likes}</div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        document.querySelectorAll('#favoritesContainer .fa-bookmark').forEach(el => {
+            el.addEventListener('click', (e) => { let id = parseInt(el.dataset.id); favPostsIds = favPostsIds.filter(i => i !== id); saveFavToLocal(); updateFavStatus(); renderPosts(); renderFavorites(); showToast("Removido dos favoritos"); });
+        });
+    }
+    
+    function renderHelpArea() {
+        const container = document.getElementById("helpQuestionsContainer");
+        container.innerHTML = helpQuestions.map(q => `
+            <div class="border-bottom pb-2 mb-2">
+                <div class="d-flex justify-content-between"><strong><i class="fas fa-question"></i> ${q.question}</strong> <span>👍 ${q.votes} votos</span></div>
+                <div class="small"><i class="fas fa-lightbulb"></i> ${q.answer} — <em>${q.author}</em> ${q.best ? '<i class="fas fa-star"></i> Melhor resposta' : ''}</div>
+                <div class="mt-1"><i class="fas fa-thumbs-up vote-up" data-id="${q.id}"></i> <i class="fas fa-thumbs-down vote-down" data-id="${q.id}"></i></div>
+            </div>
+        `).join('');
+        document.querySelectorAll('.vote-up').forEach(btn => { btn.addEventListener('click', (e) => { let id = parseInt(btn.dataset.id); let q = helpQuestions.find(q => q.id === id); if(q) { q.votes += 1; updateFarmerRanking(q.author); renderHelpArea(); } }); });
+        document.querySelectorAll('.vote-down').forEach(btn => { btn.addEventListener('click', (e) => { let id = parseInt(btn.dataset.id); let q = helpQuestions.find(q => q.id === id); if(q) { q.votes -= 1; renderHelpArea(); } }); });
+        let topFarmer = Object.entries(farmerPoints).sort((a,b)=>b[1]-a[1])[0]?.[0] || "Agricultor Solidário";
+        document.getElementById("topRankFarmer").innerHTML = ` Agricultor mais ativo: ${topFarmer}`;
+    }
+    function updateFarmerRanking(author) { farmerPoints[author] = (farmerPoints[author] || 0) + 1; }
+    function renderSuggested() {
+        const topPosts = [...posts].sort((a,b)=>b.likes - a.likes).slice(0,3);
+        document.getElementById("suggestedPosts").innerHTML = topPosts.map(p => `<span class="badge bg-success p-2">#${p.category.split(' ')[0]} · ${p.title.slice(0,25)}</span>`).join(' ');
+    }
+    function renderAll() { renderPosts(); renderHelpArea(); renderSuggested(); renderFavorites(); document.getElementById("statsInfo").innerHTML = `${getFilteredSortedPosts().length} publicações`; }
+    
+    // Eventos do fórum
+    document.getElementById("searchInput").addEventListener("input", (e) => { searchText = e.target.value; renderAll(); });
+    document.getElementById("categoryFilter").addEventListener("change", (e) => { currentFilterCat = e.target.value; renderAll(); });
+    document.querySelectorAll(".sort-btn").forEach(btn => { btn.addEventListener("click", (e) => { currentSort = btn.dataset.sort; renderAll(); }); });
+    document.getElementById("confirmCreatePost").addEventListener("click", () => {
+        let title = document.getElementById("newTitle").value, desc = document.getElementById("newDesc").value, author = document.getElementById("newFarmer").value, cat = document.getElementById("newCategory").value;
+        if(!title || !desc || !author) { alert("Preencha todos os campos."); return; }
+        let newPost = { id: nextId++, title, desc, author, date: new Date().toISOString().slice(0,10), category: cat, replies: 0, likes: 0, favorited: false };
+        posts.unshift(newPost);
+        bootstrap.Modal.getInstance(document.getElementById("createPostModal")).hide();
+        document.getElementById("newTitle").value = ""; document.getElementById("newDesc").value = ""; document.getElementById("newFarmer").value = "";
+        renderAll(); showToast("Publicação criada com sucesso!");
+    });
+    document.getElementById("refreshAiTip").addEventListener("click", () => {
+        const tips = ["📌 #TomatesOrgânicos | Melhor horário: 17h", "📌 #Promoção Instagram: use hashtags locais", "📌 Frase pronta: 'Colheita do dia, sabor inigualável'", "📌 Melhor horário para WhatsApp: 19-21h"];
+        document.getElementById("aiSuggestion").innerHTML = `✨ ${tips[Math.floor(Math.random()*tips.length)]}`;
+    });
+    document.getElementById("newHelpQuestionBtn").addEventListener("click", () => {
+        let qs = prompt("Digite sua pergunta rápida:","Como melhorar a irrigação?");
+        if(qs) { helpQuestions.push({ id: Date.now(), question: qs, answer: "Aguardando resposta da comunidade...", votes: 0, author: "Você", best: false }); renderHelpArea(); showToast("Pergunta enviada!"); }
+    });
+    
+    // Tema e idioma
+    let isDark = localStorage.getItem("agriTheme") === "dark";
+    if(isDark) document.body.classList.add("dark");
+    document.getElementById("themeToggle").addEventListener("click", () => { document.body.classList.toggle("dark"); localStorage.setItem("agriTheme", document.body.classList.contains("dark") ? "dark" : "light"); });
+    let lang = "pt";
+    const translations = { en: { welcome: "🌱 Welcome to the Farmers' Forum! Share experiences & boost sales!", create: "Create New Post", motivation: "📢 Promote your products, reduce waste, connect!" }, pt: { welcome: "🌱 Bem-vindo ao fórum dos agricultores! Compartilhe experiências e aumente vendas!", create: "Criar Nova Publicação", motivation: "📢 Divulgue seus produtos, reduza desperdícios e conecte!" } };
+    document.getElementById("langToggle").addEventListener("click", () => { lang = lang === "pt" ? "en" : "pt"; document.getElementById("welcomeMsg").innerText = translations[lang].welcome; document.getElementById("motivationMsg").innerText = translations[lang].motivation; document.getElementById("createPostBtnText").innerText = translations[lang].create; });
+    function showToast(msg) { let toastDiv = document.createElement("div"); toastDiv.className = "position-fixed bottom-50 start-50 translate-middle-x bg-dark text-white px-4 py-2 rounded-pill animate-fade"; toastDiv.innerText = msg; document.body.appendChild(toastDiv); setTimeout(()=>toastDiv.remove(),2000); }
+    
+    // Navegação entre views
+    function setActiveView(viewId) {
+        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active-view'));
+        document.getElementById(`view${viewId.charAt(0).toUpperCase() + viewId.slice(1)}`).classList.add('active-view');
+        document.querySelectorAll('.nav-icon').forEach(icon => icon.classList.remove('active'));
+        document.querySelector(`.nav-icon[data-view="${viewId}"]`).classList.add('active');
+        if(viewId === 'favorites') renderFavorites();
+        if(viewId === 'help') initHelpCenter();
+    }
+    document.querySelectorAll('.nav-icon').forEach(icon => {
+        icon.addEventListener('click', (e) => { let view = icon.dataset.view; setActiveView(view); });
+    });
+    setActiveView('feed');
+    
+    // ========== CENTRAL DE AJUDA (funcionalidades da tela) ==========
+    const faqData = [
+        { q: "Como cadastrar um produto?", a: "Clique em 'Criar Nova Publicação', preencha título, descrição, seu nome e categoria. Depois publique no fórum." },
+        { q: "Como divulgar nas redes sociais?", a: "Use os botões de compartilhar (WhatsApp, Facebook) nos posts. Também pode gerar imagens e stories." },
+        { q: "Como falar com compradores?", a: "Responda nos comentários do fórum ou troque contato via WhatsApp diretamente." },
+        { q: "Como funciona o fórum?", a: "É um espaço para trocar experiências, dicas de vendas e divulgar produtos. Participe avaliando e comentando." },
+        { q: "Como alterar meus dados?", a: "Por enquanto, seus dados são exibidos ao criar posts. Em breve área de perfil." },
+        { q: "Como recuperar senha?", a: "Clique em 'Esqueci minha senha' na tela de login (em desenvolvimento). Suporte via e-mail." },
+        { q: "Como denunciar fraude?", a: "Use a seção 'Denúncia e Segurança' nesta Central ou reporte diretamente." },
+        { q: "Como funciona a reputação?", a: "Você ganha pontos ao votar em respostas, receber likes e ajudar outros no fórum." }
+    ];
+    function renderFAQ() {
+        const container = document.getElementById('faqContainer');
+        if(!container) return;
+        container.innerHTML = faqData.map((item, idx) => `
+            <div class="mb-3 border-bottom pb-2">
+                <div class="d-flex justify-content-between align-items-center">
+                    <strong><i class="fas fa-leaf text-success"></i> ${item.q}</strong>
+                    <button class="btn btn-sm btn-outline-primary faq-toggle-btn" data-idx="${idx}">Ver resposta</button>
+                </div>
+                <div id="faqAns-${idx}" class="faq-answer p-2 mt-2">${item.a}</div>
+            </div>
+        `).join('');
+        document.querySelectorAll('.faq-toggle-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                let idx = btn.dataset.idx;
+                let ansDiv = document.getElementById(`faqAns-${idx}`);
+                if (ansDiv.style.display === 'none' || !ansDiv.style.display) { ansDiv.style.display = 'block'; btn.innerText = 'Ocultar'; }
+                else { ansDiv.style.display = 'none'; btn.innerText = 'Ver resposta'; }
+            });
+        });
+    }
+    const tutorials = [
+        { title: "📘 Como vender mais rápido", desc: "Use fotos atrativas e responda em até 1 hora." },
+        { title: "📈 Como usar promoções inteligentes", desc: "Ofereça desconto para compras em lote." },
+        { title: "🎨 Como criar anúncios melhores", desc: "Destaque os diferenciais: orgânico, fresco e entrega rápida." },
+        { title: "🤝 Como atrair compradores", desc: "Participe ativamente do fórum e divulgue seus produtos." },
+        { title: "💬 Como usar o fórum corretamente", desc: "Seja respeitoso, compartilhe dicas reais." },
+        {
+          "title": "⚠️ Como identificar e evitar fraudes no fórum",
+          "desc": "Desconfie de promessas irreais, links suspeitos e pedidos de dados pessoais. Denuncie conteúdos fraudulentos à moderação."
+        }
+    ];
+    function renderTutorials() {
+        const container = document.getElementById('tutorialsContainer');
+        if(!container) return;
+        container.innerHTML = tutorials.map(t => `
+            <div class="col-md-6">
+                <div class="glass-card p-2 tutorial-card" data-tip="${t.desc}">
+                    <strong>${t.title}</strong><br>
+                    <small>${t.desc.substring(0, 50)}...</small>
+                    <button class="btn btn-sm btn-outline-accent mt-1 w-100 abrir-guia">Abrir Guia</button>
+                </div>
+            </div>
+        `).join('');
+        document.querySelectorAll('.abrir-guia').forEach(btn => {
+            btn.addEventListener('click', (e) => { let card = btn.closest('.tutorial-card'); if(card) alert(`📖 GUIA: ${card.querySelector('strong')?.innerText}\n\n${card.dataset.tip || 'Dica completa em breve.'}`); });
+        });
+    }
+    let chatMessages = [];
+    function addChatMessage(msg, isUser = false) {
+        const chatDiv = document.getElementById('chatMessages');
+        if(!chatDiv) return;
+        const bubble = document.createElement('div');
+        bubble.className = `mb-2 ${isUser ? 'text-end' : 'text-start'}`;
+        bubble.innerHTML = `<span class="badge ${isUser ? 'bg-success' : 'bg-secondary'} p-2">${isUser ? 'Você' : '🤖 IA'}: ${msg}</span>`;
+        chatDiv.appendChild(bubble);
+        chatDiv.scrollTop = chatDiv.scrollHeight;
+    }
+    function botResponse(userMsg) {
+        const lower = userMsg.toLowerCase();
+        if(lower.includes('vender') && lower.includes('whatsapp')) return "📱 Dica: Use listas de transmissão e responda rápido entre 18h e 20h. Crie uma frase comercial como 'Direto do campo'.";
+        if(lower.includes('facebook') || lower.includes('divulgar')) return "📘 No Facebook, compartilhe nos grupos de agricultura local e use fotos da colheita. Poste nos horários de pico (19h-21h).";
+        if(lower.includes('preço') || lower.includes('negociação')) return "💰 Pesquise preços da feira, ofereça desconto por volume e destaque qualidade. Seja transparente.";
+        if(lower.includes('foto') || lower.includes('imagem')) return "📸 Use luz natural, fundo limpo e mostre detalhes. Frutas cortadas ao meio chamam atenção.";
+        if(lower.includes('recuperar senha')) return "🔐 Enviamos um link de redefinição para o e-mail cadastrado. Caso não receba, fale no suporte humano.";
+        return "🌱 Ótima pergunta! Recomendo buscar no FAQ ou nos tutoriais rápidos. Caso precise, fale conosco via WhatsApp.";
+    }
+    function initHelpCenter() {
+        if(document.getElementById('faqContainer') && document.getElementById('faqContainer').innerHTML === '') {
+            renderFAQ();
+            renderTutorials();
+            addChatMessage("Olá! Sou o assistente IA. Como posso ajudar você hoje? 🌾", false);
+        }
+        const sendBtn = document.getElementById('sendChatBtn');
+        const chatInput = document.getElementById('chatInput');
+        if(sendBtn && !sendBtn.hasListener) {
+            sendBtn.addEventListener('click', () => {
+                const msg = chatInput.value.trim();
+                if(!msg) return;
+                addChatMessage(msg, true);
+                setTimeout(() => { addChatMessage(botResponse(msg), false); }, 300);
+                chatInput.value = '';
+            });
+            chatInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendBtn.click(); });
+            sendBtn.hasListener = true;
+        }
+        // Suporte humano
+        const reqBtn = document.getElementById('requestSupportBtn');
+        if(reqBtn && !reqBtn.hasListener) {
+            reqBtn.addEventListener('click', () => {
+                document.getElementById('supportStatusMsg').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Solicitação enviada. Aguarde retorno em até 24h.';
+                document.getElementById('lastTicketStatus').innerHTML = '📩 Em análise';
+                document.getElementById('supportProgress').style.width = '50%';
+                setTimeout(() => { document.getElementById('supportStatusMsg').innerHTML = '<span class="text-success">✔ Atendimento registrado! Logo entraremos em contato.</span>'; document.getElementById('lastTicketStatus').innerHTML = '✔ Resolvido'; document.getElementById('supportProgress').style.width = '100%'; }, 2000);
+            });
+            reqBtn.hasListener = true;
+        }
+        // Denúncias
+        document.querySelectorAll('.report-btn').forEach(btn => {
+            if(!btn.hasListener) {
+                btn.addEventListener('click', (e) => {
+                    const tipo = btn.getAttribute('data-report');
+                    document.getElementById('reportFeedback').innerHTML = `⚠️ Denúncia de ${tipo} registrada. Nossa equipe irá analisar em breve.`;
+                    setTimeout(() => document.getElementById('reportFeedback').innerHTML = '', 4000);
+                });
+                btn.hasListener = true;
+            }
+        });
+        // Vídeos explicativos - removido o alert para não conflitar com a reprodução nativa
+        document.querySelectorAll('#viewHelp .tutorial-card[data-video]').forEach(card => {
+            if(!card.hasListener) {
+                card.addEventListener('click', (e) => {
+                    // Não faz nada para não interferir no clique do vídeo. O vídeo já está visível.
+                });
+                card.hasListener = true;
+            }
+        });
+        // Pesquisa na central
+        const searchHelp = document.getElementById('helpSearchInput');
+        if(searchHelp && !searchHelp.hasListener) {
+            searchHelp.addEventListener('input', (e) => {
+                const term = e.target.value.toLowerCase();
+                document.querySelectorAll('#faqContainer .mb-3').forEach(faq => { faq.style.display = faq.innerText.toLowerCase().includes(term) ? '' : 'none'; });
+                document.querySelectorAll('#tutorialsContainer .col-md-6').forEach(tut => { tut.style.display = tut.innerText.toLowerCase().includes(term) ? '' : 'none'; });
+            });
+            searchHelp.hasListener = true;
+        }
+    }
+    
+    // Inicialização
+    renderAll();
+</script>
+</body>
+</html>

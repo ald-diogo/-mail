@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>🌾 Quiz Agrícola Inteligente | AgroLux</title>
+  <!-- Bootstrap 5 (grelha) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s;
+        font-family: 'Times New Roman', Times, serif;
+    }
+    body {
+      background: var(--bg-body);
+      color: var(--text-primary);
+      font-family: 'Segoe UI', 'Roboto', 'Georgia', serif;
+      line-height: 1.5;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('images/quiz.jpg');
+      background-size: cover;
+      background-position: center;
+      opacity: 0.15;
+      pointer-events: none;
+      z-index: -2;
+    }
+    :root {
+      --bg-body: #f4f7f2;
+      --bg-surface-trans: rgba(248, 250, 240, 0.88);
+      --border-light: #ced4da;
+      --text-primary: #1f2e1c;
+      --text-secondary: #2d4a22;
+      --accent: #2b6e2e;
+      --accent-bg: #e8f0e6;
+      --link: #1a5d1a;
+      --correct: #2b6e2e;
+      --wrong: #b33b2c;
+    }
+    body.dark-mode {
+      --bg-body: #121212;
+      --bg-surface-trans: rgba(28, 35, 28, 0.88);
+      --border-light: #3a4a3a;
+      --text-primary: #eef5e8;
+      --text-secondary: #c0d6b3;
+      --accent: #7cb342;
+      --accent-bg: #2e3b2e;
+      --link: #9ccc65;
+    }
+    .quiz-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1rem 1.5rem;
+    }
+    .quiz-header {
+      border-bottom: 2px solid var(--accent);
+      padding: 0.5rem 0 1rem;
+      margin-bottom: 1.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      background: transparent;
+    }
+    .logo-area h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), #4c9e2e);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      margin: 0;
+    }
+    .stats-bar {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+      background: var(--bg-surface-trans);
+      backdrop-filter: blur(4px);
+      padding: 0.4rem 1.2rem;
+      border-radius: 40px;
+      border: 1px solid var(--border-light);
+    }
+    .progress-custom {
+      width: 150px;
+      height: 8px;
+      background: #ccc;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: var(--accent);
+      transition: width 0.3s;
+    }
+    .theme-switch-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .theme-switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+    .theme-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      border-radius: 34px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "☀️";
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 20px;
+      width: 20px;
+      left: 2px;
+      bottom: 2px;
+      background-color: white;
+      border-radius: 50%;
+      transition: 0.3s;
+    }
+    input:checked + .slider:before {
+      content: "🌙";
+      transform: translateX(26px);
+    }
+    .quiz-card {
+      background: var(--bg-surface-trans);
+      backdrop-filter: blur(6px);
+      border: 1px solid var(--border-light);
+      border-radius: 32px;
+      padding: 1.8rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    .question-text {
+      font-size: 1.6rem;
+      font-weight: 600;
+      margin: 1rem 0;
+    }
+    .option-btn {
+      width: 100%;
+      text-align: left;
+      background: rgba(0,0,0,0.05);
+      border: 1px solid var(--border-light);
+      border-radius: 60px;
+      padding: 0.8rem 1.2rem;
+      margin-bottom: 0.8rem;
+      font-size: 1rem;
+      transition: 0.1s;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .option-btn:hover:not(:disabled) {
+      background: var(--accent-bg);
+      transform: translateX(5px);
+    }
+    .correct-feedback {
+      background-color: var(--correct) !important;
+      border-color: var(--correct) !important;
+      color: white !important;
+    }
+    .wrong-feedback {
+      background-color: var(--wrong) !important;
+      border-color: var(--wrong) !important;
+      color: white !important;
+    }
+    .disabled-opt {
+      cursor: not-allowed;
+      opacity: 0.9;
+    }
+    .timer-circle {
+      font-size: 2rem;
+      font-weight: bold;
+      color: var(--accent);
+    }
+    .assistant-card, .video-card-mini {
+      background: var(--bg-surface-trans);
+      backdrop-filter: blur(4px);
+      border-radius: 24px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border: 1px solid var(--border-light);
+    }
+    .btn-custom {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 40px;
+      padding: 0.5rem 1.5rem;
+      font-weight: bold;
+    }
+    .btn-custom:hover {
+      background: #1e5a1e;
+      transform: scale(1.02);
+    }
+    .video-grid {
+      display: grid;
+      gap: 1rem;
+    }
+    footer {
+      text-align: center;
+      border-top: 1px solid var(--border-light);
+      padding: 1.5rem;
+      font-size: 0.85rem;
+    }
+    @media (max-width: 768px) {
+      .quiz-container { padding: 0.8rem; }
+      .question-text { font-size: 1.2rem; }
+    }
+      
+    /* Outher CSS */
+    .logo-maker{
+      border-radius: 50px;
+      width: 50px;
+      height: 50px;
+    }
+    
+    .logo-panel{
+      border-radius: 50px;
+      width: 30px;
+      height: 30px;
+    }
+        
+        .logo-panel { 
+            width: 24px;
+            height: 24px; 
+            vertical-align: middle;
+            margin-right: 5px; 
+        }
+        
+        .logo-point {
+            width: 100px; 
+            height: 70px;
+        }
+  </style>
+</head>
+<body>
+<div class="quiz-container">
+  <div class="quiz-header">
+    <div class="logo-area">
+      <h1>
+          <a href="index.html" >
+              <img src="images/Lux-logo-bg.png" 
+                   class="logo-point" 
+                   onerror="this.style.display='none'"/>
+          </a>Quiz Inteligente</h1>
+      <div class="small text-secondary">Aprenda agricultura jogando</div>
+    </div>
+      
+    
+      
+    <div class="stats-bar">
+        <button class="btn btn-sm btn-outline-danger"><a href="library.html" ><i class="bi bi-arrow-left-circle"></i> Voltar</a></button>
+        
+      <div><i class="bi bi-star-fill text-warning"></i> <span id="scoreDisplay">0</span> pts</div>
+      <div class="progress-custom"><div class="progress-fill" id="progressFill"></div></div>
+      <div><i class="bi bi-question-circle"></i> <span id="questionCounter">1</span>/<span id="totalQuestions">0</span></div>
+      <div class="theme-switch-wrapper">
+        <i class="bi bi-sun"></i>
+        <label class="theme-switch"><input type="checkbox" id="darkModeCheckbox"><span class="slider"></span></label>
+        <i class="bi bi-moon"></i>
+      </div>
+      <button id="langSwitch" class="btn btn-sm btn-outline-secondary">🇬🇧 EN</button>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- COLUNA PRINCIPAL: QUIZ -->
+    <div class="col-lg-7">
+      <div class="quiz-card" id="quizCard">
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="badge bg-success" id="categoryBadge">Culturas</span>
+          <div class="timer-circle"><i class="bi bi-hourglass-split"></i> <span id="timerSec">20</span>s</div>
+        </div>
+        <div class="question-text" id="questionText">Carregando pergunta...</div>
+        <div id="optionsContainer"></div>
+        <div class="d-flex justify-content-between mt-3">
+          <button id="restartBtn" class="btn-custom"><i class="bi bi-arrow-left-circle"></i> Reiniciar</button>
+          <button id="nextBtn" class="btn-custom" disabled>Próxima <i class="bi bi-arrow-right-circle"></i></button>
+        </div>
+      </div>
+      <!-- Resultado final (inicialmente escondido) -->
+      <div id="resultCard" class="quiz-card text-center" style="display: none;">
+        <h2><i class="bi bi-trophy-fill text-warning"></i> Resultado Final</h2>
+        <p id="finalScoreMsg"></p>
+        <button id="playAgainBtn" class="btn-custom mt-2"><i class="bi bi-arrow-repeat"></i> Jogar Novamente</button>
+      </div>
+    </div>
+
+    <!-- COLUNA LATERAL: ASSISTENTE + ESTATÍSTICAS + VÍDEOS -->
+    <div class="col-lg-5">
+      <div class="assistant-card">
+        <h5><i class="bi bi-robot"></i> <span data-i18n="assistant">Assistente Agrícola</span></h5>
+        <p id="hintText" class="small mb-0">Clique numa opção para ver dicas ou espere...</p>
+      </div>
+      <div class="assistant-card">
+        <h5><i class="bi bi-graph-up"></i> Estatísticas da Sessão</h5>
+        <div>✅ Acertos: <span id="correctCount">0</span></div>
+        <div>❌ Erros: <span id="wrongCount">0</span></div>
+        <div>📊 Taxa: <span id="accuracyRate">0</span>%</div>
+      </div>
+      <div class="assistant-card">
+        <h5><i class="bi bi-camera-reels-fill"></i> Vídeos Educativos</h5>
+        <div class="video-grid" id="videosContainer"></div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    🌱 AgroQuiz Global – Conhecimento agrícola que rende pontos 🌾
+  </footer>
+</div>
+
+<script>
+ // ======================= BASE DE PERGUNTAS (PT/EN) - 25 PERGUNTAS CADA =======================
+const quizData = {
+  pt: [
+    { id:1, category:"Culturas", question:"Qual é o melhor horário para irrigar uma plantação em regiões quentes?", options:["Meio-dia","Manhã cedo","Meia-noite","Tarde quente"], correct:1, hint:"Evita evaporação excessiva e permite absorção." },
+    { id:2, category:"Pragas", question:"Qual inseto é usado no controle biológico de pulgões?", options:["Joaninha","Lagarta","Besouro","Formiga"], correct:0, hint:"Esse besouro vermelho é famoso por devorar pulgões." },
+    { id:3, category:"Fertilizantes", question:"Qual nutriente é essencial para o crescimento de raízes?", options:["Nitrogénio","Fósforo","Potássio","Cálcio"], correct:1, hint:"É o 'P' do NPK, importante para florescimento e raízes." },
+    { id:4, category:"Irrigação", question:"Qual sistema de irrigação economiza mais água?", options:["Aspersão","Superfície","Gotejamento","Inundação"], correct:2, hint:"Fornece água diretamente à raiz com perda mínima." },
+    { id:5, category:"Sustentabilidade", question:"O que é compostagem?", options:["Reciclagem de plástico","Decomposição de matéria orgânica","Queima de resíduos","Uso de agrotóxicos"], correct:1, hint:"Transforma restos de comida e folhas em adubo." },
+    { id:6, category:"Clima", question:"Cultura C4 mais eficiente em altas temperaturas?", options:["Trigo","Arroz","Milho","Cevada"], correct:2, hint:"É um cereal tropical, base de muitas dietas." },
+    { id:7, category:"Inovação", question:"Qual técnica permite cultivar sem solo em áreas urbanas?", options:["Hidroponia","Rotação","Plantio direto","Terra preta"], correct:0, hint:"Usa água nutritiva em vez de terra." },
+    { id:8, category:"Pecuária", question:"Qual é a principal fonte de proteína para bovinos em pastagem?", options:["Milho","Soja","Capim","Feno"], correct:2, hint:"Pastagem natural ou cultivada é a base da alimentação." },
+    { id:9, category:"Solos", question:"Qual tipo de solo tem melhor drenagem?", options:["Argiloso","Arenoso","Humoso","Silte"], correct:1, hint:"Partículas grandes permitem água passar rápido." },
+    { id:10, category:"Colheita", question:"Qual é o ponto ideal para colher milho para silagem?", options:["Grão duro","Grão leitoso","Palha seca","Planta seca"], correct:1, hint:"Umidade adequada para fermentação." },
+    { id:11, category:"Armazenamento", question:"Qual fator mais prejudicial na armazenagem de grãos?", options:["Luz","Umidade","Ventilação","Temperatura baixa"], correct:1, hint:"Favorece fungos e aflatoxinas." },
+    { id:12, category:"Biotecnologia", question:"O que são plantas transgênicas?", options:["Cruzamento natural","Modificação genética com DNA de outra espécie","Seleção massal","Mutação espontânea"], correct:1, hint:"Organismos geneticamente modificados (OGM)." },
+    { id:13, category:"Economia Agrícola", question:"O que é agricultura familiar?", options:["Grandes latifúndios","Produção com mão de obra familiar e pequena escala","Agronegócio exportador","Cooperativas apenas"], correct:1, hint:"Base da produção de muitos alimentos no Brasil." },
+    { id:14, category:"Máquinas", question:"Qual implemento é usado para preparo primário do solo?", options:["Grade","Arado","Semeadora","Pulverizador"], correct:1, hint:"Revolve e corta camadas profundas." },
+    { id:15, category:"Meio Ambiente", question:"Qual prática reduz a erosão do solo?", options:["Queimada","Plantio em nível","Monocultura","Aração profunda"], correct:1, hint:"Segue curvas de nível para diminuir enxurrada." },
+    { id:16, category:"Nutrição Vegetal", question:"Sintoma de deficiência de nitrogênio em plantas?", options:["Folhas amareladas (clorose) em folhas velhas","Folhas roxas","Bordas queimadas","Crescimento atrofiado apenas"], correct:0, hint:"Nitrogênio é móvel, vai para folhas novas." },
+    { id:17, category:"Irrigação", question:"Qual é a lâmina de irrigação?", options:["Volume de água por área","Tempo de irrigação","Profundidade do lençol freático","Velocidade da água"], correct:0, hint:"Medida em mm ou m³/ha." },
+    { id:18, category:"Pragas", question:"A lagarta-do-cartucho ataca principalmente qual cultura?", options:["Soja","Milho","Algodão","Cana"], correct:1, hint:"Spodoptera frugiperda, praga chave do milho." },
+    { id:19, category:"Doenças", question:"A ferrugem asiática é uma doença fúngica que ataca?", options:["Trigo","Café","Soja","Arroz"], correct:2, hint:"Phakopsora pachyrhizi, causa perdas significativas." },
+    { id:20, category:"Plantio", question:"Qual é a vantagem do plantio direto?", options:["Revolvimento do solo","Cobertura morta reduz erosão","Uso intensivo de herbicidas","Irrigação constante"], correct:1, hint:"Palhada protege o solo." },
+    { id:21, category:"Clima", question:"O que é déficit hídrico?", options:["Excesso de água","Falta de água disponível para plantas","Alta umidade","Seca do ar"], correct:1, hint:"Quando a demanda supera a oferta." },
+    { id:22, category:"Fertilidade", question:"Qual é o pH ideal para a maioria das culturas?", options:["3.5-4.5","5.5-6.5","7.0-8.0","8.5-9.5"], correct:1, hint:"Ligeiramente ácido a neutro, disponibilidade de nutrientes." },
+    { id:23, category:"Adubação", question:"Qual é a função do potássio na planta?", options:["Crescimento vegetativo","Regulação hídrica e abertura estomática","Formação de proteínas","Fixação de nitrogênio"], correct:1, hint:"K é essencial para estresse hídrico." },
+    { id:24, category:"Criação animal", question:"O que é pastejo rotacionado?", options:["Animais soltos sempre","Divisão da área em piquetes com rodízio","Alimentação em cocho","Suplementação mineral"], correct:1, hint:"Melhora aproveitamento da pastagem." },
+    { id:25, category:"Sustentabilidade", question:"O que é agricultura de precisão?", options:["Uso de drones e GPS para manejo localizado","Plantio manual","Irrigação fixa","Adubação uniforme"], correct:0, hint:"Tecnologia para eficiência." }
+  ],
+  en: [
+    { id:1, category:"Crops", question:"What is the best time to irrigate in hot regions?", options:["Noon","Early morning","Midnight","Hot afternoon"], correct:1, hint:"Avoids evaporation, allows absorption." },
+    { id:2, category:"Pests", question:"Which insect is used for biological control of aphids?", options:["Ladybug","Caterpillar","Beetle","Ant"], correct:0, hint:"Red spotted beetle loves eating aphids." },
+    { id:3, category:"Fertilizers", question:"Which nutrient is essential for root growth?", options:["Nitrogen","Phosphorus","Potassium","Calcium"], correct:1, hint:"The 'P' in NPK." },
+    { id:4, category:"Irrigation", question:"Which irrigation system saves the most water?", options:["Sprinkler","Surface","Drip","Flood"], correct:2, hint:"Delivers water directly to roots." },
+    { id:5, category:"Sustainability", question:"What is composting?", options:["Plastic recycling","Organic matter decomposition","Waste burning","Pesticide use"], correct:1, hint:"Turns food scraps into fertilizer." },
+    { id:6, category:"Climate", question:"Most efficient C4 crop in high temperatures?", options:["Wheat","Rice","Corn","Barley"], correct:2, hint:"Tropical cereal, global staple." },
+    { id:7, category:"Innovation", question:"Soilless farming technique for urban areas?", options:["Hydroponics","Rotation","No-till","Terra preta"], correct:0, hint:"Nutrient-rich water instead of soil." },
+    { id:8, category:"Livestock", question:"Main protein source for grazing cattle?", options:["Corn","Soybean","Grass","Hay"], correct:2, hint:"Natural or cultivated pasture." },
+    { id:9, category:"Soils", question:"Which soil type has the best drainage?", options:["Clay","Sandy","Loamy","Silt"], correct:1, hint:"Large particles let water pass quickly." },
+    { id:10, category:"Harvest", question:"Ideal point to harvest corn for silage?", options:["Hard grain","Milky grain","Dry straw","Dry plant"], correct:1, hint:"Proper moisture for fermentation." },
+    { id:11, category:"Storage", question:"Most harmful factor in grain storage?", options:["Light","Moisture","Ventilation","Low temperature"], correct:1, hint:"Promotes fungi and aflatoxins." },
+    { id:12, category:"Biotechnology", question:"What are transgenic plants?", options:["Natural crossbreeding","Genetic modification with DNA from another species","Mass selection","Spontaneous mutation"], correct:1, hint:"Genetically modified organisms (GMOs)." },
+    { id:13, category:"Agricultural Economics", question:"What is family farming?", options:["Large estates","Production with family labor and small scale","Export agribusiness","Cooperatives only"], correct:1, hint:"Basis of many food production systems." },
+    { id:14, category:"Machinery", question:"Which implement is used for primary tillage?", options:["Harrow","Plow","Seeder","Sprayer"], correct:1, hint:"Turns and cuts deep soil layers." },
+    { id:15, category:"Environment", question:"Which practice reduces soil erosion?", options:["Burning","Contour planting","Monoculture","Deep plowing"], correct:1, hint:"Follows contour lines to reduce runoff." },
+    { id:16, category:"Plant Nutrition", question:"Nitrogen deficiency symptom in plants?", options:["Yellowish leaves (chlorosis) on older leaves","Purple leaves","Burned edges","Only stunted growth"], correct:0, hint:"Nitrogen is mobile, moves to new leaves." },
+    { id:17, category:"Irrigation", question:"What is irrigation depth (water layer)?", options:["Water volume per area","Irrigation time","Water table depth","Water velocity"], correct:0, hint:"Measured in mm or m³/ha." },
+    { id:18, category:"Pests", question:"Fall armyworm primarily attacks which crop?", options:["Soybean","Corn","Cotton","Sugarcane"], correct:1, hint:"Spodoptera frugiperda, key corn pest." },
+    { id:19, category:"Diseases", question:"Asian rust is a fungal disease that attacks?", options:["Wheat","Coffee","Soybean","Rice"], correct:2, hint:"Phakopsora pachyrhizi, causes significant losses." },
+    { id:20, category:"Planting", question:"What is the advantage of no-till farming?", options:["Soil disturbance","Mulch cover reduces erosion","Heavy herbicide use","Constant irrigation"], correct:1, hint:"Crop residue protects the soil." },
+    { id:21, category:"Climate", question:"What is water deficit?", options:["Excess water","Lack of available water for plants","High humidity","Dry air"], correct:1, hint:"When demand exceeds supply." },
+    { id:22, category:"Fertility", question:"What is the ideal pH for most crops?", options:["3.5-4.5","5.5-6.5","7.0-8.0","8.5-9.5"], correct:1, hint:"Slightly acidic to neutral, nutrient availability." },
+    { id:23, category:"Fertilization", question:"What is the function of potassium in plants?", options:["Vegetative growth","Water regulation and stomatal opening","Protein formation","Nitrogen fixation"], correct:1, hint:"K is essential for water stress tolerance." },
+    { id:24, category:"Animal Husbandry", question:"What is rotational grazing?", options:["Animals always loose","Dividing area into paddocks with rotation","Trough feeding","Mineral supplementation"], correct:1, hint:"Improves pasture utilization." },
+    { id:25, category:"Sustainability", question:"What is precision agriculture?", options:["Use of drones and GPS for site-specific management","Manual planting","Fixed irrigation","Uniform fertilization"], correct:0, hint:"Technology for efficiency." }
+  ]
+};
+
+  let currentLang = "pt";
+  let currentQuestions = [];
+  let currentIndex = 0;
+  let score = 0;
+  let correctAnswers = 0;
+  let wrongAnswers = 0;
+  let quizActive = true;
+  let timerInterval = null;
+  let timeLeft = 20;
+  let waitingForNext = false;
+
+  // DOM elements
+  const questionText = document.getElementById("questionText");
+  const optionsContainer = document.getElementById("optionsContainer");
+  const nextBtn = document.getElementById("nextBtn");
+  const restartBtn = document.getElementById("restartBtn");
+  const resultCard = document.getElementById("resultCard");
+  const quizCard = document.getElementById("quizCard");
+  const scoreDisplay = document.getElementById("scoreDisplay");
+  const progressFill = document.getElementById("progressFill");
+  const questionCounterSpan = document.getElementById("questionCounter");
+  const totalQuestionsSpan = document.getElementById("totalQuestions");
+  const categoryBadge = document.getElementById("categoryBadge");
+  const timerSecSpan = document.getElementById("timerSec");
+  const hintText = document.getElementById("hintText");
+  const correctCountSpan = document.getElementById("correctCount");
+  const wrongCountSpan = document.getElementById("wrongCount");
+  const accuracyRateSpan = document.getElementById("accuracyRate");
+  const finalScoreMsg = document.getElementById("finalScoreMsg");
+  const videosContainer = document.getElementById("videosContainer");
+
+  // Vídeos educativos (youtube embed)
+  const videosData = {
+    pt: [
+      { title: "🌱 Como plantar milho", url: "https://www.youtube.com/embed/8CZ3H1pA1K8" },
+      { title: "💧 Irrigação por gotejamento", url: "video/irrigacao.mp4" },
+      { title: "🐞 Controle biológico de pragas", url: "video/praga.mp4" }
+    ],
+    en: [
+      { title: "🌱 How to grow corn", url: "https://www.youtube.com/embed/8CZ3H1pA1K8" },
+      { title: "💧 Drip irrigation explained", url: "video/irrigacao.mp4" },
+      { title: "🐞 Biological pest control", url: "video/praga.mp4" }
+    ]
+  };
+
+  function loadVideos() {
+    const vids = videosData[currentLang];
+    videosContainer.innerHTML = vids.map(v => `
+      <div class="video-card-mini">
+        <iframe width="100%" height="120" src="${v.url}?rel=0" frameborder="0" allowfullscreen loading="lazy"></iframe>
+        <div class="small mt-1">${v.title}</div>
+      </div>
+    `).join('');
+  }
+
+  function updateStatsUI() {
+    scoreDisplay.innerText = score;
+    correctCountSpan.innerText = correctAnswers;
+    wrongCountSpan.innerText = wrongAnswers;
+    let totalAnswered = correctAnswers + wrongAnswers;
+    let acc = totalAnswered === 0 ? 0 : Math.round((correctAnswers / totalAnswered) * 100);
+    accuracyRateSpan.innerText = acc;
+    let total = currentQuestions.length;
+    let percent = ((currentIndex) / total) * 100;
+    progressFill.style.width = `${percent}%`;
+    questionCounterSpan.innerText = currentIndex + 1;
+  }
+
+  function stopTimer() {
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+  }
+
+  function startTimer() {
+    if (timerInterval) stopTimer();
+    timeLeft = 20;
+    timerSecSpan.innerText = timeLeft;
+    timerInterval = setInterval(() => {
+      if (!quizActive || waitingForNext) return;
+      if (timeLeft <= 1) {
+        // tempo esgotado -> erro automático
+        clearInterval(timerInterval);
+        timerInterval = null;
+        if (quizActive && !waitingForNext) {
+          handleTimeout();
+        }
+      } else {
+        timeLeft--;
+        timerSecSpan.innerText = timeLeft;
+      }
+    }, 1000);
+  }
+
+  function handleTimeout() {
+    // Marcar a pergunta atual como errada sem escolha
+    waitingForNext = true;
+    wrongAnswers++;
+    updateStatsUI();
+    // Desabilitar todos os botões
+    document.querySelectorAll('.option-btn').forEach(btn => btn.disabled = true);
+    // Mostrar feedback de tempo esgotado na dica
+    hintText.innerHTML = `<i class="bi bi-clock-history"></i> Tempo esgotado! A resposta correta era: ${currentQuestions[currentIndex].options[currentQuestions[currentIndex].correct]}`;
+    // Habilitar botão próximo
+    nextBtn.disabled = false;
+    quizActive = false;
+    stopTimer();
+  }
+
+  function loadQuestion() {
+    if (!quizActive && waitingForNext) return;
+    if (currentIndex >= currentQuestions.length) {
+      endQuiz();
+      return;
+    }
+    quizActive = true;
+    waitingForNext = false;
+    nextBtn.disabled = true;
+    const q = currentQuestions[currentIndex];
+    questionText.innerText = q.question;
+    categoryBadge.innerText = q.category;
+    hintText.innerHTML = `💡 Dica: ${q.hint}`;
+    // gerar opções
+    optionsContainer.innerHTML = "";
+    q.options.forEach((opt, idx) => {
+      const btn = document.createElement("button");
+      btn.className = "option-btn";
+      btn.innerHTML = `<span class="fw-bold">${String.fromCharCode(65+idx)}.</span> ${opt}`;
+      btn.addEventListener("click", () => selectAnswer(idx, btn));
+      optionsContainer.appendChild(btn);
+    });
+    updateStatsUI();
+    startTimer();
+  }
+
+  function selectAnswer(selectedIdx, btnElement) {
+    if (!quizActive || waitingForNext) return;
+    const q = currentQuestions[currentIndex];
+    const isCorrect = (selectedIdx === q.correct);
+    // feedback visual
+    const allBtns = document.querySelectorAll('.option-btn');
+    allBtns.forEach(btn => btn.disabled = true);
+    if (isCorrect) {
+      score += 10;
+      correctAnswers++;
+      btnElement.classList.add("correct-feedback");
+      hintText.innerHTML = `✅ Correto! ${q.options[q.correct]} é a resposta certa. +10 pts`;
+    } else {
+      wrongAnswers++;
+      btnElement.classList.add("wrong-feedback");
+      // destacar também a resposta correta
+      allBtns[q.correct].classList.add("correct-feedback");
+      hintText.innerHTML = `❌ Errado! A resposta correta era: ${q.options[q.correct]}.`;
+    }
+    updateStatsUI();
+    quizActive = false;
+    waitingForNext = true;
+    stopTimer();
+    nextBtn.disabled = false;
+  }
+
+  function nextQuestion() {
+    if (!waitingForNext && quizActive === false) return;
+    currentIndex++;
+    if (currentIndex < currentQuestions.length) {
+      waitingForNext = false;
+      quizActive = true;
+      loadQuestion();
+    } else {
+      endQuiz();
+    }
+  }
+
+  function endQuiz() {
+    stopTimer();
+    quizCard.style.display = "none";
+    resultCard.style.display = "block";
+    let total = currentQuestions.length;
+    let percent = Math.round((correctAnswers / total) * 100);
+    finalScoreMsg.innerHTML = `Você acertou ${correctAnswers} de ${total} perguntas!<br>Pontuação final: ${score} pontos<br>Taxa de acerto: ${percent}%<br>🌾 Parabéns, ${percent>=70 ? "Especialista!" : "Continue aprendendo!"}`;
+  }
+
+  function restartQuiz() {
+    stopTimer();
+    currentIndex = 0;
+    score = 0;
+    correctAnswers = 0;
+    wrongAnswers = 0;
+    quizActive = true;
+    waitingForNext = false;
+    resultCard.style.display = "none";
+    quizCard.style.display = "block";
+    // recarregar perguntas baseado no idioma atual
+    currentQuestions = [...quizData[currentLang]];
+    totalQuestionsSpan.innerText = currentQuestions.length;
+    loadQuestion();
+    updateStatsUI();
+  }
+
+  // Inicialização e idioma
+  function initQuiz() {
+    currentQuestions = [...quizData[currentLang]];
+    totalQuestionsSpan.innerText = currentQuestions.length;
+    restartQuiz(); // começa do zero com as perguntas carregadas
+    loadVideos();
+  }
+
+  document.getElementById("langSwitch").addEventListener("click", () => {
+    currentLang = currentLang === "pt" ? "en" : "pt";
+    localStorage.setItem("agrolang", currentLang);
+    document.getElementById("langSwitch").innerHTML = currentLang === "pt" ? "🇬🇧 EN" : "🇵🇹 PT";
+    initQuiz();
+  });
+
+  nextBtn.addEventListener("click", nextQuestion);
+  restartBtn.addEventListener("click", () => restartQuiz());
+  document.getElementById("playAgainBtn")?.addEventListener("click", () => restartQuiz());
+
+  // Dark mode
+  const darkToggle = document.getElementById("darkModeCheckbox");
+  if (localStorage.getItem("darkMode") === "true") {
+    document.body.classList.add("dark-mode");
+    darkToggle.checked = true;
+  }
+  darkToggle.addEventListener("change", (e) => {
+    if (e.target.checked) {
+      document.body.classList.add("dark-mode");
+      localStorage.setItem("darkMode", "true");
+    } else {
+      document.body.classList.remove("dark-mode");
+      localStorage.setItem("darkMode", "false");
+    }
+  });
+
+  // iniciar
+  initQuiz();
+</script>
+</body>
+</html>

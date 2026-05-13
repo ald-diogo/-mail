@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>AgroLux · Galeria Visual de Pragas + Diagnóstico</title>
+    <!-- Bootstrap 5 + Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Times New Roman', Times, serif;
+        }
+        body {
+            background: url('images/riscos-biological.jpg') center/cover no-repeat fixed;
+            backdrop-filter: blur(2px);
+            height: 100vh;
+            overflow: hidden;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 30, 10, 0.2);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(14px);
+            border-radius: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        body.dark-theme .glass-panel {
+            background: rgba(20, 25, 18, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        body.dark-theme .message-bubble-user {
+            background: #2c5e2ecc;
+            color: white;
+        }
+        body.dark-theme .message-bubble-bot {
+            background: #1e2a1ecc;
+            color: #eef4e5;
+        }
+        .app-container {
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            z-index: 2;
+            padding: 16px;
+        }
+        .sidebar-desktop {
+            width: 360px;
+            height: calc(100vh - 32px);
+            display: flex;
+            flex-direction: column;
+            background: rgba(245, 248, 235, 0.55);
+            backdrop-filter: blur(16px);
+            border-radius: 28px;
+            border: 1px solid rgba(255,255,240,0.5);
+            overflow-y: auto;
+        }
+        body.dark-theme .sidebar-desktop {
+            background: rgba(25, 35, 20, 0.65);
+        }
+        .chat-main {
+            flex: 1;
+            height: calc(100vh - 32px);
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 245, 0.35);
+            backdrop-filter: blur(12px);
+            border-radius: 28px;
+            border: 1px solid rgba(255,255,210,0.6);
+            overflow: hidden;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 24px;
+            scroll-behavior: smooth;
+        }
+        .message-bubble {
+            max-width: 80%;
+            padding: 12px 18px;
+            border-radius: 24px;
+            font-size: 0.95rem;
+            line-height: 1.45;
+        }
+        .message-bubble-user {
+            background: #d9f0daee;
+            color: #1a3b1a;
+            border-bottom-right-radius: 6px;
+            margin-left: auto;
+        }
+        .message-bubble-bot {
+            background: #ffffffcc;
+            backdrop-filter: blur(4px);
+            color: #1f2a1b;
+            border-bottom-left-radius: 6px;
+        }
+        .message-image {
+            max-width: 100%;
+            margin-top: 10px;
+            border-radius: 16px;
+            max-height: 240px;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .footer-input {
+            border-top: 1px solid rgba(160,180,130,0.4);
+            padding: 16px 20px;
+        }
+        .btn-send {
+            background: #3c7849;
+            border: none;
+            color: white;
+            border-radius: 40px;
+            padding: 8px 20px;
+        }
+        .btn-send:hover {
+            background: #2d6138;
+        }
+        .modal-glass .modal-content {
+            background: rgba(30,35,25,0.9);
+            backdrop-filter: blur(12px);
+            color: white;
+        }
+        @media (max-width: 768px) {
+            .app-container { padding: 8px; }
+            .sidebar-desktop { display: none; }
+        }
+        .offcanvas-glass {
+            background: rgba(30, 40, 25, 0.9);
+            backdrop-filter: blur(20px);
+            color: white;
+        }
+        .theme-toggle-icon {
+            cursor: pointer;
+            font-size: 1.4rem;
+        }
+        .chip-suggestion {
+            background: rgba(80,120,70,0.3);
+            border-radius: 40px;
+            padding: 6px 14px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: inline-block;
+        }
+        .chip-suggestion:hover {
+            background: #5e8b56aa;
+            color: white;
+        }
+        .history-buttons {
+            display: flex;
+            gap: 8px;
+            margin: 12px 0;
+        }
+        .pest-card {
+            background: rgba(30,40,20,0.7);
+            backdrop-filter: blur(4px);
+            border-radius: 20px;
+            padding: 10px;
+            margin-bottom: 14px;
+            border: 1px solid rgba(220,240,150,0.5);
+            transition: 0.2s;
+        }
+        .pest-card:hover {
+            transform: translateY(-3px);
+            background: rgba(70,110,60,0.85);
+        }
+        .pest-img {
+            width: 100%;
+            height: 130px;
+            object-fit: cover;
+            border-radius: 16px;
+            background: #2c3a1f;
+            margin-bottom: 8px;
+        }
+        .pest-name {
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+        .btn-report, .btn-diagnose {
+            background: rgba(0,0,0,0.5);
+            border: none;
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 30px;
+            color: white;
+        }
+        .btn-diagnose { background: #2c6e2c; }
+        .btn-report { background: #c0392b; }
+        .logo-point { width: 100px; height: 50px; }
+        .pest-gallery-title {
+            font-size: 1rem;
+            font-weight: bold;
+            border-left: 4px solid #6fbf4c;
+            padding-left: 10px;
+            margin: 15px 0 10px 0;
+        }
+        
+          /* Outher CSS */
+    .logo-maker{
+      border-radius: 50px;
+      width: 50px;
+      height: 50px;
+    }
+    
+    .logo-panel{
+      border-radius: 50px;
+      width: 30px;
+      height: 30px;
+    }
+        
+        .logo-panel { 
+            width: 24px;
+            height: 24px; 
+            vertical-align: middle;
+            margin-right: 5px; 
+        }
+        
+        .logo-point {
+            width: 100px; 
+            height: 50px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="d-flex gap-3 h-100">
+        <!-- SIDEBAR DESKTOP -->
+        <div class="sidebar-desktop p-3 d-none d-md-flex flex-column">
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <h3 class="fw-bold mb-0" style="color:#2f5e2a;"><a href="index.html" >
+                            <img src="images/Lux-logo-bg.png" class="logo-point" onerror="this.style.display='none'"/>
+                        </a></h3>
+                <i id="desktopThemeIcon" class="bi bi-moon-stars-fill ms-auto theme-toggle-icon"></i>
+            </div>
+            <button id="farmBtnSide" class="btn btn-outline-success mb-2 rounded-pill" data-bs-toggle="modal" data-bs-target="#farmModal"><i class="bi bi-building"></i> Minha Fazenda</button>
+            
+            <div class="pest-gallery-title"><i class="bi bi-images"></i> Galeria de Pragas & Doenças</div>
+            <div id="pestGalleryDesktop" class="mb-3" style="max-height: 420px; overflow-y: auto; padding-right: 5px;"></div>
+            
+            <div class="history-buttons">
+                <button id="saveHistoryBtnDesktop" class="btn btn-outline-info btn-sm rounded-pill"><i class="bi bi-save"></i> Guardar</button>
+                <button id="clearHistoryBtnDesktop" class="btn btn-outline-danger btn-sm rounded-pill"><i class="bi bi-trash3"></i> Limpar</button>
+            </div>
+            <div class="glass-panel p-2 mb-2 rounded-3 small">
+                <i class="bi bi-chat-dots-fill text-success"></i> <strong>João, Huíla</strong><br>“Controle biológico reduziu pragas em 70%!”
+            </div>
+            <div class="glass-panel p-2 rounded-3 small">
+                <i class="bi bi-shield-lock-fill text-warning"></i> <strong>Segurança</strong><br>⚠️ Desconfie de ofertas muito altas, exija comprovativo.
+            </div>
+            <div class="mt-auto pt-2 small">
+                <div><i class="bi bi-wifi"></i> <span id="onlineStatus">Online</span></div>
+                <div id="farmSummary" class="farm-info mt-1"></div>
+                <button id="whatsappShareSide" class="btn btn-sm btn-success mt-2 w-100"><i class="bi bi-whatsapp"></i> Partilhar</button>
+            </div>
+        </div>
+
+        <!-- MAIN CHAT -->
+        <div class="chat-main d-flex flex-column">
+            <div class="d-flex align-items-center justify-content-between p-3 border-bottom">
+                <div>
+                    <a href="index.html" >
+                            <img src="images/Lux-logo-bg.png" class="logo-point" onerror="this.style.display='none'"/>
+                        </a>
+                    <button class="btn d-md-none" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar"><i class="bi bi-list fs-4"></i></button>
+                    <span class="fw-bold"> Galeria Visual</span>
+                    <div class="small text-success">🐛 Diagnóstico com imagem real das pragas</div>
+                </div>
+                <i id="mainThemeIcon" class="bi bi-moon-stars-fill theme-toggle-icon d-md-none"></i>
+            </div>
+            <div id="chatMessagesContainer" class="chat-messages"></div>
+            <div class="footer-input">
+                <div class="d-flex gap-2 mb-2 flex-wrap" id="quickSuggestions">
+                    <span class="chip-suggestion" data-question="Ver galeria de pragas">🖼️ Abrir Galeria</span>
+                    <span class="chip-suggestion" data-question="Controle biológico para lagarta-do-cartucho">🐞 Controle lagarta</span>
+                    <span class="chip-suggestion" data-question="Enviar imagem para diagnóstico">📸 Enviar foto da planta</span>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="userInput" class="form-control rounded-pill" placeholder="Digite ou escolha uma praga na galeria...">
+                    <button class="btn btn-outline-secondary rounded-pill" id="imageUploadBtn"><i class="bi bi-camera-fill"></i></button>
+                    <button class="btn btn-send rounded-pill px-3" id="sendBtn"><i class="bi bi-send"></i></button>
+                </div>
+                <input type="file" id="hiddenImageInput" accept="image/*" capture="environment" style="display:none">
+                <div class="small text-muted mt-2 text-center">👉 Clique em "Diagnosticar" na galeria para ver a imagem e o controle biológico.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Offcanvas Mobile -->
+<div class="offcanvas offcanvas-start offcanvas-glass" tabindex="-1" id="mobileSidebar">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Galeria de Pragas & Doenças</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div id="pestGalleryMobile" style="max-height: 70vh; overflow-y: auto;"></div>
+        <button id="whatsappShareMobile" class="btn btn-success w-100 mt-3 rounded-pill"><i class="bi bi-whatsapp"></i> Partilhar diagnóstico</button>
+    </div>
+</div>
+
+<!-- Modal Vídeo -->
+<div class="modal fade" id="videoModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-glass">
+            <div class="modal-header"><h5>🎥 Controle Biológico</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body p-0"><div class="ratio ratio-16x9"><iframe id="videoIframe" allowfullscreen></iframe></div></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Fazenda -->
+<div class="modal fade" id="farmModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-glass">
+            <div class="modal-header"><h5>📝 Minha Fazenda</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <input type="text" id="farmName" class="form-control mb-2" placeholder="Nome da fazenda">
+                <input type="text" id="farmLocation" class="form-control mb-2" placeholder="Província">
+                <input type="text" id="farmCrops" class="form-control mb-2" placeholder="Culturas (milho, tomate...)">
+                <input type="number" id="farmArea" class="form-control mb-2" placeholder="Área (ha)">
+                <button id="saveFarmBtn" class="btn btn-success w-100">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // ======================= IMAGENS REAIS DAS PRAGAS =======================
+    // Dicionário com URLs reais de imagens (Wikimedia / Bugwood / Domínio público)
+    const imagensReais = {
+        default: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Colorado_potato_beetle.jpg/800px-Colorado_potato_beetle.jpg",
+        "lagarta-do-cartucho": "images/lagarta-do-cartucho.png",
+        "lagarta-da-soja": "images/traca-soja.png",
+        "traça-do-tomateiro": "images/tomato.png",
+        "percevejo-marrom": "images/percevejo.png",
+        "mosca-branca": "images/mosca-branca.png",
+        "pulgões": "images/pulgoes.png",
+        "broca-do-café": "images/broca-cafe.png",
+        "broca-do-colmo": "images/colmo-broca.png",
+        "gafanhotos": "images/gafanhoto.png",
+        "cochonilhas": "images/cochonilhas.png",
+        "trips": "images/trips.png",
+        "besouros": "images/besouros.png",
+        "ácaro-rajado": "images/acaro-rajado.png",
+        "ácaro-vermelho": "images/acaro-vermelho.png",
+        "ácaro-da-ferrugem": "images/acaro-ferro.png",
+        "míldio": "images/mildio.png",
+        "oídio": "images/oidio.png",
+        "ferrugens": "images/ferrugem.png",
+        "antracnose": "images/ant.png",
+        "podridão radicular": "images/radicular.png",  // mantido como você declarou
+        "fusariose": "images/fusariose.png",
+        "nematoide-das-raízes": "images/nematoides.png",
+        "caracóis": "images/caracol.png",
+        "lesmas": "images/lesmas.png",
+        
+        // ===== NOVAS IMAGENS ADICIONADAS PARA PRAGAS FALTANTES =====
+        "mancha parda (cercospora)": "images/parda.png",
+        "podridão negra (alternaria)": "images/nervuras.png",
+        "escaldadura (xanthomonas)": "images/escaldadura.png",
+        "murcha bacteriana (ralstonia)": "images/murcha.png",
+        "nematoide-de-galhas (meloidogyne)": "images/galhas.png",
+        "nematoide-do-cisto (heterodera)": "images/cisto.png",
+        "roedores": "images/roedores.png",
+        "pássaros (quelea)": "images/passaros.png",
+        "lesmas e caracóis": "images/caracol.png"   // já existente, apenas referência
+    };
+
+    // Função robusta de normalização (remove acentos e trata cedilha)
+    function normalizar(str) {
+        return str
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/ç/g, 'c')
+            .toLowerCase();
+    }
+
+    function obterImagemPraga(nomePraga) {
+        const nomeNormalizadoCompleto = normalizar(nomePraga);
+        // Extrai o nome base (antes do primeiro parêntese)
+        const nomeBase = nomePraga.split('(')[0].trim();
+        const nomeBaseNormalizado = normalizar(nomeBase);
+
+        // Cria mapa com chaves normalizadas
+        const mapaNormalizado = new Map();
+        for (let [chave, url] of Object.entries(imagensReais)) {
+            mapaNormalizado.set(normalizar(chave), url);
+        }
+
+        // 1. Tenta correspondência exata pelo nome base
+        if (mapaNormalizado.has(nomeBaseNormalizado)) {
+            return mapaNormalizado.get(nomeBaseNormalizado);
+        }
+
+        // 2. Fallback: busca por inclusão (mesmo comportamento original, mas normalizado)
+        for (let [chaveNorm, url] of mapaNormalizado.entries()) {
+            if (nomeNormalizadoCompleto.includes(chaveNorm)) {
+                return url;
+            }
+        }
+        
+        // 3. Fallback adicional para nomes compostos específicos (ex: "Mancha parda (Cercospora spp.)")
+        // Extrai o gênero/sigla entre parênteses para tentar match
+        const matchParenteses = nomePraga.match(/\(([^)]+)\)/);
+        if (matchParenteses) {
+            const genero = matchParenteses[1].split(' ')[0].toLowerCase();
+            for (let [chaveNorm, url] of mapaNormalizado.entries()) {
+                if (chaveNorm.includes(genero)) {
+                    return url;
+                }
+            }
+        }
+
+        return imagensReais.default;
+    }
+
+    // ======================= BASE DE DADOS COMPLETA =======================
+    const pragasDatabase = [
+        { nome: "Lagarta-do-cartucho (Spodoptera frugiperda)", cultura: "Milho, sorgo, algodão", dano: "Desfolha, ataque ao cartucho, perfuração do colmo", controleBio: "Bacillus thuringiensis (Bt), vespas Trichogramma, crotalária, liberação de parasitoides." },
+        { nome: "Lagarta-da-soja (Anticarsia gemmatalis)", cultura: "Soja", dano: "Desfolha intensa, redução da fotossíntese", controleBio: "Anticarsia gemmatalis NPV (vírus), Bt, vespas predadoras, rotação de culturas." },
+        { nome: "Traça-do-tomateiro (Tuta absoluta)", cultura: "Tomate, batata, berinjela", dano: "Minas nas folhas, perfuração de frutos", controleBio: "Bt, Trichogramma pretiosum, feromônio sexual, predadores Mirídeos." },
+        { nome: "Percevejo-marrom (Euschistus heros)", cultura: "Soja, milho", dano: "Sugador de grãos, transmissão de patógenos", controleBio: "Beauveria bassiana, tesourinhas, armadilhas feromônio, parasitoides de ovos." },
+        { nome: "Mosca-branca (Bemisia tabaci)", cultura: "Hortaliças, feijão, algodão", dano: "Transmissão de viroses, fumagina", controleBio: "Joaninhas, crisopídeos, Paecilomyces fumosoroseus, armadilhas amarelas." },
+        { nome: "Pulgões (Aphididae)", cultura: "Diversas culturas", dano: "Sugadores, fumagina, transmissão de vírus", controleBio: "Joaninhas, sirfídeos, óleo de neem, calda de cinza, crisopídeos." },
+        { nome: "Broca-do-café (Hypothenemus hampei)", cultura: "Café", dano: "Perfura os grãos, reduz qualidade", controleBio: "Beauveria bassiana, vespas parasitoides (Prorops nasuta), coleta de frutos caídos." },
+        { nome: "Broca-do-colmo (Busseola fusca)", cultura: "Milho, sorgo, cana", dano: "Galeria no colmo, quebra da planta", controleBio: "Cotesia flavipes, rotação de culturas, destruição de restolhos, Bt." },
+        { nome: "Gafanhotos (Zonocerus elegans, Locusta migratoria)", cultura: "Diversas", dano: "Consumo maciço de folhas", controleBio: "Metarhizium acridum, pássaros predadores, barreiras repelentes, nematóides entomopatogênicos." },
+        { nome: "Cochonilhas (Coccoidea)", cultura: "Frutíferas, café, citros", dano: "Sugam seiva e secretam honeydew", controleBio: "Joaninhas (Cryptolaemus), crisopídeos, Beauveria bassiana, óleo mineral." },
+        { nome: "Trips (Frankliniella occidentalis)", cultura: "Hortaliças, flores", dano: "Raspagem das folhas, prateamento", controleBio: "Ácaros predadores (Amblyseius), Orius insidiosus, armadilhas azuis." },
+        { nome: "Besouros (Scarabaeidae, Chrysomelidae)", cultura: "Milho, feijão, hortaliças", dano: "Consumo de raízes, folhas e flores", controleBio: "Nematoides entomopatogênicos, Beauveria, Metarhizium, plantas repelentes." },
+        { nome: "Ácaro-rajado (Tetranychus urticae)", cultura: "Hortaliças, frutíferas", dano: "Manchas amarelas, teias, queda de folhas", controleBio: "Ácaros predadores (Phytoseiulus), enxofre, óleo de neem, joaninhas." },
+        { nome: "Ácaro-vermelho (Oligonychus ilicis)", cultura: "Café, erva-mate", dano: "Descoloração, queda de folhas", controleBio: "Ácaros predadores (Iphiseiodes), aplicação de enxofre, manejo de vegetação espontânea." },
+        { nome: "Ácaro-da-ferrugem (Aceria guerreronis)", cultura: "Coco, palma", dano: "Enrugamento, necrose dos frutos", controleBio: "Ácaros predadores, óleo de neem, poda de folhas antigas." },
+        { nome: "Míldio (Plasmopara viticola, Peronospora spp.)", cultura: "Videira, cebola, hortaliças", dano: "Manchas amareladas, mofo branco abaixo da folha", controleBio: "Calda bordalesa, extrato de cavalinha, fungicidas biológicos (Bacillus subtilis)." },
+        { nome: "Oídio (Erysiphe spp.)", cultura: "Abobrinha, trigo, rosa", dano: "Pulverulento branco, distorção folhas", controleBio: "Leitelho fermentado, enxofre, Trichoderma harzianum, óleo de neem." },
+        { nome: "Ferrugens (Puccinia spp., Hemileia vastatrix)", cultura: "Café, trigo, feijão", dano: "Pústulas alaranjadas, desfolha precoce", controleBio: "Extrato de cavalinha, Trichoderma, micorrizas, variedades resistentes." },
+        { nome: "Antracnose (Colletotrichum spp.)", cultura: "Feijão, manga, tomate", dano: "Lesões escuras, tombamento", controleBio: "Trichoderma, calda bordalesa, óleo de cravo, rotação de culturas." },
+        { nome: "Podridão radicular (Phytophthora, Rhizoctonia)", cultura: "Soja, tomate, citros", dano: "Apodrecimento de raízes, murcha", controleBio: "Trichoderma, aumento matéria orgânica, fungos micorrízicos." },
+        { nome: "Mancha parda (Cercospora spp.)", cultura: "Café, beterraba, amendoim", dano: "Manchas marrons com halo", controleBio: "Bacillus subtilis, calda sulfocálcica, remoção de folhas doentes." },
+        { nome: "Podridão negra (Alternaria spp.)", cultura: "Brássicas, tomate, cenoura", dano: "Manchas escuras concêntricas", controleBio: "Trichoderma, óleo de nim, biofertilizantes, boa circulação de ar." },
+        { nome: "Fusariose (Fusarium oxysporum)", cultura: "Algodão, tomate, banana", dano: "Murcha vascular, amarelecimento", controleBio: "Trichoderma, compostos orgânicos, rotação com braquiária, solarização." },
+        { nome: "Escaldadura (Xanthomonas albilineans)", cultura: "Cana-de-açúcar", dano: "Estrias brancas, morte de folhas", controleBio: "Controle biológico com bacteriocinas, uso de mudas sadias, eliminação de restos culturais." },
+        { nome: "Murcha bacteriana (Ralstonia solanacearum)", cultura: "Tomate, batata, pimentão", dano: "Murcha súbita, exsudato bacteriano", controleBio: "Bacillus subtilis, compostagem, rotação com gramíneas, solarização." },
+        { nome: "Nematoide-de-galhas (Meloidogyne spp.)", cultura: "Tomate, soja, cenoura", dano: "Galhas nas raízes, nanismo", controleBio: "Crotalária spectabilis, fungo Paecilomyces lilacinus, Bacillus firmus, Tagetes." },
+        { nome: "Nematoide-do-cisto (Heterodera glycines)", cultura: "Soja, feijão", dano: "Fêmeas em forma de cisto, queda produtividade", controleBio: "Rotação com não-hospedeiras, fungos nematófagos (Pochonia), variedades resistentes." },
+        { nome: "Nematoide-das-raízes (Pratylenchus spp.)", cultura: "Milho, soja, cana, hortaliças", dano: "Lesões escuras nas raízes, declínio da planta", controleBio: "Rotação com Crotalaria, Tagetes, fungo Paecilomyces, aumento de matéria orgânica." },
+        { nome: "Caracóis e lesmas (Mollusca)", cultura: "Hortaliças, frutas, mudas", dano: "Raspagem de folhas, frutos e brotos", controleBio: "Predadores naturais (besouros, sapos), armadilhas com cerveja, ferro fosfato, cobertura morta seca." },
+        { nome: "Roedores (ratos de campo e toupeiras)", cultura: "Diversas", dano: "Consumo de grãos, danos a raízes", controleBio: "Predadores naturais (corujas, cobras), barreiras mecânicas, armadilhas ecológicas." },
+        { nome: "Pássaros (Quelea quelea)", cultura: "Grãos (milho, trigo, arroz)", dano: "Consumo de grãos e sementes", controleBio: "Aves de rapina, redes de proteção, repelentes acústicos alternativos." }
+    ];
+
+    // Atribuir imagem real a cada praga usando a função melhorada
+    pragasDatabase.forEach(p => {
+        p.imagem = obterImagemPraga(p.nome);
+    });
+
+    // Diagnóstico com imagem real
+    function diagnosticarPragaComImagem(pragaNome) {
+        const p = pragasDatabase.find(pg => pg.nome.toLowerCase() === pragaNome.toLowerCase());
+        if (!p) return { text: `⚠️ Praga ou doença não encontrada em nossa base.`, imageUrl: null };
+        return {
+            text: `🔍 **DIAGNÓSTICO: ${p.nome}**\n\n🌾 Cultura: ${p.cultura}\n⚠️ Dano: ${p.dano}\n\n🌱 Controle biológico / Manejo:\n${p.controleBio}\n\n🛡️ Prevenção: Monitoramento semanal, uso de variedades resistentes, equilíbrio do agroecossistema.`,
+            imageUrl: p.imagem
+        };
+    }
+
+    // Renderizar galeria com IMAGENS REAIS
+    function renderPestGallery(containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        container.innerHTML = '';
+        pragasDatabase.forEach(praga => {
+            const card = document.createElement('div');
+            card.className = 'pest-card';
+            card.innerHTML = `
+                <img class="pest-img" src="${praga.imagem}" alt="${praga.nome}" loading="lazy" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Colorado_potato_beetle.jpg/800px-Colorado_potato_beetle.jpg'">
+                <div class="pest-name">${praga.nome}</div>
+                <div class="small text-light">${praga.cultura}</div>
+                <div class="d-flex gap-2 mt-2">
+                    <button class="btn-diagnose" data-praga="${praga.nome.replace(/['"]/g, '&quot;')}"><i class="bi bi-binoculars"></i> Diagnosticar</button>
+                    <button class="btn-report" data-praga="${praga.nome.replace(/['"]/g, '&quot;')}"><i class="bi bi-chat-dots"></i> Relatar</button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+        // Eventos diagnóstico com imagem
+        container.querySelectorAll('.btn-diagnose').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const pragaNome = btn.getAttribute('data-praga');
+                const diagnostico = diagnosticarPragaComImagem(pragaNome);
+                addMessage('user', `🔍 Diagnosticar: ${pragaNome}`);
+                addMessage('assistant', diagnostico.text, diagnostico.imageUrl);
+                if (window.innerWidth < 768) {
+                    const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('mobileSidebar'));
+                    if (offcanvas) offcanvas.hide();
+                }
+            });
+        });
+        container.querySelectorAll('.btn-report').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const pragaNome = btn.getAttribute('data-praga');
+                addMessage('user', `📢 Relato: Forte ataque de ${pragaNome} na minha plantação.`);
+                const info = pragasDatabase.find(p => p.nome === pragaNome);
+                addMessage('assistant', `⚠️ Registado! Recomendamos ação imediata:\n- ${info?.controleBio.split(',')[0] || 'Aplicar manejo biológico'}\n- Isolar área e contactar extensão rural.\nQuer detalhes específicos?`);
+                if (window.innerWidth < 768) {
+                    const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('mobileSidebar'));
+                    if (offcanvas) offcanvas.hide();
+                }
+            });
+        });
+    }
+
+    // ---------- SISTEMA DE CHAT (mesmo código, sem alterações) ----------
+    let messages = [];
+    const chatContainer = document.getElementById('chatMessagesContainer');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    
+    function escapeHtml(str) { 
+        if (!str) return '';
+        return str.replace(/[&<>]/g, (m) => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); 
+    }
+    
+    function renderMessages() {
+        if (!chatContainer) return;
+        chatContainer.innerHTML = '';
+        messages.forEach(msg => {
+            const div = document.createElement('div');
+            div.className = msg.role === 'user' ? 'd-flex justify-content-end' : 'd-flex justify-content-start';
+            const bubbleClass = msg.role === 'user' ? 'message-bubble-user' : 'message-bubble-bot';
+            div.innerHTML = `<div class="message-bubble ${bubbleClass}">${escapeHtml(msg.text).replace(/\n/g, '<br>')}</div>`;
+            if (msg.imageUrl) {
+                div.innerHTML += `<img src="${msg.imageUrl}" class="message-image" alt="Imagem da praga/doença" onerror="this.style.display='none'">`;
+            }
+            chatContainer.appendChild(div);
+        });
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+    
+    function addMessage(role, text, imageUrl = null) { 
+        messages.push({ role, text, imageUrl }); 
+        renderMessages(); 
+    }
+    
+    function responderTexto(pergunta) {
+        const p = pergunta.toLowerCase();
+        if (p.includes("galeria") || p.includes("ver pragas")) return "🖼️ A galeria de pragas e doenças está na barra lateral (clique no ícone ☰ no celular). Lá você encontra **imagens reais**, diagnóstico e controle biológico.";
+        const match = pragasDatabase.find(pg => p.includes(pg.nome.substring(0, pg.nome.indexOf('(') > 0 ? pg.nome.indexOf('(') : pg.nome.length).toLowerCase().trim()));
+        if (match) {
+            return { tipo: "diagnostico", nome: match.nome };
+        }
+        if (p.includes("obrigado") || p.includes("valeu")) return "🌱 Estamos juntos! Qualquer ameaça use a galeria visual com fotos reais.";
+        return "🐛 Use a **Galeria de Pragas & Doenças** (lado esquerdo/tela cheia). Toque na praga e clique 'Diagnosticar' para ver a imagem real e o controle biológico. Ou envie uma foto da sua planta!";
+    }
+    
+    async function sendMessage() {
+        const text = userInput.value.trim();
+        if (!text) return;
+        addMessage('user', text);
+        userInput.value = '';
+        addMessage('assistant', '🔎 Processando...');
+        setTimeout(() => {
+            messages.pop();
+            const resposta = responderTexto(text);
+            if (resposta && resposta.tipo === "diagnostico") {
+                const diagFull = diagnosticarPragaComImagem(resposta.nome);
+                addMessage('assistant', diagFull.text, diagFull.imageUrl);
+            } else if (typeof resposta === 'string') {
+                addMessage('assistant', resposta);
+            } else {
+                addMessage('assistant', "Não entendi, por favor selecione uma praga na galeria.");
+            }
+        }, 400);
+    }
+    
+    sendBtn.addEventListener('click', sendMessage);
+    userInput.addEventListener('keypress', (e) => e.key === 'Enter' && sendMessage());
+    
+    document.querySelectorAll('.chip-suggestion').forEach(chip => {
+        chip.addEventListener('click', () => {
+            const q = chip.getAttribute('data-question') || chip.innerText;
+            if (q.includes("imagem")) document.getElementById('hiddenImageInput').click();
+            else { userInput.value = q; sendMessage(); }
+        });
+    });
+    
+    document.getElementById('imageUploadBtn').addEventListener('click', () => document.getElementById('hiddenImageInput').click());
+    document.getElementById('hiddenImageInput').addEventListener('change', (e) => {
+        if (e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                addMessage('user', "📸 Imagem enviada", ev.target.result);
+                addMessage('assistant', "🔬 Análise rápida: Pode ser praga ou doença fúngica. Consulte a galeria completa (lado esquerdo) para comparar a imagem real e ver o manejo biológico específico.");
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    });
+    
+    function guardarHistorico() { if(messages.length) { localStorage.setItem('agrolux_historico', JSON.stringify(messages)); alert("Histórico guardado"); } }
+    function limparHistorico() { if(confirm("Apagar todo histórico?")) { messages = []; addMessage('assistant', "Histórico limpo. Use a galeria completa de pragas e doenças com imagens reais!"); localStorage.removeItem('agrolux_historico'); } }
+    document.getElementById('saveHistoryBtnDesktop')?.addEventListener('click', guardarHistorico);
+    document.getElementById('clearHistoryBtnDesktop')?.addEventListener('click', limparHistorico);
+    
+    function carregarHistorico() { const saved = localStorage.getItem('agrolux_historico'); if(saved) { messages = JSON.parse(saved); renderMessages(); } }
+    if (!localStorage.getItem('agrolux_historico')) {
+        addMessage('assistant', "🌾 **Bem-vindo à Galeria Visual de Pragas e Doenças!**\nNo menu lateral (ícone ☰ no celular) você encontra **FOTOS REAIS E INFORMAÇÕES** de mais de 30 pragas, doenças, nematoides e animais. Clique em **Diagnosticar** para ver a imagem e o controle biológico.");
+    } else {
+        carregarHistorico();
+    }
+    
+    const isDark = localStorage.getItem('agrolux_theme') === 'dark';
+    if (isDark) document.body.classList.add('dark-theme');
+    function toggleTheme() { document.body.classList.toggle('dark-theme'); localStorage.setItem('agrolux_theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light'); }
+    document.querySelectorAll('.theme-toggle-icon').forEach(btn => btn.addEventListener('click', toggleTheme));
+    
+    let farm = JSON.parse(localStorage.getItem('agrolux_farm') || '{}');
+    document.getElementById('saveFarmBtn')?.addEventListener('click', () => {
+        farm = { name: document.getElementById('farmName').value, location: document.getElementById('farmLocation').value, crops: document.getElementById('farmCrops').value, area: document.getElementById('farmArea').value };
+        localStorage.setItem('agrolux_farm', JSON.stringify(farm));
+        document.getElementById('farmSummary').innerHTML = `<i class="bi bi-building"></i> ${farm.name || '---'} | ${farm.location || ''}`;
+        bootstrap.Modal.getInstance(document.getElementById('farmModal')).hide();
+    });
+    if (farm.name) document.getElementById('farmSummary').innerHTML = `<i class="bi bi-building"></i> ${farm.name} | ${farm.location || ''}`;
+    
+    function shareWA() { const ultima = messages.slice(-3).map(m => m.text).join('\n'); window.open(`https://wa.me/?text=${encodeURIComponent("🌾 AgroLux - Diagnóstico:\n"+ultima)}`); }
+    document.getElementById('whatsappShareSide')?.addEventListener('click', shareWA);
+    document.getElementById('whatsappShareMobile')?.addEventListener('click', shareWA);
+    
+    renderPestGallery('pestGalleryDesktop');
+    renderPestGallery('pestGalleryMobile');
+</script>
+</body>
+</html>

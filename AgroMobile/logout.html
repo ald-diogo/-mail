@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>AgroLux | Logout</title>
+    <!-- Bootstrap 5 + Icons + Google Fonts -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Tema claro (padrão) */
+        :root {
+            --bg-left-overlay: rgba(18, 55, 29, 0.75);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-primary: #1e2f2a;
+            --text-secondary: #4a6a5e;
+            --border-light: #e0e7e5;
+            --input-bg: #ffffff;
+            --shadow-sm: 0 20px 35px -12px rgba(0, 0, 0, 0.08);
+            --accent-green: #2b7a4b;
+            --accent-hover: #1e5a3a;
+            --progress-circle-bg: #e0e7e5;
+        }
+
+        body.dark {
+            --card-bg: #1e2a28;
+            --text-primary: #eef4f0;
+            --text-secondary: #b8d0c2;
+            --border-light: #3a4f48;
+            --input-bg: #2a3c36;
+            --shadow-sm: 0 20px 35px -12px rgba(0, 0, 0, 0.4);
+            --accent-green: #4c9f70;
+            --accent-hover: #6bb886;
+            --progress-circle-bg: #2a3c36;
+        }
+
+        /* Layout principal */
+        .logout-wrapper {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+            background: #f4f9f5;
+        }
+        body.dark .logout-wrapper {
+            background: #0f1815;
+        }
+
+        /* Painel esquerdo - imagem agrícola e branding */
+        .hero-panel {
+            flex: 1;
+            background: linear-gradient(135deg, rgba(25, 70, 45, 0.85), rgba(18, 55, 29, 0.9)), url('images/Logout.png');
+            background-size: cover;
+            background-position: center 30%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .hero-panel h1 {
+            font-weight: 700;
+            font-size: 3rem;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 15px rgba(0,0,0,0.3);
+            margin-bottom: 1rem;
+        }
+
+        .hero-panel p {
+            font-size: 1.1rem;
+            max-width: 80%;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+
+        .agro-badge {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(8px);
+            border-radius: 100px;
+            padding: 0.5rem 1.2rem;
+            display: inline-block;
+            font-weight: 500;
+            margin-top: 2rem;
+            font-size: 0.9rem;
+        }
+
+        /* Painel direito - conteúdo de logout */
+        .form-panel {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--card-bg);
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+
+        .logout-card {
+            width: 100%;
+            max-width: 480px;
+            padding: 1rem 0.5rem;
+            text-align: center;
+        }
+
+        .brand-icon {
+            font-size: 3rem;
+            color: var(--accent-green);
+            margin-bottom: 1rem;
+        }
+
+        /* Círculo de progresso */
+        .timer-container {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            margin: 1.5rem auto;
+        }
+
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring__circle {
+            fill: transparent;
+            stroke: var(--progress-circle-bg);
+            stroke-width: 6;
+        }
+
+        .progress-ring__circle-fill {
+            fill: transparent;
+            stroke: var(--accent-green);
+            stroke-width: 6;
+            stroke-dasharray: 527; /* circunferência aproximada (2 * pi * 84) */
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset 0.2s linear;
+        }
+
+        .timer-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent-green);
+        }
+
+        .timer-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        .btn-manual-redirect {
+            background: transparent;
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+            border-radius: 40px;
+            padding: 0.5rem 1.5rem;
+            margin-top: 1rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-manual-redirect:hover {
+            background: var(--accent-green);
+            color: white;
+        }
+
+        .logout-message {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .theme-icon, .lang-icon {
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            transition: 0.2s;
+        }
+
+        .theme-icon:hover, .lang-icon:hover {
+            color: var(--accent-green);
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .hero-panel {
+                display: none;
+            }
+            .form-panel {
+                flex: 1;
+            }
+            .timer-container {
+                width: 150px;
+                height: 150px;
+            }
+            .timer-text {
+                font-size: 2rem;
+            }
+        }
+
+        .logo-lux {
+            height: 300px;
+            width: 300px;
+        }
+
+        .toast-custom {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 1090;
+            min-width: 280px;
+            border-radius: 20px;
+            background: var(--card-bg);
+            border-left: 5px solid var(--accent-green);
+            box-shadow: var(--shadow-sm);
+        }
+    </style>
+</head>
+<body>
+
+<div class="logout-wrapper">
+    <!-- Left side - Agricultural branding (igual ao login) -->
+    <div class="hero-panel">
+        <div>
+            <h1><img class="logo-lux" src="images/Lux-logo-bg.png" style="align-content: center;"/></h1>
+            <p>Gestão inteligente do campo à colheita. Análise de safra, clima e produtividade em tempo real.</p>
+            <div class="agro-badge">
+                <i class="bi bi-droplet"></i> +42% eficiência hídrica
+            </div>
+        </div>
+    </div>
+
+    <!-- Right panel - Logout content -->
+    <div class="form-panel">
+        <div class="logout-card">
+            <!-- Top actions: Dark mode + Language (mantido para consistência) -->
+            <div class="d-flex justify-content-end gap-3 mb-4">
+                <button id="themeToggleBtn" class="theme-icon" aria-label="Alternar tema">
+                    <i class="bi bi-moon-stars"></i>
+                </button>
+                <div class="dropdown">
+                    <button class="lang-icon dropdown-toggle" type="button" id="langDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-globe2"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="langDropdown" style="background: var(--card-bg); border-color: var(--border-light);">
+                        <li><a class="dropdown-item lang-option" data-lang="pt" href="#">🇵🇹 Português</a></li>
+                        <li><a class="dropdown-item lang-option" data-lang="en" href="#">🇬🇧 English</a></li>
+                        <li><a class="dropdown-item lang-option" data-lang="es" href="#">🇪🇸 Español</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="brand-icon">
+                <i class="bi bi-box-arrow-right"></i>
+            </div>
+            <h2 class="fw-semibold" id="logoutTitle" style="color: var(--text-primary);">Sessão encerrada</h2>
+            <p class="logout-message" id="logoutMessage" style="color: var(--text-secondary) !important;">Obrigado por utilizar o AgroLux.</p>
+
+            <!-- Círculo de progresso de 10s -->
+            <div class="timer-container">
+                <svg class="progress-ring" width="180" height="180">
+                    <circle class="progress-ring__circle" cx="90" cy="90" r="84" stroke-width="6" fill="transparent"/>
+                    <circle class="progress-ring__circle-fill" cx="90" cy="90" r="84" stroke-width="6" fill="transparent"
+                            stroke-dasharray="527.52" stroke-dashoffset="0"/>
+                </svg>
+                <div class="timer-text" id="timerSeconds">10</div>
+            </div>
+            <div class="timer-label" id="timerLabel">Redirecionando em segundos...</div>
+
+            <button id="redirectNowBtn" class="btn-manual-redirect">
+                <i class="bi bi-arrow-right-circle"></i> <span id="redirectBtnText">Ir agora para o login</span>
+            </button>
+
+            <div class="text-center mt-4">
+                <small class="text-muted" id="helperText" style="color: var(--text-secondary);">🔐 Você será redirecionado automaticamente para a página de login.</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast (opcional, para feedback) -->
+<div class="toast-custom p-3 d-none" id="notificationToast" role="alert">
+    <div class="d-flex align-items-center">
+        <i class="bi bi-check-circle-fill me-2" style="color: var(--accent-green); font-size: 1.4rem;"></i>
+        <div class="toast-body p-0" id="toastMessage" style="color: var(--text-primary); font-weight: 500;"></div>
+        <button type="button" class="btn-close ms-auto" id="closeToast" aria-label="Close"></button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // ----------------------------- I18N TEXTS (adaptado para logout) ---------------------------------
+    const translations = {
+        pt: {
+            logoutTitle: "Sessão encerrada",
+            logoutMessage: "Obrigado por utilizar o AgroLux.",
+            timerLabel: "Redirecionando em segundos...",
+            redirectBtnText: "Ir agora para o login",
+            helperText: "🔐 Você será redirecionado automaticamente para a página de login.",
+            toastRedirect: "⏳ Redirecionando agora para o login..."
+        },
+        en: {
+            logoutTitle: "Session ended",
+            logoutMessage: "Thank you for using AgroLux.",
+            timerLabel: "Redirecting in seconds...",
+            redirectBtnText: "Go to login now",
+            helperText: "🔐 You will be automatically redirected to the login page.",
+            toastRedirect: "⏳ Redirecting to login now..."
+        },
+        es: {
+            logoutTitle: "Sesión finalizada",
+            logoutMessage: "Gracias por usar AgroLux.",
+            timerLabel: "Redirigiendo en segundos...",
+            redirectBtnText: "Ir al login ahora",
+            helperText: "🔐 Serás redirigido automáticamente a la página de inicio de sesión.",
+            toastRedirect: "⏳ Redirigiendo ahora al login..."
+        }
+    };
+
+    let currentLang = localStorage.getItem('agroLang') || 'pt';
+    let isDark = localStorage.getItem('agroTheme') === 'dark';
+    let countdown = 10; // segundos
+    let timerInterval = null;
+    let redirectInProgress = false;
+
+    // Elementos DOM
+    const themeBtn = document.getElementById('themeToggleBtn');
+    const redirectNowBtn = document.getElementById('redirectNowBtn');
+    const timerSecondsSpan = document.getElementById('timerSeconds');
+    const timerLabelSpan = document.getElementById('timerLabel');
+    const logoutTitle = document.getElementById('logoutTitle');
+    const logoutMessage = document.getElementById('logoutMessage');
+    const redirectBtnTextSpan = document.getElementById('redirectBtnText');
+    const helperTextSpan = document.getElementById('helperText');
+    const toastEl = document.getElementById('notificationToast');
+    const toastMessageSpan = document.getElementById('toastMessage');
+    const closeToastBtn = document.getElementById('closeToast');
+
+    // Círculo SVG
+    const circleFill = document.querySelector('.progress-ring__circle-fill');
+    const radius = 84;
+    const circumference = 2 * Math.PI * radius; // ~527.52
+
+    function setProgress(percent) {
+        // percent de 0 a 1 (0 = completo, 1 = vazio)
+        const offset = circumference * (1 - percent);
+        circleFill.style.strokeDashoffset = offset;
+    }
+
+    function updateTimerDisplay() {
+        timerSecondsSpan.innerText = countdown;
+        const progress = countdown / 10; // 10s total
+        setProgress(progress);
+        if (countdown === 0) {
+            if (timerInterval) clearInterval(timerInterval);
+            if (!redirectInProgress) {
+                redirectToLogin();
+            }
+        }
+    }
+
+    function redirectToLogin() {
+        if (redirectInProgress) return;
+        redirectInProgress = true;
+        // Exibe toast opcional (feedback)
+        showToast(translations[currentLang].toastRedirect, false);
+        setTimeout(() => {
+            window.location.href = "login.html";
+        }, 300);
+    }
+
+    function startCountdown() {
+        if (timerInterval) clearInterval(timerInterval);
+        countdown = 10;
+        updateTimerDisplay();
+        timerInterval = setInterval(() => {
+            if (countdown <= 1) {
+                clearInterval(timerInterval);
+                countdown = 0;
+                updateTimerDisplay();
+                if (!redirectInProgress) redirectToLogin();
+            } else {
+                countdown--;
+                updateTimerDisplay();
+            }
+        }, 1000);
+    }
+
+    function stopCountdown() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+    }
+
+    // Ações manuais: botão "Ir agora"
+    redirectNowBtn.addEventListener('click', () => {
+        if (!redirectInProgress) {
+            stopCountdown();
+            redirectToLogin();
+        }
+    });
+
+    // Função para aplicar idioma (textos estáticos)
+    function applyLanguage() {
+        const t = translations[currentLang];
+        if (logoutTitle) logoutTitle.innerText = t.logoutTitle;
+        if (logoutMessage) logoutMessage.innerText = t.logoutMessage;
+        if (timerLabelSpan) timerLabelSpan.innerText = t.timerLabel;
+        if (redirectBtnTextSpan) redirectBtnTextSpan.innerText = t.redirectBtnText;
+        if (helperTextSpan) helperTextSpan.innerText = t.helperText;
+        // O timerSeconds já é numérico, mantém
+    }
+
+    // Dark mode (mesma lógica da tela original)
+    function setTheme(enableDark) {
+        if (enableDark) {
+            document.body.classList.add('dark');
+            localStorage.setItem('agroTheme', 'dark');
+            themeBtn.querySelector('i').classList.remove('bi-moon-stars');
+            themeBtn.querySelector('i').classList.add('bi-brightness-high-fill');
+        } else {
+            document.body.classList.remove('dark');
+            localStorage.setItem('agroTheme', 'light');
+            themeBtn.querySelector('i').classList.remove('bi-brightness-high-fill');
+            themeBtn.querySelector('i').classList.add('bi-moon-stars');
+        }
+    }
+
+    themeBtn.addEventListener('click', () => { 
+        isDark = !isDark; 
+        setTheme(isDark); 
+    });
+
+    // Language selector
+    document.querySelectorAll('.lang-option').forEach(option => {
+        option.addEventListener('click', (e) => {
+            e.preventDefault();
+            currentLang = option.getAttribute('data-lang');
+            localStorage.setItem('agroLang', currentLang);
+            applyLanguage();
+        });
+    });
+
+    function showToast(message, isError = false) {
+        if (!toastEl) return;
+        toastMessageSpan.innerText = message;
+        toastEl.classList.remove('d-none');
+        if (isError) toastEl.style.borderLeftColor = '#e53e3e';
+        else toastEl.style.borderLeftColor = 'var(--accent-green)';
+        setTimeout(() => toastEl.classList.add('d-none'), 3000);
+    }
+
+    // Inicializar tema
+    if (isDark) setTheme(true); else setTheme(false);
+    applyLanguage();
+    // Configurar círculo inicial (totalmente cheio = progresso 1)
+    circleFill.style.strokeDasharray = circumference;
+    circleFill.style.strokeDashoffset = circumference;
+    // Iniciar contagem regressiva
+    startCountdown();
+
+    // Fechar toast manualmente
+    if (closeToastBtn) {
+        closeToastBtn.addEventListener('click', () => toastEl.classList.add('d-none'));
+    }
+
+    // Prevenir que o usuário saia da página sem querer (opcional, apenas mantém foco)
+    window.addEventListener('beforeunload', (e) => {
+        if (!redirectInProgress && countdown > 0) {
+            // Não forçamos mensagem, apenas permitimos
+        }
+    });
+
+    // Adiciona um pequeno estilo adicional para o círculo responsivo
+    const style = document.createElement('style');
+    style.textContent = `
+        .dropdown-item { color: var(--text-primary); }
+        .dropdown-item:hover { background: var(--border-light); color: var(--accent-green); }
+        .btn-close { filter: invert(0.4); }
+        body.dark .btn-close { filter: invert(1); }
+        .progress-ring {
+            width: 100%;
+            height: auto;
+        }
+        .timer-container svg {
+            width: 100%;
+            height: auto;
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+</body>
+</html>

@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>AgroLux | Mapa de Oportunidades - Treinamento para Agricultores</title>
+    <!-- Bootstrap 5 + Icons + Leaflet + Charts + QR -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <style>
+        * {
+            transition: background 0.2s ease, color 0.2s;
+            margin: 0; 
+            /*
+            padding: 0;
+            box-sizing: border-box;
+            */
+            font-family: 'Times New Roman', Times, serif;
+            
+        }
+        body {
+            background: #f4f7fb;
+            font-family: 'Segoe UI', Roboto, system-ui;
+        }
+        body.dark-mode {
+            background: #121212;
+            color: #e0e0e0;
+        }
+        body.dark-mode .card, body.dark-mode .bg-white, body.dark-mode .list-group-item, body.dark-mode .modal-content, body.dark-mode .dropdown-menu {
+            background-color: #1e2a2e !important;
+            color: #f0f0f0 !important;
+            border-color: #2c3e2f;
+        }
+        body.dark-mode .btn-outline-secondary {
+            color: #ccc;
+            border-color: #5a6e5a;
+        }
+        body.dark-mode .text-muted {
+            color: #bbbbbb !important;
+        }
+        .map-container {
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .card-modern {
+            border-radius: 24px;
+            border: none;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card-modern:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 30px rgba(0,0,0,0.1);
+        }
+        .badge-demand-high { background-color: #e67e22; color: white; }
+        .badge-demand-medium { background-color: #f1c40f; color: #2c3e2f; }
+        .badge-demand-low { background-color: #2ecc71; color: #1e3c2c; }
+        .btn-icon-circle {
+            border-radius: 60px;
+            padding: 8px 16px;
+        }
+        .clickable-card {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .clickable-card:active { transform: scale(0.98); }
+        .theme-toggle {
+            background: none;
+            border: none;
+            font-size: 1.6rem;
+            cursor: pointer;
+        }
+        .stats-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        .footer-note {
+            font-size: 0.8rem;
+            background: #fff3e0;
+            border-radius: 20px;
+            padding: 8px 16px;
+        }
+        body.dark-mode .footer-note {
+            background: #2b2b1a;
+            color: #fdd;
+        }
+        @media (max-width: 768px) {
+            .stats-number { font-size: 1.2rem; }
+            .map-container { height: 350px !important; }
+        }
+        canvas { max-width: 100%; height: auto !important; }
+        
+        /*
+        ==================================OUTHER CSS=======================================
+            */
+          /* Página principal – AgroLux */
+        .page-content {
+            max-width: 1300px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .hero {
+            background: linear-gradient(105deg, #1e3a2f 0%, #2b5e4c 100%);
+            border-radius: 48px;
+            padding: 2rem 2rem;
+            color: white;
+            box-shadow: 0 25px 40px -12px rgba(0,0,0,0.25);
+            margin-bottom: 2.5rem;
+        }
+
+        .hero h1 {
+            font-size: 2.6rem;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+        }
+
+        .hero h1 i {
+            margin-right: 12px;
+            color: #f5b042;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-top: 0.8rem;
+            opacity: 0.92;
+            max-width: 750px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .aviso-transparencia {
+            background: rgba(255,255,245,0.15);
+            display: inline-block;
+            padding: 0.45rem 1.2rem;
+            border-radius: 80px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-top: 1rem;
+            backdrop-filter: blur(2px);
+        }
+
+        .aviso-transparencia i {
+            margin-right: 6px;
+        }
+
+        .grade-servicos {
+            margin-top: 2rem;
+        }
+
+        .grade-servicos h2 {
+            font-size: 1.9rem;
+            color: #1e3a2f;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+        }
+
+        .cards-negocios {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.8rem;
+        }
+
+        .card-negocio {
+            background: white;
+            border-radius: 32px;
+            padding: 1.6rem 1.2rem;
+            width: 260px;
+            text-align: center;
+            transition: all 0.25s ease;
+            box-shadow: 0 12px 24px rgba(0,0,0,0.05);
+            cursor: pointer;
+            border: 1px solid #dce5e0;
+        }
+
+        .card-negocio i {
+            font-size: 2.6rem;
+            color: #c27e2e;
+            margin-bottom: 0.8rem;
+        }
+
+        .card-negocio h3 {
+            font-size: 1.3rem;
+            color: #1c473a;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-negocio p {
+            font-size: 0.85rem;
+            color: #4f5a55;
+        }
+
+        .card-negocio:hover {
+            transform: translateY(-7px);
+            background: #fffcf0;
+            box-shadow: 0 22px 30px rgba(0,0,0,0.1);
+            border-color: #edd18e;
+        }
+
+        .cta-principal {
+            margin: 2.5rem auto 1rem;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #c27e2e;
+            padding: 0.9rem 2rem;
+            border-radius: 60px;
+            font-weight: bold;
+            color: #c27e2e;
+            font-size: 1rem;
+            transition: 0.2s;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-outline:hover {
+            background: #c27e2e;
+            color: white;
+            border-color: #c27e2e;
+            transform: scale(1.02);
+        }
+
+        /* ===== MODAL DESTACANDO VANTAGENS DO AGROLUX ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.88);
+            backdrop-filter: blur(6px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 1.5rem;
+        }
+
+        .modal-card {
+            max-width: 920px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 40px;
+            overflow: hidden;
+            box-shadow: 0 32px 55px rgba(0, 0, 0, 0.4);
+            animation: modalFadeUp 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        @keyframes modalFadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(28px) scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-flex {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .modal-imagem {
+            flex: 0.9;
+            background: #1f3d31;
+            position: relative;
+            overflow: hidden;
+            min-height: 200px;
+            display: flex;
+            align-items: stretch;
+        }
+
+        .img-wrapper {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .img-agricola {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            flex: 1;
+        }
+
+        .overlay-social {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(0,0,0,0.2) 0%, rgba(37, 162, 111, 0.2) 100%);
+            pointer-events: none;
+        }
+
+        .modal-conteudo {
+            flex: 1.2;
+            padding: 2rem 2rem;
+            background: #fffef9;
+            position: relative;
+        }
+
+        .btn-fechar {
+            position: absolute;
+            top: 18px;
+            right: 20px;
+            background: #f0ede5;
+            width: 34px;
+            height: 34px;
+            border-radius: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #2d3e2c;
+            font-size: 1.2rem;
+            z-index: 10;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        }
+
+        .btn-fechar:hover {
+            background: #e6e0d0;
+            transform: scale(1.02);
+            color: #b34e2e;
+        }
+
+        .titulo-software {
+            font-size: 1.9rem;
+            font-weight: 800;
+            color: #2c5a42;
+            margin-bottom: 0.5rem;
+            line-height: 1.25;
+            border-left: 5px solid #f5b042;
+            padding-left: 18px;
+        }
+
+        .titulo-software i {
+            color: #f5b042;
+            margin-right: 8px;
+            font-size: 1.7rem;
+        }
+
+        .descricao-principal {
+            font-size: 0.95rem;
+            color: #2a3b2e;
+            margin: 0.5rem 0 1rem 0;
+            line-height: 1.45;
+        }
+
+        .lista-vantagens-agrolux {
+            list-style: none;
+            margin: 1rem 0 1.2rem 0;
+        }
+
+        .lista-vantagens-agrolux li {
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #1f3b1a;
+        }
+
+        .lista-vantagens-agrolux i {
+            color: #f5b042;
+            font-size: 1.2rem;
+            width: 26px;
+        }
+
+        .nota-importante {
+            background: #fef4e8;
+            border-radius: 20px;
+            padding: 0.8rem 1rem;
+            margin: 0.8rem 0 1.2rem 0;
+            font-size: 0.8rem;
+            border-left: 3px solid #e4a022;
+        }
+
+        .nota-importante i {
+            color: #d48f2b;
+            margin-right: 8px;
+        }
+
+        .btn-acao {
+            display: block;
+            background: linear-gradient(95deg, #ca9622, #b47c10);
+            border: none;
+            width: 100%;
+            border-radius: 60px;
+            text-align: center;
+            transition: all 0.2s;
+            box-shadow: 0 8px 18px rgba(180, 124, 16, 0.3);
+            cursor: pointer;
+            text-decoration: none;
+            padding: 13px 12px;
+            font-weight: bold;
+            font-size: 1rem;
+            color: white;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-acao i {
+            margin-right: 10px;
+        }
+
+        .btn-acao:hover {
+            transform: scale(1.01);
+            background: linear-gradient(95deg, #e0a82e, #cc8c1a);
+            box-shadow: 0 10px 22px rgba(180, 124, 16, 0.45);
+        }
+
+        .texto-info {
+            font-size: 0.7rem;
+            text-align: center;
+            color: #a16207;
+            background: #fff1cf;
+            display: inline-block;
+            width: 100%;
+            padding: 6px 10px;
+            border-radius: 40px;
+            margin-top: 14px;
+        }
+
+        /* Ícone flutuante com a marca AgroLux */
+        .floating-agrolux {
+            position: fixed;
+            bottom: 26px;
+            right: 26px;
+            background: linear-gradient(135deg, #1b4e3f, #0c352a);
+            width: 62px;
+            height: 62px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 15px 28px rgba(0, 0, 0, 0.3), 0 0 0 3px rgba(245,176,66,0.7);
+            z-index: 1500;
+            transition: all 0.2s ease;
+            animation: softPulse 2.2s infinite;
+        }
+
+        .floating-agrolux i {
+            font-size: 2rem;
+            color: #FFDF8c;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+
+        .floating-agrolux:hover {
+            transform: scale(1.08);
+            background: linear-gradient(135deg, #2a6b56, #15523f);
+            box-shadow: 0 18px 32px rgba(0, 0, 0, 0.35), 0 0 0 4px #ffda77;
+        }
+
+        @keyframes softPulse {
+            0% { box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25), 0 0 0 3px rgba(245,176,66,0.6); }
+            50% { box-shadow: 0 16px 28px rgba(0, 0, 0, 0.35), 0 0 0 5px rgba(255, 200, 70, 0.9); }
+            100% { box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25), 0 0 0 3px rgba(245,176,66,0.6); }
+        }
+
+        .floating-agrolux::after {
+            content: "AgroLux · Mercado Virtual";
+            position: absolute;
+            bottom: 72px;
+            right: 0;
+            background: #1a2f28;
+            color: #ffecb3;
+            font-size: 0.7rem;
+            font-weight: bold;
+            padding: 5px 12px;
+            border-radius: 40px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.2s;
+            font-family: 'Segoe UI', system-ui;
+        }
+
+        .floating-agrolux:hover::after {
+            opacity: 1;
+            bottom: 70px;
+        }
+
+        /* Responsivo */
+        @media (max-width: 780px) {
+            body {
+                padding: 1rem;
+            }
+            .modal-flex {
+                flex-direction: column;
+            }
+            .modal-imagem {
+                min-height: 200px;
+                flex: auto;
+            }
+            .modal-conteudo {
+                padding: 1.5rem;
+            }
+            .titulo-software {
+                font-size: 1.5rem;
+            }
+            .hero h1 {
+                font-size: 1.9rem;
+            }
+            .cards-negocios {
+                gap: 1rem;
+            }
+            .card-negocio {
+                width: 220px;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .card-negocio {
+                width: 100%;
+                max-width: 280px;
+            }
+            .hero {
+                padding: 1.5rem;
+            }
+            .btn-outline {
+                font-size: 0.9rem;
+                padding: 0.7rem 1.4rem;
+            }
+            .floating-agrolux {
+                width: 50px;
+                height: 50px;
+                bottom: 20px;
+                right: 20px;
+            }
+            .floating-agrolux i {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container py-3 py-md-4">
+    <!-- HEADER com título, theme e idioma -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+        <div>
+            <h1 class="display-6 fw-bold" style="background: linear-gradient(135deg, #2D6A4F, #52B788); -webkit-background-clip: text; background-clip: text; color: transparent;">
+                <i class="fas fa-map-marked-alt me-2"></i> Mapa de Oportunidades
+            </h1>
+            <p class="text-muted small mt-1" id="disclaimerMsg">
+                <i class="fas fa-chalkboard-teacher"></i> AgroLux não garante compradores diretos — é uma plataforma de <strong>treinamento e marketing agrícola</strong>. Aqui você encontra um mapa de oportunidades e inteligência de mercado.
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary rounded-pill" id="themeToggleBtn"><i class="fas fa-moon"></i> <span id="themeText">Tema escuro</span></button>
+            <div class="dropdown">
+                <button class="btn btn-outline-success rounded-pill dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-language"></i> <span id="langActive">Português</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#" data-lang="pt">🇵🇹 Português</a></li>
+                    <li><a class="dropdown-item" href="#" data-lang="en">🇬🇧 English</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- BARRA DE PESQUISA E FILTROS -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <label class="form-label fw-semibold"><i class="fas fa-search"></i> <span data-i18n="searchProduct">Produto</span></label>
+            <input type="text" id="searchProduct" class="form-control rounded-pill" placeholder="Ex: milho, tomate, feijão" value="milho">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label fw-semibold"><span data-i18n="province">Província</span></label>
+            <select id="provinceFilter" class="form-select rounded-pill">
+                <option value="all">Todas</option>
+                <option value="Luanda">Luanda</option>
+                <option value="Huambo">Huambo</option>
+                <option value="Benguela">Benguela</option>
+                <option value="Malanje">Malanje</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label fw-semibold"><span data-i18n="municipality">Município</span></label>
+            <select id="municipalityFilter" class="form-select rounded-pill">
+                <option value="all">Todos</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label fw-semibold"><span data-i18n="commune">Comuna</span></label>
+            <select id="communeFilter" class="form-select rounded-pill">
+                <option value="all">Todas</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- MAPA + LATERAL INFO RÁPIDA -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-7">
+            <div class="map-container" style="height: 420px;">
+                <div id="leafletMap" style="height: 100%; width: 100%;"></div>
+            </div>
+            <div class="mt-2 d-flex justify-content-between">
+                <small class="text-muted" id="clickDistanceInfo"><i class="fas fa-arrows-alt-h"></i> <span data-i18n="clickMarkerDistance">Clique num marcador para ver distância</span></small>
+                <button class="btn btn-sm btn-success rounded-pill" id="whatsappBtn"><i class="fab fa-whatsapp"></i> WhatsApp Rápido</button>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="card card-modern bg-white h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-chart-line"></i> <span data-i18n="regionDemand">Procura por região / Destaque</span></h5>
+                    <div id="selectedRegionInfo">
+                        <p class="text-muted"><span data-i18n="selectMarkerHint">Selecione um marcador no mapa</span></p>
+                    </div>
+                    <hr>
+                    <div><strong><i class="fas fa-tractor"></i> <span data-i18n="potentialBuyersZone">Compradores potenciais (zona)</span>:</strong> <span id="buyersList">—</span></div>
+                    <div class="mt-2"><strong><i class="fas fa-chart-simple"></i> <span data-i18n="mostDemandedProduct">Produto mais procurado</span>:</strong> <span id="topProductZone">—</span></div>
+                    <div class="mt-2"><strong><i class="fas fa-route"></i> <span data-i18n="distanceToFarmer">Distância até agricultor (base)</span>:</strong> <span id="distanceDisplay">—</span></div>
+                    <div class="mt-2"><strong><i class="fas fa-fire"></i> <span data-i18n="demandLevel">Nível de procura</span>:</strong> <span id="demandBadge">—</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ESTATÍSTICAS + ALERTAS E HISTÓRICO + RECOMENDAÇÕES -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card card-modern">
+                <div class="card-body">
+                    <h5><i class="fas fa-chart-area"></i> <span data-i18n="areaCharts">Gráficos de área (procura mensal)</span></h5>
+                    <canvas id="areaChart" height="160" style="max-height: 200px; width:100%"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card card-modern">
+                <div class="card-body">
+                    <h5><i class="fas fa-chart-pie"></i> <span data-i18n="statisticsArea">Estatísticas de procura por região</span></h5>
+                    <canvas id="statsBarChart" height="160" style="max-height: 200px; width:100%"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card card-modern h-100">
+                <div class="card-body">
+                    <h5><i class="fas fa-history"></i> <span data-i18n="historyInterest">Histórico de regiões com mais interesse</span></h5>
+                    <ul id="historyList" class="list-group list-group-flush bg-transparent">
+                        <li class="list-group-item bg-transparent">Luanda (Alta procura - milho)</li>
+                        <li class="list-group-item bg-transparent">Huambo (Média - tomate)</li>
+                        <li class="list-group-item bg-transparent">Benguela (Alta - feijão)</li>
+                    </ul>
+                    <button class="btn btn-sm btn-link mt-2" id="clearHistoryBtn"><i class="fas fa-trash-alt"></i> Limpar</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card card-modern h-100">
+                <div class="card-body">
+                    <h5><i class="fas fa-bell"></i> <span data-i18n="alerts">Alertas de novas oportunidades</span></h5>
+                    <div id="alertsContainer" class="small">
+                        <div class="alert alert-success py-1"><i class="fas fa-chart-up"></i> Nova demanda alta por tomate no Huambo!</div>
+                        <div class="alert alert-warning py-1"><i class="fas fa-truck"></i> Feijão: região de Malanje procura crescente.</div>
+                    </div>
+                    <button class="btn btn-outline-primary btn-sm mt-1" id="simulateAlertBtn">+ Simular novo alerta</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card card-modern h-100">
+                <div class="card-body">
+                    <h5><i class="fas fa-lightbulb"></i> <span data-i18n="recommendations">Recomendações inteligentes</span></h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-chart-line text-success"></i> Expanda para região de Benguela (alta procura feijão)</li>
+                        <li><i class="fas fa-store"></i> Crie campanhas para milho em Luanda</li>
+                        <li><i class="fas fa-users"></i> Utilize o centro de marketing digital para treino</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUGESTÃO DE MERCADOS + LINKS RÁPIDOS -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card card-modern">
+                <div class="card-body">
+                    <h5><i class="fas fa-chart-simple"></i> <span data-i18n="promisingMarkets">Mercados mais promissores</span> → Links rápidos</h5>
+                    <div class="row g-3 mt-2">
+                      <div class="col-md-3 col-6">
+    <a href="promotion.html" class="btn btn-outline-info w-100 rounded-pill " >
+        <i class="fas fa-tags"></i> Promoções Inteligentes
+    </a>
+</div>
+
+<div class="col-md-3 col-6">
+    <a href="market-intelligence.html" class="btn btn-outline-info w-100 rounded-pill" >
+        <i class="fas fa-robot"></i> Gerador de Publicações
+    </a>
+</div>
+
+<div class="col-md-3 col-6">
+    <a href="tendencias.html" class="btn btn-outline-info w-100 rounded-pill">
+        <i class="fas fa-chart-line"></i> Tendências de Mercado
+    </a>
+</div>
+
+<div class="col-md-3 col-6">
+    <a href="market-center.html" class="btn btn-outline-info w-100 rounded-pill">
+        <i class="fas fa-bullhorn"></i> Centro Marketing Digital
+    </a>
+</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CARDS CLICÁVEIS: REDES SOCIAIS, CONTATO, QR CODE -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-6">
+            <div class="card clickable-card text-center p-3" id="facebookCard">
+                <i class="fab fa-facebook fa-2x text-primary"></i> <strong>Divulgar no Facebook</strong>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card clickable-card text-center p-3" id="instagramCard">
+                <i class="fab fa-instagram fa-2x text-danger"></i> <strong>Publicar Instagram</strong>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card clickable-card text-center p-3" id="contactBuyerCard">
+                <i class="fas fa-phone-alt fa-2x text-success"></i> <strong>Contactar compradores</strong>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card clickable-card text-center p-3" id="qrCodeCard">
+                <i class="fas fa-qrcode fa-2x text-dark"></i> <strong>Gerar QR do produto</strong>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal QR Code -->
+<div class="modal fade" id="qrModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header"><h5>QR Code do Produto</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body text-center"><div id="qrcodeContainer"></div><p class="mt-2">Mostre ao seu cliente potencial!</p></div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================HTML ADD============================================ -->
+<!-- MODAL PRINCIPAL – DESTAQUE DAS VANTAGENS DO AGROLUX -->
+    <div id="modalAgroLux" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-flex">
+                <div class="modal-imagem">
+                    <div class="img-wrapper">
+                        <img class="img-agricola" 
+                             src="images/agrolux-modal.png"
+                             alt="AgroLux integração com WhatsApp e Instagram"
+                             onerror="this.src='https://placehold.co/700x480/2b5a4c/f5e5b0?text=🌾+AgroLux+Marketplace+Social&font=roboto'">
+                        <div class="overlay-social"></div>
+                    </div>
+                </div>
+                <div class="modal-conteudo">
+                    <div class="btn-fechar" id="fecharModalAgroLux">
+                        <i class="fas fa-times"></i>
+                    </div>
+                    
+                    <div class="titulo-software">
+                        <i class="fas fa-hand-holding-usd"></i> AgroLux – Mercado Virtual<br>
+                        <span style="font-size: 0.9rem; color: #e4a022;">Gestão + Exposição nas redes sociais</span>
+                    </div>
+                    
+                    <p class="descricao-principal">
+                        Uma plataforma que transforma sua propriedade em um negócio digital. Você gerencia a produção e expõe seus produtos automaticamente no WhatsApp, Facebook e Instagram – sem precisar de loja física ou site próprio.
+                    </p>
+                    
+                    <ul class="lista-vantagens-agrolux">
+                        <li><i class="fab fa-whatsapp"></i> <strong>Catálogo direto no WhatsApp Business</strong> – clientes veem preços e estoque em tempo real</li>
+                        <li><i class="fab fa-instagram"></i> <strong>Integração com instagram shopping</strong> – marque produtos nos stories e feed</li>
+                        <li><i class="fab fa-facebook"></i> <strong>Marketplace no Facebook</strong> – alcance compradores da sua região</li>
+                        <li><i class="fas fa-chart-pie"></i> <strong>Gestão de estoque e finanças</strong> – tudo sincronizado com a vitrine social</li>
+                        <li><i class="fas fa-users"></i> <strong>Comunidade de compradores verificados</strong> – sem interferência direta da plataforma</li>
+                    </ul>
+                    
+                    <div class="nota-importante">
+                        <i class="fas fa-exclamation-triangle"></i> <strong>Atenção:</strong> A AgroLux <u>não fornece contacto directo com clientes</u> e <u>não assegura pagamentos</u>. Nosso papel é oferecer um ambiente virtual organizado onde você negocia e finaliza as vendas através das redes sociais (WhatsApp, Instagram, Facebook) sob sua própria responsabilidade. O software apenas acelera sua conexão com o mercado.
+                    </div>
+                    
+                    <button  class="btn-acao">
+                        <a href="vantagens.html" >
+                            <i class="fab fa-whatsapp"></i> Experimentar Mercado Virtual Grátis
+                        </a>
+                    </button>
+                    <div class="texto-info">
+                        <i class="fas fa-clock"></i> Ativação imediata · Setup em menos de 5 minutos · Plano gratuito por 30 dias
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ícone flutuante para abrir o modal a qualquer momento -->
+    <div class="floating-agrolux" id="floatingAgroLuxBtn" aria-label="Abrir AgroLux" title="AgroLux - Mercado nas redes sociais">
+        <i class="fas fa-store"></i>
+    </div>
+    
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // ------------------ DADOS MOCK ------------------
+    const markersData = [
+        { id: 1, name: "Cacuaco - Luanda", lat: -8.8605, lng: 13.234, province: "Luanda", municipality: "Cacuaco", commune: "Cacuaco Centro", topProduct: "milho", demandLevel: "Alta", potentialBuyers: 34, distance: 4.2, productDemandMap: { milho: "Alta", tomate: "Média", feijão: "Baixa" }, buyersList: "Armazém Norte, Feira do Kilamba" },
+        { id: 2, name: "Huambo - Centro", lat: -12.7761, lng: 15.7392, province: "Huambo", municipality: "Huambo", commune: "Sede", topProduct: "tomate", demandLevel: "Média", potentialBuyers: 18, distance: 320, productDemandMap: { milho: "Baixa", tomate: "Alta", feijão: "Média" }, buyersList: "Mercado Municipal, HortiAngo" },
+        { id: 3, name: "Benguela - Lobito", lat: -12.3519, lng: 13.5464, province: "Benguela", municipality: "Lobito", commune: "Lobito Centro", topProduct: "feijão", demandLevel: "Alta", potentialBuyers: 27, distance: 412, productDemandMap: { milho: "Média", tomate: "Baixa", feijão: "Alta" }, buyersList: "Cooperativa do Feijão, Comercio Local" },
+        { id: 4, name: "Malanje - Cacuso", lat: -9.539, lng: 16.344, province: "Malanje", municipality: "Cacuso", commune: "Cacuso", topProduct: "milho", demandLevel: "Média", potentialBuyers: 12, distance: 385, productDemandMap: { milho: "Média", tomate: "Baixa", feijão: "Média" }, buyersList: "Centro de Abastecimento" },
+        { id: 5, name: "Luanda - Viana", lat: -8.9036, lng: 13.371, province: "Luanda", municipality: "Viana", commune: "Viana", topProduct: "tomate", demandLevel: "Alta", potentialBuyers: 42, distance: 16.5, productDemandMap: { milho: "Média", tomate: "Alta", feijão: "Média" }, buyersList: "Supermercados Kero, Shoprite" },
+        { id: 6, name: "Benguela - Baía Farta", lat: -12.603, lng: 13.204, province: "Benguela", municipality: "Baía Farta", commune: "Baía Farta", topProduct: "feijão", demandLevel: "Média", potentialBuyers: 9, distance: 440, productDemandMap: { milho: "Baixa", tomate: "Média", feijão: "Alta" }, buyersList: "Mercado da Beira" }
+    ];
+    const farmerCoord = { lat: -8.8383, lng: 13.2344 }; // Luanda base
+
+    function haversineDistance(lat1, lng1, lat2, lng2) {
+        const R = 6371;
+        const dLat = (lat2-lat1)*Math.PI/180;
+        const dLon = (lng2-lng1)*Math.PI/180;
+        const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+        return (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))).toFixed(1);
+    }
+
+    // Idiomas
+    const translations = {
+        pt: { searchProduct:"Produto", province:"Província", municipality:"Município", commune:"Comuna", clickMarkerDistance:"Clique num marcador para ver distância", regionDemand:"Procura por região", potentialBuyersZone:"Compradores potenciais", mostDemandedProduct:"Produto mais procurado", distanceToFarmer:"Distância", demandLevel:"Nível de procura", areaCharts:"Gráficos de área (procura mensal)", statisticsArea:"Estatísticas por região", historyInterest:"Histórico", alerts:"Alertas", recommendations:"Recomendações", promisingMarkets:"Mercados promissores", selectMarkerHint:"Selecione um marcador" },
+        en: { searchProduct:"Product", province:"Province", municipality:"Municipality", commune:"Commune", clickMarkerDistance:"Click marker to see distance", regionDemand:"Demand by region", potentialBuyersZone:"Potential buyers", mostDemandedProduct:"Top demanded product", distanceToFarmer:"Distance", demandLevel:"Demand level", areaCharts:"Monthly demand trend", statisticsArea:"Regional statistics", historyInterest:"Interest history", alerts:"Opportunity alerts", recommendations:"Smart recommendations", promisingMarkets:"Promising markets", selectMarkerHint:"Select a marker on map" }
+    };
+    let currentLang = 'pt';
+    function updateUIlanguage() {
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if(translations[currentLang][key]) el.innerText = translations[currentLang][key];
+        });
+        document.getElementById('langActive').innerText = currentLang === 'pt' ? 'Português' : 'English';
+        document.getElementById('disclaimerMsg').innerHTML = currentLang === 'pt' ? '<i class="fas fa-chalkboard-teacher"></i> AgroLux não garante compradores diretos — é uma plataforma de <strong>treinamento e marketing agrícola</strong>. Aqui você encontra um mapa de oportunidades e inteligência de mercado.' : '<i class="fas fa-chalkboard-teacher"></i> AgroLux does not guarantee direct buyers — it is a <strong>training & agri-marketing platform</strong>. Here you find an opportunity map and market intelligence.';
+    }
+
+    // Globais
+    let map, markersLayer, currentMarkers = [], areaChart = null, barChart = null;
+    let historyRegions = ["Luanda (Alta procura - milho)", "Huambo (Média - tomate)", "Benguela (Alta - feijão)"];
+
+    // Inicializar mapa
+    function initMap() {
+        map = L.map('leafletMap').setView([-9.5, 15.5], 7);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> & carto' }).addTo(map);
+        markersLayer = L.layerGroup().addTo(map);
+        updateMarkersAndUI();
+    }
+
+    function updateMarkersAndUI() {
+        const product = document.getElementById('searchProduct').value.toLowerCase().trim();
+        const prov = document.getElementById('provinceFilter').value;
+        
+        markersLayer.clearLayers();
+        currentMarkers = [];
+        
+        const filtered = markersData.filter(m => {
+            let matchProduct = true;
+            if(product && m.productDemandMap && !m.productDemandMap[product]) matchProduct = false;
+            if(prov !== 'all' && m.province !== prov) matchProduct = false;
+            return matchProduct;
+        });
+        
+        // Adiciona marcadores e coleta bounds
+        const bounds = L.latLngBounds();
+        filtered.forEach(m => {
+            const dist = haversineDistance(farmerCoord.lat, farmerCoord.lng, m.lat, m.lng);
+            const popupContent = `<b>${m.name}</b><br>Produto top: ${m.topProduct}<br>Procura: ${m.demandLevel}<br>Distância: ${dist} km<br>Compradores: ${m.potentialBuyers}`;
+            const marker = L.marker([m.lat, m.lng]).bindPopup(popupContent);
+            marker.on('click', () => showRegionDetails(m, dist));
+            markersLayer.addLayer(marker);
+            currentMarkers.push(marker);
+            bounds.extend([m.lat, m.lng]);
+        });
+        
+        // Ajusta zoom se houver marcadores
+        if(filtered.length > 0 && bounds.isValid()) {
+            map.fitBounds(bounds, { padding: [30, 30] });
+        } else if(filtered.length === 0) {
+            map.setView([-9.5, 15.5], 7);
+        }
+        
+        // Atualiza gráficos e UI
+        updateCharts();
+        updateStatsBar(filtered);
+        
+        // Se houver pelo menos um, mostra primeiro no painel lateral
+        if(filtered.length > 0) {
+            const first = filtered[0];
+            const distFirst = haversineDistance(farmerCoord.lat, farmerCoord.lng, first.lat, first.lng);
+            showRegionDetails(first, distFirst);
+        } else {
+            document.getElementById('selectedRegionInfo').innerHTML = '<p class="text-muted">Nenhum resultado para os filtros atuais.</p>';
+            document.getElementById('buyersList').innerHTML = '—';
+            document.getElementById('topProductZone').innerHTML = '—';
+            document.getElementById('distanceDisplay').innerHTML = '—';
+            document.getElementById('demandBadge').innerHTML = '—';
+        }
+    }
+
+    function showRegionDetails(m, distanceVal) {
+        document.getElementById('selectedRegionInfo').innerHTML = `<strong>${m.name}</strong> <span class="badge bg-secondary">${m.province}</span>`;
+        document.getElementById('buyersList').innerHTML = m.buyersList;
+        document.getElementById('topProductZone').innerHTML = `${m.topProduct.toUpperCase()} (procura ${m.demandLevel})`;
+        document.getElementById('distanceDisplay').innerHTML = `${distanceVal} km da sua localização base`;
+        let badgeClass = m.demandLevel === 'Alta' ? 'badge-demand-high' : (m.demandLevel === 'Média' ? 'badge-demand-medium' : 'badge-demand-low');
+        document.getElementById('demandBadge').innerHTML = `<span class="badge ${badgeClass}">${m.demandLevel}</span>`;
+        
+        let histEntry = `${m.name} (${m.demandLevel} - ${m.topProduct})`;
+        if(!historyRegions.includes(histEntry)) { 
+            historyRegions.unshift(histEntry); 
+            if(historyRegions.length>5) historyRegions.pop(); 
+            renderHistory(); 
+        }
+    }
+
+    function renderHistory() {
+        const ul = document.getElementById('historyList');
+        ul.innerHTML = historyRegions.map(h => `<li class="list-group-item bg-transparent">${h}</li>`).join('');
+    }
+    function clearHistory() { historyRegions = []; renderHistory(); }
+    
+    // GRÁFICOS CORRIGIDOS (garantindo que aparecem)
+    function updateCharts() {
+        const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'];
+        const demandTrend = [45, 52, 68, 74, 89, 102];
+        const ctxArea = document.getElementById('areaChart').getContext('2d');
+        if(areaChart) areaChart.destroy();
+        areaChart = new Chart(ctxArea, { 
+            type: 'line', 
+            data: { 
+                labels: months, 
+                datasets: [{ 
+                    label: currentLang === 'pt' ? 'Procura (milho)' : 'Demand (corn)', 
+                    data: demandTrend, 
+                    fill: true, 
+                    backgroundColor: 'rgba(46, 125, 50, 0.2)', 
+                    borderColor: '#2E7D32', 
+                    tension: 0.3,
+                    pointBackgroundColor: '#2E7D32'
+                }] 
+            },
+            options: { responsive: true, maintainAspectRatio: true }
+        });
+    }
+    
+    function updateStatsBar(filtered) {
+        const regionDemandMap = {};
+        filtered.forEach(m => { regionDemandMap[m.name] = (regionDemandMap[m.name] || 0) + m.potentialBuyers; });
+        let labels = Object.keys(regionDemandMap);
+        let dataValues = labels.map(l => regionDemandMap[l]);
+        if(labels.length === 0) {
+            labels = ['Sem dados'];
+            dataValues = [0];
+        }
+        const ctxBar = document.getElementById('statsBarChart').getContext('2d');
+        if(barChart) barChart.destroy();
+        barChart = new Chart(ctxBar, { 
+            type: 'bar', 
+            data: { 
+                labels: labels.slice(0,5), 
+                datasets: [{ 
+                    label: currentLang === 'pt' ? 'Compradores potenciais' : 'Potential buyers', 
+                    data: dataValues.slice(0,5), 
+                    backgroundColor: '#4CAF50',
+                    borderRadius: 8
+                }] 
+            },
+            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'top' } } }
+        });
+    }
+
+    // Atualização de filtros
+    document.getElementById('searchProduct').addEventListener('input', () => updateMarkersAndUI());
+    document.getElementById('provinceFilter').addEventListener('change', () => updateMarkersAndUI());
+    document.getElementById('clearHistoryBtn').addEventListener('click', clearHistory);
+    document.getElementById('simulateAlertBtn').addEventListener('click', () => {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-info py-1 mt-1';
+        alertDiv.innerHTML = '<i class="fas fa-bullhorn"></i> Nova oportunidade: procura alta por feijão em Benguela!';
+        document.getElementById('alertsContainer').prepend(alertDiv);
+        setTimeout(() => alertDiv.remove(), 5000);
+    });
+    document.getElementById('whatsappBtn').addEventListener('click', () => window.open('https://wa.me/244900000000?text=Olá! Vi oportunidades no Mapa AgroLux, gostaria de saber mais sobre treinamento.','_blank'));
+    
+    // Cards redes sociais e QR
+    document.getElementById('facebookCard').onclick = () => alert("Compartilhe seu produto no Facebook: use #AgroLuxTreinamento");
+    document.getElementById('instagramCard').onclick = () => alert("Publique no Instagram conteúdos do Mapa de Oportunidades.");
+    document.getElementById('contactBuyerCard').onclick = () => alert("Entre em contato com compradores via: marketplace@agrolux.ao ou pelo WhatsApp na plataforma.");
+    document.getElementById('qrCodeCard').onclick = () => {
+        let produto = document.getElementById('searchProduct').value || "produto";
+        document.getElementById('qrcodeContainer').innerHTML = "";
+        try {
+            new QRCode(document.getElementById('qrcodeContainer'), { text: `https://agroluxoportunidades.com/${encodeURIComponent(produto)}?source=mapa`, width: 180, height: 180 });
+        } catch(e) { document.getElementById('qrcodeContainer').innerHTML = '<p>Erro ao gerar QR</p>'; }
+        new bootstrap.Modal(document.getElementById('qrModal')).show();
+    };
+    
+    // Links rápidos
+    document.querySelectorAll('.quick-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const target = link.getAttribute('data-target') || '';
+            if(target === 'promocoes') alert("Área de Promoções Inteligentes: crie campanhas com desconto para seus produtos.");
+            else if(target === 'gerador') alert("Gerador Inteligente de Publicações: gere textos otimizados para marketplaces.");
+            else if(target === 'tendencias') alert("Tendências de Mercado: milho em alta em Luanda, tomate no Huambo.");
+            else if(target === 'marketing') alert("Centro de Marketing Digital: cursos e estratégias para agricultores venderem mais.");
+        });
+    });
+    
+    // Tema escuro/claro
+    const themeBtn = document.getElementById('themeToggleBtn');
+    themeBtn.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        document.getElementById('themeText').innerText = isDark ? 'Tema claro' : 'Tema escuro';
+        themeBtn.innerHTML = isDark ? '<i class="fas fa-sun"></i> Claro' : '<i class="fas fa-moon"></i> Escuro';
+    });
+    
+    // Idioma
+    document.querySelectorAll('[data-lang]').forEach(el => {
+        el.addEventListener('click', (e) => {
+            currentLang = e.target.getAttribute('data-lang');
+            updateUIlanguage();
+            updateCharts();
+            updateStatsBar(markersData.filter(m => {
+                const prod = document.getElementById('searchProduct').value.toLowerCase();
+                const prov = document.getElementById('provinceFilter').value;
+                let ok = true;
+                if(prod && !m.productDemandMap[prod]) ok = false;
+                if(prov !== 'all' && m.province !== prov) ok = false;
+                return ok;
+            }));
+            updateMarkersAndUI();
+        });
+    });
+    
+    // Preencher municípios fictícios para UX (não crítico)
+    function populateMunicipios() {
+        const prov = document.getElementById('provinceFilter').value;
+        const munSelect = document.getElementById('municipalityFilter');
+        const communeSelect = document.getElementById('communeFilter');
+        munSelect.innerHTML = '<option value="all">Todos</option>';
+        communeSelect.innerHTML = '<option value="all">Todas</option>';
+        if(prov !== 'all') {
+            const municipios = [...new Set(markersData.filter(m => m.province === prov).map(m => m.municipality))];
+            municipios.forEach(mun => { munSelect.innerHTML += `<option value="${mun}">${mun}</option>`; });
+        } else {
+            const allMuns = [...new Set(markersData.map(m => m.municipality))];
+            allMuns.forEach(mun => { munSelect.innerHTML += `<option value="${mun}">${mun}</option>`; });
+        }
+        munSelect.addEventListener('change', () => {
+            const munVal = munSelect.value;
+            communeSelect.innerHTML = '<option value="all">Todas</option>';
+            let communes = [];
+            if(munVal !== 'all') {
+                communes = [...new Set(markersData.filter(m => m.municipality === munVal).map(m => m.commune))];
+            } else {
+                communes = [...new Set(markersData.map(m => m.commune))];
+            }
+            communes.forEach(com => { communeSelect.innerHTML += `<option value="${com}">${com}</option>`; });
+        });
+    }
+    
+    // Inicialização completa após DOM
+    document.addEventListener('DOMContentLoaded', () => {
+        initMap();
+        updateUIlanguage();
+        renderHistory();
+        populateMunicipios();
+        // Seleciona primeiro marker após carregamento
+        setTimeout(() => {
+            if(markersData.length) {
+                const first = markersData[0];
+                const dist = haversineDistance(farmerCoord.lat, farmerCoord.lng, first.lat, first.lng);
+                showRegionDetails(first, dist);
+            }
+        }, 500);
+    });
+    
+    document.querySelectorAll('.quick-link').forEach(link => {
+    link.addEventListener('click', function(e) {
+        const target = this.getAttribute('data-target');
+        if (target === 'algum-conteudo-dinamico') {
+            e.preventDefault();
+            // carrega conteúdo sem sair da página
+        }
+        // senão, deixa o redirecionamento acontecer normalmente
+    });
+});
+    
+//===================================================JS ADD=====================================//
+     (function() {
+            // Elementos do modal
+            const modal = document.getElementById('modalAgroLux');
+            const btnFechar = document.getElementById('fecharModalAgroLux');
+            const floatingBtn = document.getElementById('floatingAgroLuxBtn');
+            const btnCtaPrincipal = document.getElementById('btnAbrirModalPrincipal');
+            const btnAcaoModal = document.getElementById('btnQueroAgroLux');
+            const cardsAbrir = document.querySelectorAll('.card-negocio[data-modal="abrir"]');
+
+            // Configuração do reaparecimento a cada 10 minutos
+            let timeoutModal = null;
+            const INTERVALO_MS = 10 * 60 * 1000; // 10 minutos
+            const STORAGE_KEY = 'agrolux_ultimo_fechamento';
+
+            function abrirModal() {
+                if (!modal) return;
+                if (modal.style.display === 'flex') return;
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+
+            function fecharModal() {
+                if (!modal) return;
+                if (modal.style.display !== 'flex') return;
+                
+                modal.style.display = 'none';
+                document.body.style.overflow = '';
+                
+                const agora = Date.now();
+                localStorage.setItem(STORAGE_KEY, agora.toString());
+                
+                if (timeoutModal) {
+                    clearTimeout(timeoutModal);
+                    timeoutModal = null;
+                }
+                
+                // Reaparece automaticamente após 10 minutos
+                timeoutModal = setTimeout(() => {
+                    abrirModal();
+                    timeoutModal = null;
+                }, INTERVALO_MS);
+            }
+
+            // Inicialização considerando a última vez que o modal foi fechado
+            function inicializarModalComIntervalo() {
+                const ultimoFechamento = localStorage.getItem(STORAGE_KEY);
+                if (!ultimoFechamento) {
+                    abrirModal();
+                    return;
+                }
+                const tempoDecorrido = Date.now() - parseInt(ultimoFechamento, 10);
+                if (tempoDecorrido >= INTERVALO_MS) {
+                    abrirModal();
+                } else {
+                    const tempoRestante = INTERVALO_MS - tempoDecorrido;
+                    timeoutModal = setTimeout(() => {
+                        abrirModal();
+                        timeoutModal = null;
+                    }, tempoRestante);
+                }
+            }
+
+            // Eventos de fechamento
+            if (btnFechar) {
+                btnFechar.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    fecharModal();
+                });
+            }
+            
+            // Fechar ao clicar no overlay escuro
+            if (modal) {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        fecharModal();
+                    }
+                });
+            }
+            
+            // Impedir propagação dentro do card do modal
+            const modalCard = document.querySelector('.modal-card');
+            if (modalCard) {
+                modalCard.addEventListener('click', (e) => e.stopPropagation());
+            }
+            
+            // Tecla ESC fecha o modal
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && modal && modal.style.display === 'flex') {
+                    fecharModal();
+                }
+            });
+            
+            // Botão flutuante – abre o modal instantaneamente
+            if (floatingBtn) {
+                floatingBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (modal && modal.style.display !== 'flex') {
+                        abrirModal();
+                    }
+                });
+            }
+            
+            // Botão principal da página "Conhecer Mercado Virtual"
+            if (btnCtaPrincipal) {
+                btnCtaPrincipal.addEventListener('click', () => {
+                    abrirModal();
+                });
+            }
+            
+            // Todos os cards de funcionalidades abrem o modal
+            cardsAbrir.forEach(card => {
+                card.addEventListener('click', () => {
+                    abrirModal();
+                });
+            });
+            
+            // Ação do botão dentro do modal (simular interesse / cadastro)
+            if (btnAcaoModal) {
+                btnAcaoModal.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    alert("🌱 Obrigado pelo interesse!Em breve você verá as vantagens de usar o AgroLux — e como ele pode transformar a sua integração com WhatsApp, Facebook e Instagram.");
+                    // Exemplo: descomente a linha abaixo para redirecionar a uma página de cadastro real
+                    // window.location.href = "https://agrolux.example.com/cadastro";
+                    fecharModal(); // opcional: fecha o modal após o clique
+                });
+            }
+            
+            // Inicia o modal com as regras de reaparecimento (10 minutos)
+            inicializarModalComIntervalo();
+        })();
+</script>
+</body>
+</html>

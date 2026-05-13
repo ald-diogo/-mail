@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>500 Internal Server Error | BG 500</title>
+    <meta name="description" content="Página de erro 500 Internal Server Error com tema claro-escuro, multilíngue e design inspirado em BG 500">
+    <meta name="theme-color" content="#0a0a0a">
+    
+    <!-- Google Fonts & Font Awesome 6 -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,500;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        body {
+            /* Imagem de fundo mantida: Bg-entregas.jpg */
+            background-image: url('images/Bg-entregas.jpg');
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-color: #1a2a32;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            transition: background-color 0.2s ease;
+            padding: 1rem;
+            position: relative;
+        }
+
+        /* transições suaves */
+        .glass-card, .bg-tag, .image-info, .action-btn, .floating-controls, .toggle-label, .error-code, .error-subtitle {
+            transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        /* ========= CONTROLES FLUTUANTES (TEMA + IDIOMA) ========= */
+        .floating-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1100;
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(12px);
+            border-radius: 60px;
+            padding: 8px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Switch tema */
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 58px;
+            height: 30px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #2c2e3a;
+            border-radius: 34px;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 6px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 24px;
+            width: 24px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #ffd966;
+            border-radius: 50%;
+            transition: 0.3s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        input:checked + .slider {
+            background-color: #3a3f5e;
+        }
+        input:checked + .slider:before {
+            transform: translateX(28px);
+            background-color: #f9f3d9;
+        }
+        .slider i {
+            font-size: 14px;
+            color: #ffeaac;
+            z-index: 1;
+        }
+        
+        /* Dropdown de idioma */
+        .lang-dropdown {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,200,0.4);
+            border-radius: 40px;
+            padding: 0.45rem 0.8rem;
+            font-weight: 500;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #fff2df;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .lang-dropdown i {
+            font-size: 1rem;
+        }
+        .lang-dropdown select {
+            background: transparent;
+            border: none;
+            color: inherit;
+            font-weight: 500;
+            font-size: 0.85rem;
+            cursor: pointer;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+            padding-right: 4px;
+        }
+        .lang-dropdown select option {
+            background: #1e1e2a;
+            color: #f0f0f0;
+        }
+        body.light-theme .lang-dropdown select option {
+            background: #f5f2e8;
+            color: #1e1a10;
+        }
+        .lang-dropdown:hover {
+            background: rgba(255, 188, 110, 0.4);
+            border-color: #ffbc6e;
+        }
+
+        /* Tema claro para os controles */
+        body.light-theme .floating-controls {
+            background: rgba(245, 242, 235, 0.85);
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        }
+        body.light-theme .lang-dropdown {
+            background: rgba(0, 0, 0, 0.08);
+            color: #262421;
+            border-color: rgba(0,0,0,0.2);
+        }
+        body.light-theme .lang-dropdown:hover {
+            background: #ffbc6e60;
+        }
+
+        /* ---------- CARTÃO PRINCIPAL (erro 500) ---------- */
+        .glass-card {
+            max-width: 780px;
+            width: 100%;
+            margin: 2rem auto;
+            padding: 2.2rem 2rem 2rem 2rem;
+            background: rgba(10, 10, 15, 0.68);
+            backdrop-filter: blur(14px) saturate(180%);
+            border-radius: 2.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+            text-align: center;
+            color: white;
+            animation: cardAppear 0.6s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: translateY(25px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Estilo do código 500 (imagem mantida, não alterada) */
+        .error-code {
+            font-size: 7rem;
+            font-weight: 800;
+            line-height: 1;
+            background: linear-gradient(135deg, #FFFFFF, #FFD966, #FFB347);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.2);
+            letter-spacing: 6px;
+            margin: 0.2rem 0 0.3rem;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin: 0.5rem 0 0.25rem;
+            letter-spacing: -0.3px;
+        }
+
+        .error-subtitle {
+            font-size: 1.25rem;
+            font-weight: 600;
+            background: rgba(255, 200, 100, 0.2);
+            display: inline-block;
+            padding: 0.3rem 1.2rem;
+            border-radius: 60px;
+            backdrop-filter: blur(4px);
+            margin: 0.5rem 0 1rem;
+            border: 0.5px solid rgba(255,215,150,0.5);
+        }
+
+        .description {
+            font-size: 1rem;
+            font-weight: 400;
+            margin: 1rem 0 1.8rem;
+            opacity: 0.92;
+            line-height: 1.5;
+            max-width: 550px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Botões de ação (Try Again e Logout) */
+        .actions-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1rem 0 1.5rem;
+        }
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(8px);
+            padding: 0.7rem 1.6rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            border: 1px solid rgba(255, 215, 150, 0.5);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+            color: #fff2e0;
+        }
+        .action-btn i {
+            font-size: 1.1rem;
+        }
+        .action-btn:hover {
+            transform: scale(1.02);
+            background: rgba(255, 188, 110, 0.35);
+            border-color: #ffbc6e;
+            color: #fff8f0;
+        }
+        .logout-btn {
+            background: rgba(30, 25, 40, 0.65);
+            border-color: rgba(255, 140, 80, 0.5);
+        }
+        .logout-btn:hover {
+            background: rgba(180, 70, 40, 0.6);
+            border-color: #ff8c50;
+        }
+
+        .image-info {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            border-radius: 2rem;
+            padding: 0.5rem 1.2rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: 1px solid rgba(255,215,150,0.4);
+            margin-top: 0.8rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .id-badge {
+            background: #ffbc6e;
+            padding: 2px 10px;
+            border-radius: 40px;
+            color: #1e1a10;
+            font-weight: 800;
+            font-size: 0.75rem;
+        }
+
+        /* Badges de contexto adicional */
+        .error-context {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin: 1rem 0 0.5rem;
+        }
+        .context-chip {
+            background: rgba(0,0,0,0.35);
+            backdrop-filter: blur(4px);
+            padding: 0.3rem 1rem;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        hr {
+            width: 60px;
+            margin: 1rem auto;
+            border: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,215,150,0.6), transparent);
+        }
+        footer {
+            margin-top: 1.2rem;
+            font-size: 0.7rem;
+            opacity: 0.8;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        /* ========= TEMA CLARO ========= */
+        body.light-theme .glass-card {
+            background: rgba(245, 242, 235, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 245, 0.7);
+            color: #1e1e2a;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        body.light-theme .error-code {
+            background: linear-gradient(135deg, #B06010, #D98F2E, #F5B041);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        body.light-theme .error-subtitle {
+            background: rgba(0, 0, 0, 0.08);
+            color: #3d2b1a;
+            border-color: rgba(0,0,0,0.2);
+        }
+        body.light-theme .action-btn {
+            background: rgba(0, 0, 0, 0.12);
+            color: #2c2b28;
+            border-color: rgba(0, 0, 0, 0.2);
+        }
+        body.light-theme .action-btn:hover {
+            background: #ffbc6e70;
+            color: #1a1309;
+        }
+        body.light-theme .image-info {
+            background: rgba(230, 225, 210, 0.75);
+            color: #2d2a24;
+        }
+        body.light-theme .context-chip {
+            background: rgba(0, 0, 0, 0.08);
+            color: #2c2b28;
+        }
+        body.light-theme .id-badge {
+            background: #be8a4c;
+            color: white;
+        }
+        body.light-theme footer {
+            color: #2e2b27;
+        }
+
+        /* Responsive */
+        @media (max-width: 680px) {
+            .glass-card { padding: 1.5rem; margin: 1rem; }
+            .error-code { font-size: 4.8rem; letter-spacing: 3px; }
+            h1 { font-size: 1.6rem; }
+            .error-subtitle { font-size: 1rem; }
+            .action-btn { padding: 0.5rem 1.2rem; font-size: 0.85rem; }
+            .floating-controls { top: 12px; right: 12px; padding: 5px 14px; gap: 10px; }
+            .toggle-switch { width: 50px; height: 26px; }
+            .slider:before { height: 20px; width: 20px; }
+            input:checked + .slider:before { transform: translateX(24px); }
+        }
+        @media (max-width: 480px) {
+            .error-code { font-size: 3.5rem; letter-spacing: 2px; }
+            h1 { font-size: 1.3rem; }
+            .error-subtitle { font-size: 0.9rem; }
+            .description { font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- CONTROLES FLUTUANTES: TEMA + IDIOMA -->
+<div class="floating-controls">
+    <div class="theme-switch-wrapper">
+        <label class="toggle-switch">
+            <input type="checkbox" id="themeToggleCheckbox">
+            <span class="slider">
+                <i class="fas fa-sun"></i>
+                <i class="fas fa-moon"></i>
+            </span>
+        </label>
+    </div>
+    <div class="lang-dropdown">
+        <i class="fas fa-globe"></i>
+        <select id="langSelect" aria-label="Select language">
+            <option value="pt">Português</option>
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+        </select>
+    </div>
+</div>
+
+<!-- CARTÃO PRINCIPAL - ERRO 500 INTERNAL SERVER ERROR -->
+<div class="glass-card">
+    <!-- Imagem mantida (503.png) - não alterada conforme solicitado -->
+    <img src="images/500.png" style="width: 100%;" class="error-code"/>
+    
+    <!-- Título principal: Internal Server Error (i18n) -->
+    <h1 data-i18n="error_title">Internal Server Error</h1>
+    
+    <!-- Subtítulo: 500 Internal Server Error – Tente novamente -->
+    <div class="error-subtitle" data-i18n="error_subtitle">500 Internal Server Error – Try again</div>
+    
+    <!-- Descrição detalhada do erro 500 -->
+    <p class="description" data-i18n="error_description">
+        The server encountered an internal error and was unable to complete your request.
+        Please try again later or contact the administrator.
+    </p>
+    
+    <!-- Grupo de ações: Try Again + Logout -->
+    <div class="actions-group">
+        <a href="500.html"> 
+        <button id="retryButton" class="action-btn">
+            <i class="fas fa-sync-alt"></i> 
+            <span data-i18n="retry_button">Try Again</span>
+        </button>
+        </a>
+        <a href="index.html" id="logoutLink" class="action-btn logout-btn">
+            <i class="fas fa-sign-out-alt"></i> 
+            <span data-i18n="logout_button">Logout</span>
+        </a>
+    </div>
+</div>
+
+<script>
+    // ---------- TRADUÇÕES COMPLETAS (PT, EN, FR) PARA PÁGINA DE ERRO 500 ----------
+    const translations = {
+        pt: {
+            error_title: "Erro Interno do Servidor",
+            error_subtitle: "500 Erro Interno do Servidor – Tente novamente",
+            error_description: "O servidor encontrou um erro interno e não conseguiu concluir a sua solicitação. Por favor, tente novamente mais tarde ou entre em contato com o administrador.",
+            retry_button: "Tentar Novamente",
+            logout_button: "Sair",
+            timeout_badge: "Erro 500 - Erro Interno",
+            bg_info: "Imagem de fundo BG | Página de Erro 500",
+            footer_msg: "✨ BG 500 | Erro Interno do Servidor • Tente mais tarde",
+            multilang_hint: "🌐 Multilíngue | Tema claro/escuro"
+        },
+        en: {
+            error_title: "Internal Server Error",
+            error_subtitle: "500 Internal Server Error – Try again",
+            error_description: "The server encountered an internal error and was unable to complete your request. Please try again later or contact the administrator.",
+            retry_button: "Try Again",
+            logout_button: "Logout",
+            timeout_badge: "500 Error - Internal Server Error",
+            bg_info: "Background image | Error 500 Page",
+            footer_msg: "✨ BG 500 | Internal Server Error • Try again later",
+            multilang_hint: "🌐 Multilingual | Light/Dark theme"
+        },
+        fr: {
+            error_title: "Erreur interne du serveur",
+            error_subtitle: "500 Erreur interne du serveur – Réessayez",
+            error_description: "Le serveur a rencontré une erreur interne et n'a pas pu traiter votre demande. Veuillez réessayer plus tard ou contacter l'administrateur.",
+            retry_button: "Réessayer",
+            logout_button: "Déconnexion",
+            timeout_badge: "Erreur 500 - Erreur interne",
+            bg_info: "Image de fond | Page d'erreur 500",
+            footer_msg: "✨ BG 500 | Erreur interne du serveur • Réessayez plus tard",
+            multilang_hint: "🌐 Multilingue | Thème clair/sombre"
+        }
+    };
+
+    let currentLang = 'pt';
+    const i18nElements = document.querySelectorAll('[data-i18n]');
+    const langSelect = document.getElementById('langSelect');
+
+    // Função para atualizar todos os textos baseados no idioma
+    function updateLanguageExtended(lang) {
+        if (!translations[lang]) return;
+        currentLang = lang;
+        if (langSelect) langSelect.value = lang;
+        
+        i18nElements.forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (translations[lang][key]) {
+                el.textContent = translations[lang][key];
+            }
+        });
+        
+        // Atualiza título da página
+        if (lang === 'pt') document.title = "500 Erro Interno do Servidor | BG 500";
+        else if (lang === 'en') document.title = "500 Internal Server Error | BG 500";
+        else if (lang === 'fr') document.title = "500 Erreur interne du serveur | BG 500";
+        
+        localStorage.setItem('preferredLang', lang);
+        document.documentElement.lang = (lang === 'pt' ? 'pt-br' : (lang === 'en' ? 'en' : 'fr'));
+    }
+
+    if (langSelect) {
+        langSelect.addEventListener('change', (e) => {
+            updateLanguageExtended(e.target.value);
+        });
+    }
+
+    // ---------- TEMA (CLARO/ESCURO) COM LOCALSTORAGE ----------
+    const themeCheckbox = document.getElementById('themeToggleCheckbox');
+    
+    function setTheme(theme) {
+        if (theme === 'light') {
+            document.body.classList.add('light-theme');
+            if (themeCheckbox) themeCheckbox.checked = true;
+            localStorage.setItem('theme', 'light');
+        } else {
+            document.body.classList.remove('light-theme');
+            if (themeCheckbox) themeCheckbox.checked = false;
+            localStorage.setItem('theme', 'dark');
+        }
+    }
+    
+    function toggleTheme() {
+        if (document.body.classList.contains('light-theme')) {
+            setTheme('dark');
+        } else {
+            setTheme('light');
+        }
+    }
+    
+    if (themeCheckbox) {
+        themeCheckbox.addEventListener('change', toggleTheme);
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            setTheme('light');
+        } else if (savedTheme === 'dark') {
+            setTheme('dark');
+        } else {
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (!prefersDark) setTheme('light');
+            else setTheme('dark');
+        }
+    }
+    
+    // ---------- INICIALIZA IDIOMA ----------
+    const savedLang = localStorage.getItem('preferredLang');
+    let initialLang = 'pt';
+    if (savedLang && translations[savedLang]) {
+        initialLang = savedLang;
+    } else {
+        const browserLang = navigator.language.slice(0,2);
+        if (browserLang === 'pt') initialLang = 'pt';
+        else if (browserLang === 'en') initialLang = 'en';
+        else if (browserLang === 'fr') initialLang = 'fr';
+        else initialLang = 'en';
+    }
+    updateLanguageExtended(initialLang);
+    
+    // ---------- FUNCIONALIDADE DO BOTÃO "TRY AGAIN" (RECARREGAR) ----------
+    const retryBtn = document.getElementById('retryButton');
+    if (retryBtn) {
+        retryBtn.addEventListener('click', () => {
+            window.location.reload();
+        });
+    }
+    
+    console.log("Página de erro 500 adaptada com sucesso (imagens originais mantidas).");
+</script>
+</body>
+</html>

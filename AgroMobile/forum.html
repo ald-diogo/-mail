@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Comunidade Agrícola | Fórum Inteligente</title>
+    <!-- Bootstrap 5 + Icons + Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Times New Roman', Times, serif;
+        }
+        :root {
+            --bg-gradient: linear-gradient(135deg, #f5f7fc 0%, #eef2f5 100%);
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --text-primary: #1e2a3e;
+            --text-secondary: #2c3e50;
+            --accent: #2b7a3e;
+            --accent-light: #3c9e5c;
+            --shadow-sm: 0 8px 20px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 20px 30px -12px rgba(0, 0, 0, 0.15);
+            --border-light: rgba(0, 0, 0, 0.08);
+        }
+        body.dark {
+            --bg-gradient: linear-gradient(135deg, #121826 0%, #1a212e 100%);
+            --card-bg: rgba(30, 35, 48, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #eef2ff;
+            --text-secondary: #cbd5e6;
+            --accent: #4caf7a;
+            --accent-light: #6fbf93;
+            --border-light: rgba(255, 255, 255, 0.1);
+        }
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-primary);
+            transition: background 0.3s ease, color 0.2s ease;
+            padding-bottom: 75px;
+            position: relative;
+        }
+        /* Imagem de fundo adicionada (sutil, sem alterar gradiente ou elementos) */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('images/Bg-entregas.jpg');
+            background-size: cover;
+            background-position: center 30%;
+            background-repeat: no-repeat;
+            opacity: 0.13;
+            pointer-events: none;
+            z-index: -1;
+        }
+        /* glassmorphism + cards */
+        .glass-card, .card, .top-card, .help-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border-radius: 28px;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .glass-card:hover, .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+        }
+        .btn-primary-custom {
+            background: var(--accent);
+            border: none;
+            border-radius: 60px;
+            padding: 10px 22px;
+            font-weight: 600;
+            color: white;
+            transition: all 0.2s;
+        }
+        .btn-primary-custom:hover {
+            background: var(--accent-light);
+            transform: scale(0.98);
+            box-shadow: 0 8px 18px rgba(43, 122, 62, 0.3);
+        }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--glass-border);
+            padding: 8px 20px;
+            z-index: 1050;
+            border-radius: 28px 28px 0 0;
+        }
+        .nav-icon {
+            font-size: 1.5rem;
+            transition: 0.2s;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+        .nav-icon.active, .nav-icon:hover {
+            color: var(--accent);
+        }
+        .search-bar {
+            border-radius: 60px;
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            padding: 10px 18px;
+            color: var(--text-primary);
+        }
+        .category-chip {
+            background: rgba(128, 128, 128, 0.15);
+            border-radius: 40px;
+            padding: 6px 16px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-secondary);
+        }
+        .category-chip.active, .category-chip:hover {
+            background: var(--accent);
+            color: white;
+        }
+        .badge-cat {
+            background: var(--accent-light);
+            color: white;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            padding: 5px 12px;
+        }
+        .icon-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            transition: 0.2s;
+        }
+        .icon-btn:hover {
+            color: var(--accent);
+            transform: scale(1.05);
+        }
+        .vote-up, .vote-down {
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .vote-up:hover { color: #2b7a3e; }
+        .vote-down:hover { color: #c0392b; }
+        .ai-widget {
+            background: rgba(76, 175, 122, 0.15);
+            border-left: 4px solid var(--accent);
+            border-radius: 24px;
+        }
+        @media (max-width: 768px) {
+            .container { padding-left: 14px; padding-right: 14px; }
+            h2 { font-size: 1.6rem; }
+        }
+        .favorite-star i, .like-heart i {
+            pointer-events: none;
+        }
+        .offline-badge {
+            font-size: 0.7rem;
+        }
+        .animate-fade {
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px);}
+            to { opacity: 1; transform: translateY(0px);}
+        }
+        .section-title {
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+        footer {
+            margin-top: 2rem;
+        }
+        
+          /* Outher CSS */
+    .logo-maker{
+      border-radius: 50px;
+      width: 50px;
+      height: 50px;
+    }
+    
+    .logo-panel{
+      border-radius: 50px;
+      width: 30px;
+      height: 30px;
+    }
+        
+        .logo-panel { 
+            width: 24px;
+            height: 24px; 
+            vertical-align: middle;
+            margin-right: 5px; 
+        }
+        
+        .logo-point {
+            width: 100px; 
+            height: 50px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container py-3" id="appRoot">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h1 class="display-6 fw-bold" 
+                style="background: linear-gradient(135deg, var(--accent), #6fbf93); 
+                       -webkit-background-clip: text; background-clip: text; color: transparent;">
+                <a href="index.html" ><img src="images/Lux-logo-bg.png" class="logo-point" onerror="this.style.display='none'"/></a>Comunidade Agrícola
+            </h1>
+        </div>
+        <div class="d-flex gap-2">
+            <button id="themeToggle" class="btn btn-outline-secondary rounded-circle p-2" style="width: 42px;"><i class="fas fa-moon"></i></button>
+            <button id="langToggle" class="btn btn-outline-secondary rounded-circle p-2" style="width: 42px;"><i class="fas fa-globe"></i></button>
+        </div>
+    </div>
+    <div class="glass-card p-4 mb-4 text-center">
+        <p id="welcomeMsg" class="fs-5 fw-semibold">
+            <i class="fas fa-comments"></i> Bem-vindo ao fórum dos agricultores! Compartilhe suas experiências e aumente suas vendas!
+        </p>
+        <p id="motivationMsg" class="text-secondary">📢 Divulgue seus produtos com sucesso, reduza desperdícios e conecte-se com outros agricultores.</p>
+        <button class="btn btn-primary-custom mt-2" data-bs-toggle="modal" data-bs-target="#createPostModal"><i class="fas fa-plus-circle me-2"></i><span id="createPostBtnText">Criar Nova Publicação</span></button>
+    </div>
+
+    <!-- Search + filters -->
+    <div class="row g-2 mb-3">
+        <div class="col-md-6">
+            <input type="text" id="searchInput" class="form-control search-bar" placeholder="🔍 Buscar tópicos...">
+        </div>
+        <div class="col-md-6">
+            <select id="categoryFilter" class="form-select search-bar">
+                <option value="all">📌 Todas categorias</option>
+                <option value="Venda de produtos agrícolas">🌽 Venda de produtos agrícolas</option>
+                <option value="Divulgação no Facebook">📘 Divulgação no Facebook</option>
+                <option value="Estratégias de vendas no WhatsApp">💬 Estratégias no WhatsApp</option>
+                <option value="Promoção visual no Instagram">📸 Promoção no Instagram</option>
+                <option value="Técnicas de fotografia para produtos">📷 Técnicas de fotografia</option>
+                <option value="Como atrair mais clientes">🎯 Atrair clientes</option>
+                <option value="Preços e negociação">💰 Preços e negociação</option>
+                <option value="Transporte e entrega">🚚 Transporte e entrega</option>
+                <option value="Conservação de produtos perecíveis">❄️ Conservação</option>
+                <option value="Dicas de produção agrícola">🌿 Produção agrícola</option>
+                <option value="Problemas comuns no campo">⚠️ Problemas no campo</option>
+                <option value="Parcerias entre agricultores">🤝 Parcerias</option>
+            </select>
+        </div>
+    </div>
+    <div class="d-flex flex-wrap gap-2 mb-4 justify-content-between align-items-center">
+        <div class="d-flex gap-2">
+            <button class="btn sort-btn" data-sort="recent"><i class="far fa-clock"></i> Mais Recentes</button>
+            <button class="btn sort-btn" data-sort="comments"><i class="fas fa-comment-dots"></i> Mais Comentados</button>
+            <button class="btn sort-btn" data-sort="likes"><i class="fas fa-thumbs-up"></i> Mais Úteis</button>
+        </div>
+        <div id="statsInfo" class="small text-secondary"></div>
+    </div>
+
+    <!-- Posts Grid -->
+    <div id="postsContainer" class="row g-4"></div>
+
+    <!-- Top Dicas + AI + Quick help -->
+    <div class="row mt-5 g-4">
+        <div class="col-lg-4">
+            <div class="glass-card p-3 h-100">
+                <h5><i class="fas fa-star-of-life text-warning"></i> Top Dicas da Semana</h5>
+                <ul class="list-unstyled mt-2">
+                    <li><i class="fa-solid fa-image"></i> <strong>Fotos que Chamam Atenção</strong> – luz natural e fundo limpo.</li>
+                    <li><i class="fa-solid fa-chart-line"></i> <strong>Promoção no Instagram</strong> – Reels mostrando a colheita.</li>
+                    <li><i class="fa-solid fa-tags"></i> <strong>Preços Competitivos</strong> – combo por atacado.</li>
+                </ul>
+                <hr class="border-light">
+                <div class="ai-widget p-3 mt-2">
+                    <i class="fas fa-robot text-success me-2"></i> <strong>Consultor Comunitário IA</strong>
+                    <div id="aiSuggestion" class="small mt-2"><i class="fas fa-tomato"></i> <em>#TomatesOrgânicos | Melhor horário: 18h-20h | Frase: "Direto do campo pra você!"</em></div>
+                    <button id="refreshAiTip" class="btn btn-sm btn-outline-success mt-2 w-100"><i class="fas fa-magic"></i> Nova sugestão</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="glass-card p-3 h-100">
+                <h5><i class="fas fa-hands-helping"></i> Área de Ajuda Coletiva</h5>
+                <div id="helpQuestionsContainer"></div>
+                <div class="mt-2 d-flex justify-content-between align-items-center">
+                    <div><i class="fas fa-trophy text-warning"></i> <span id="topRankFarmer">🌾 Agricultor da semana: Seu Zé</span></div>
+                    <button class="btn btn-sm btn-outline-primary" id="newHelpQuestionBtn">
+                        <i class="fas fa-question"></i> Nova pergunta rápida</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Suggested posts / FAQ -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="glass-card p-3">
+                <h5><i class="fas fa-lightbulb"></i> Publicações Sugeridas para Você</h5>
+                <div id="suggestedPosts" class="d-flex flex-wrap gap-2"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bottom Menu -->
+<div class="bottom-nav d-flex justify-content-around align-items-center">
+    <div class="nav-icon" data-section="feed">
+        <a href="index.html" ><i class="fas fa-home"></i>
+        <span class="d-none d-sm-inline ms-1">Início</span></a>
+        </div>
+    <div class="nav-icon" data-section="favorites"><i class="fas fa-bookmark"></i><span class="d-none d-sm-inline ms-1">Favoritos</span></div>
+    <div class="nav-icon" data-section="help">
+        <a href="ajuda.html" ><i class="fas fa-question-circle"></i>
+        <span class="d-none d-sm-inline ms-1">Ajuda</span></a>
+        </div>
+    <div class="nav-icon" id="notifyBtn"><i class="fas fa-bell"></i><span class="d-none d-sm-inline ms-1">Notificações</span></div>
+</div>
+
+<!-- Modal Criar Publicação -->
+<div class="modal fade" id="createPostModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h5 class="modal-title">🌱 Nova Publicação</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="newTitle" class="form-control mb-2" placeholder="Título">
+                <textarea id="newDesc" class="form-control mb-2" rows="2" placeholder="Descrição"></textarea>
+                <input type="text" id="newFarmer" class="form-control mb-2" placeholder="Seu nome">
+                <select id="newCategory" class="form-select mb-2">
+                    <option>Venda de produtos agrícolas</option><option>Divulgação no Facebook</option><option>Estratégias de vendas no WhatsApp</option>
+                    <option>Promoção visual no Instagram</option><option>Técnicas de fotografia para produtos</option><option>Como atrair mais clientes</option>
+                    <option>Preços e negociação</option><option>Transporte e entrega</option><option>Conservação de produtos perecíveis</option>
+                    <option>Dicas de produção agrícola</option><option>Problemas comuns no campo</option><option>Parcerias entre agricultores</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary-custom" id="confirmCreatePost">Publicar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // ====================== DATA MODEL ========================
+    let posts = [
+        { id: 1, title: "Oferta de Tomates Orgânicos", desc: "Lote fresco de tomates colhidos hoje! Entrega rápida.", author: "Carlos Silva", date: "2026-04-26", category: "Venda de produtos agrícolas", replies: 23, likes: 112, favorited: false },
+        { id: 2, title: "Dicas para Vender no WhatsApp", desc: "Melhores horários e frases prontas pra aumentar vendas.", author: "Ana Souza", date: "2026-04-27", category: "Estratégias de vendas no WhatsApp", replies: 45, likes: 89, favorited: false },
+        { id: 3, title: "Fotos que Vendem no Instagram", desc: "Como usar a luz natural para destacar legumes.", author: "Marcos Lima", date: "2026-04-25", category: "Promoção visual no Instagram", replies: 12, likes: 203, favorited: false },
+        { id: 4, title: "Negociação justa com compradores", desc: "Aprenda a precificar seus produtos sem prejuízo.", author: "Joana Pereira", date: "2026-04-24", category: "Preços e negociação", replies: 32, likes: 76, favorited: false },
+        { id: 5, title: "Resfriamento de hortaliças", desc: "Mantenha alfaces crocantes na geladeira ventilada.", author: "Ricardo Almeida", date: "2026-04-23", category: "Conservação de produtos perecíveis", replies: 18, likes: 67, favorited: false }
+    ];
+    let nextId = 6;
+    let currentSort = "recent";
+    let currentFilterCat = "all";
+    let searchText = "";
+    let favPostsIds = JSON.parse(localStorage.getItem("agriFavPosts") || "[]");
+    
+    // Help area data
+    let helpQuestions = [
+        { id: 1, question: "Como conservar alfaces?", answer: "Mantenha na geladeira bem ventilada, use saco perfurado.", votes: 12, author: "Ricardo", best: true },
+        { id: 2, question: "Melhor adubo para tomate?", answer: "Composto orgânico e esterco curtido.", votes: 8, author: "Clara", best: false }
+    ];
+    let farmerPoints = { "Carlos Silva": 5, "Ana Souza": 8, "Ricardo Almeida": 12, "Clara": 6, "Joana Pereira": 3 };
+    
+    // Helper functions
+    function saveFavToLocal() { localStorage.setItem("agriFavPosts", JSON.stringify(favPostsIds)); }
+    function updateFavStatus() { posts.forEach(p => p.favorited = favPostsIds.includes(p.id)); }
+    updateFavStatus();
+    
+    // Render posts
+    function getFilteredSortedPosts() {
+        let filtered = posts.filter(p => (currentFilterCat === "all" || p.category === currentFilterCat) && 
+            (p.title.toLowerCase().includes(searchText.toLowerCase()) || p.desc.toLowerCase().includes(searchText.toLowerCase()) || p.author.toLowerCase().includes(searchText.toLowerCase())));
+        if (currentSort === "recent") return filtered.sort((a,b) => new Date(b.date) - new Date(a.date));
+        if (currentSort === "comments") return filtered.sort((a,b) => b.replies - a.replies);
+        if (currentSort === "likes") return filtered.sort((a,b) => b.likes - a.likes);
+        return filtered;
+    }
+    
+    function renderPosts() {
+        const container = document.getElementById("postsContainer");
+        const filtered = getFilteredSortedPosts();
+        if(filtered.length === 0) { container.innerHTML = `<div class="col-12 text-center py-5">Nenhuma publicação encontrada 🌾</div>`; return; }
+        container.innerHTML = filtered.map(post => `
+            <div class="col-md-6 col-lg-4 animate-fade">
+                <div class="card h-100 p-3 glass-card">
+                    <div class="d-flex justify-content-between"><span class="badge-cat">${post.category}</span>
+                        <i class="far fa-bookmark favorite-star ${post.favorited ? 'fas text-success' : 'far'}" style="cursor:pointer" data-id="${post.id}"></i>
+                    </div>
+                    <h5 class="mt-2 fw-bold">${post.title}</h5>
+                    <p class="small">${post.desc.substring(0, 80)}...</p>
+                    <div class="d-flex justify-content-between text-secondary small"><span> <i class="fas fa-user"></i> ${post.author}</span><span> <i class="fas fa-calendar"></i>  ${post.date}</span></div>
+                    <hr class="my-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div><i class="far fa-comment-dots"></i> ${post.replies} respostas</div>
+                        <div class="like-heart" style="cursor:pointer" data-id="${post.id}"><i class="fa-heart ${post.likes > 0 ? 'fas text-danger' : 'far'}"></i> ${post.likes}</div>
+                        <div class="d-flex gap-2">
+                            <button class="icon-btn share-wa" data-title="${post.title}" data-desc="${post.desc}"><i class="fab fa-whatsapp"></i></button>
+                            <button class="icon-btn share-fb" data-title="${post.title}"><i class="fab fa-facebook"></i></button>
+                            <button class="icon-btn comment-reply" data-id="${post.id}"><i class="fas fa-reply"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        attachPostEvents();
+    }
+    
+    function attachPostEvents() {
+        document.querySelectorAll('.favorite-star').forEach(el => {
+            el.addEventListener('click', (e) => { e.stopPropagation(); let id = parseInt(el.dataset.id); if(favPostsIds.includes(id)) favPostsIds = favPostsIds.filter(i => i !== id); else favPostsIds.push(id); saveFavToLocal(); updateFavStatus(); renderPosts(); showToast("Favoritos atualizados!"); });
+        });
+        document.querySelectorAll('.like-heart').forEach(el => {
+            el.addEventListener('click', (e) => { let id = parseInt(el.dataset.id); let post = posts.find(p => p.id === id); if(post) { post.likes += 1; renderPosts(); } });
+        });
+        document.querySelectorAll('.share-wa').forEach(btn => {
+            btn.addEventListener('click', (e) => { let t = btn.dataset.title; let d = btn.dataset.desc; window.open(`https://wa.me/?text=🌾 *${t}* - ${d} (Comunidade Agrícola)`); });
+        });
+        document.querySelectorAll('.share-fb').forEach(btn => {
+            btn.addEventListener('click', () => { window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(location.href)}`); });
+        });
+        document.querySelectorAll('.comment-reply').forEach(btn => {
+            btn.addEventListener('click', (e) => { let pid = parseInt(btn.dataset.id); let newReply = prompt("Adicione uma resposta/comentário:"); if(newReply) { let post = posts.find(p => p.id === pid); if(post) { post.replies += 1; renderPosts(); showToast("Comentário adicionado!"); } } });
+        });
+    }
+    
+    function renderHelpArea() {
+        const container = document.getElementById("helpQuestionsContainer");
+        container.innerHTML = helpQuestions.map(q => `
+            <div class="border-bottom pb-2 mb-2">
+                <div class="d-flex justify-content-between"><strong><i class="fas fa-question"></i> ${q.question}</strong> <span>👍 ${q.votes} votos</span></div>
+                <div class="small"><i class="fas fa-lightbulb"></i> ${q.answer} — <em>${q.author}</em> ${q.best ? '<i class="fas fa-star"></i> Melhor resposta' : ''}</div>
+                <div class="mt-1"><i class="fas fa-thumbs-up vote-up" data-id="${q.id}"></i> <i class="fas fa-thumbs-down vote-down" data-id="${q.id}"></i></div>
+            </div>
+        `).join('');
+        document.querySelectorAll('.vote-up').forEach(btn => { btn.addEventListener('click', (e) => { let id = parseInt(btn.dataset.id); let q = helpQuestions.find(q => q.id === id); if(q) { q.votes += 1; updateFarmerRanking(q.author); renderHelpArea(); } }); });
+        document.querySelectorAll('.vote-down').forEach(btn => { btn.addEventListener('click', (e) => { let id = parseInt(btn.dataset.id); let q = helpQuestions.find(q => q.id === id); if(q) { q.votes -= 1; renderHelpArea(); } }); });
+        let topFarmer = Object.entries(farmerPoints).sort((a,b)=>b[1]-a[1])[0]?.[0] || "Agricultor Solidário";
+        document.getElementById("topRankFarmer").innerHTML = ` Agricultor mais ativo: ${topFarmer}`;
+    }
+    
+    function updateFarmerRanking(author) { farmerPoints[author] = (farmerPoints[author] || 0) + 1; }
+    
+    function renderSuggested() {
+        const topPosts = [...posts].sort((a,b)=>b.likes - a.likes).slice(0,3);
+        document.getElementById("suggestedPosts").innerHTML = topPosts.map(p => `<span class="badge bg-success p-2">#${p.category.split(' ')[0]} · ${p.title.slice(0,25)}</span>`).join(' ');
+    }
+    
+    function renderAll() { renderPosts(); renderHelpArea(); renderSuggested(); document.getElementById("statsInfo").innerHTML = `${getFilteredSortedPosts().length} publicações`; }
+    
+    // Event listeners
+    document.getElementById("searchInput").addEventListener("input", (e) => { searchText = e.target.value; renderAll(); });
+    document.getElementById("categoryFilter").addEventListener("change", (e) => { currentFilterCat = e.target.value; renderAll(); });
+    document.querySelectorAll(".sort-btn").forEach(btn => { btn.addEventListener("click", (e) => { currentSort = btn.dataset.sort; renderAll(); }); });
+    document.getElementById("confirmCreatePost").addEventListener("click", () => {
+        let title = document.getElementById("newTitle").value, desc = document.getElementById("newDesc").value, author = document.getElementById("newFarmer").value, cat = document.getElementById("newCategory").value;
+        if(!title || !desc || !author) { alert("Preencha todos os campos."); return; }
+        let newPost = { id: nextId++, title, desc, author, date: new Date().toISOString().slice(0,10), category: cat, replies: 0, likes: 0, favorited: false };
+        posts.unshift(newPost);
+        bootstrap.Modal.getInstance(document.getElementById("createPostModal")).hide();
+        document.getElementById("newTitle").value = ""; document.getElementById("newDesc").value = ""; document.getElementById("newFarmer").value = "";
+        renderAll(); showToast("Publicação criada com sucesso!");
+    });
+    document.getElementById("refreshAiTip").addEventListener("click", () => {
+        const tips = ["📌 #TomatesOrgânicos | Melhor horário: 17h", "📌 #Promoção Instagram: use hashtags locais", "📌 Frase pronta: 'Colheita do dia, sabor inigualável'", "📌 Melhor horário para WhatsApp: 19-21h"];
+        document.getElementById("aiSuggestion").innerHTML = `✨ ${tips[Math.floor(Math.random()*tips.length)]}`;
+    });
+    document.getElementById("newHelpQuestionBtn").addEventListener("click", () => {
+        let qs = prompt("Digite sua pergunta rápida:","Como melhorar a irrigação?");
+        if(qs) { helpQuestions.push({ id: Date.now(), question: qs, answer: "Aguardando resposta da comunidade...", votes: 0, author: "Você", best: false }); renderHelpArea(); showToast("Pergunta enviada!"); }
+    });
+    
+    // Theme + Lang
+    let isDark = localStorage.getItem("agriTheme") === "dark";
+    if(isDark) document.body.classList.add("dark");
+    document.getElementById("themeToggle").addEventListener("click", () => { document.body.classList.toggle("dark"); localStorage.setItem("agriTheme", document.body.classList.contains("dark") ? "dark" : "light"); });
+    let lang = "pt";
+    const translations = { en: { welcome: "🌱 Welcome to the Farmers' Forum! Share experiences & boost sales!", create: "Create New Post", motivation: "📢 Promote your products, reduce waste, connect!" }, pt: { welcome: "🌱 Bem-vindo ao fórum dos agricultores! Compartilhe experiências e aumente vendas!", create: "Criar Nova Publicação", motivation: "📢 Divulgue seus produtos, reduza desperdícios e conecte!" } };
+    document.getElementById("langToggle").addEventListener("click", () => { lang = lang === "pt" ? "en" : "pt"; document.getElementById("welcomeMsg").innerText = translations[lang].welcome; document.getElementById("motivationMsg").innerText = translations[lang].motivation; document.getElementById("createPostBtnText").innerText = translations[lang].create; });
+    
+    // bottom nav + fav offline view
+    document.querySelectorAll(".nav-icon").forEach(icon => {
+        icon.addEventListener("click", (e) => { let section = icon.dataset.section; if(section === "favorites") { let favs = posts.filter(p => favPostsIds.includes(p.id)); if(favs.length) alert(`Seus favoritos offline:\n${favs.map(f=>f.title).join("\n")}`); else alert("Nenhum favorito salvo localmente."); }
+        if(section === "help") document.getElementById("helpQuestionsContainer").scrollIntoView({behavior:"smooth"});
+        if(section === "feed") window.scrollTo({top:0,behavior:"smooth"});
+        });
+    });
+    document.getElementById("notifyBtn").addEventListener("click", () => { if("Notification" in window) { Notification.requestPermission().then(perm => { if(perm === "granted") new Notification("Comunidade Agrícola", { body: "🌾 Novas dicas e publicações disponíveis!" }); else alert("Ative notificações nas configurações."); }); } else alert("Notificações não suportadas."); });
+    
+    function showToast(msg) { let toastDiv = document.createElement("div"); toastDiv.className = "position-fixed bottom-50 start-50 translate-middle-x bg-dark text-white px-4 py-2 rounded-pill animate-fade"; toastDiv.innerText = msg; document.body.appendChild(toastDiv); setTimeout(()=>toastDiv.remove(),2000); }
+    
+    // PWA + Service Worker
+    if('serviceWorker' in navigator) { window.addEventListener('load', () => { const swCode = `self.addEventListener('fetch', event => { event.respondWith(fetch(event.request).catch(() => caches.match(event.request))); }); self.addEventListener('install', e => e.waitUntil(skipWaiting()));`; const blob = new Blob([swCode], {type: 'application/javascript'}); const swUrl = URL.createObjectURL(blob); navigator.serviceWorker.register(swUrl).then(reg => console.log("SW registered")).catch(err => console.log(err)); }); }
+    let manifestObj = { name: "Comunidade Agrícola", short_name: "AgroForum", start_url: "/", display: "standalone", theme_color: "#2b7a3e", icons: [{ src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%232b7a3e' width='100' height='100'/%3E%3Ctext fill='white' x='20' y='70' font-size='60'%3E🌾%3C/text%3E%3C/svg%3E", sizes: "any" }] };
+    const manifestBlob = new Blob([JSON.stringify(manifestObj)], {type: 'application/json'}); const manifestURL = URL.createObjectURL(manifestBlob); const linkManifest = document.createElement('link'); linkManifest.rel = 'manifest'; linkManifest.href = manifestURL; document.head.appendChild(linkManifest);
+    
+    renderAll();
+</script>
+</body>
+</html>

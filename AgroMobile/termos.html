@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>AgroLux - Termos e Condições com Assinatura Digital</title>
+  <!-- Bootstrap 5.3 + Icons + Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    :root {
+      --transition-speed: 0.2s;
+    }
+    body {
+      background-image: url('images/Bg-entregas.jpg');
+      background-size: cover;
+      background-position: center 30%;
+      background-repeat: no-repeat;
+      transition: background 0.2s ease, color 0.2s ease;
+      font-family: 'Times New Roman', Times, serif;
+    }
+    /* Overlay escuro para melhor leitura do texto */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: -1;
+      pointer-events: none;
+    }
+    body.light-mode::before {
+      background: rgba(255, 255, 255, 0.85);
+    }
+    /* Glassmorphism */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      border-radius: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      transition: all 0.3s;
+    }
+    [data-bs-theme="dark"] .glass-card {
+      background: rgba(0, 0, 0, 0.5);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    .section-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(4px);
+      border-radius: 1.2rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    [data-bs-theme="dark"] .section-card {
+      background: rgba(20, 20, 30, 0.9);
+      color: #f0f0f0;
+    }
+    .section-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+    }
+    /* Canvas de assinatura */
+    .signature-canvas {
+      border: 2px dashed #6c757d;
+      border-radius: 12px;
+      background: white;
+      width: 100%;
+      height: auto;
+      cursor: crosshair;
+      touch-action: none; /* Melhor para touch */
+    }
+    [data-bs-theme="dark"] .signature-canvas {
+      background: #f8f9fa;
+      border-color: #adb5bd;
+    }
+    .signature-preview {
+      max-width: 100%;
+      max-height: 80px;
+      margin-top: 10px;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      background: #fff;
+    }
+    .signature-name {
+      font-family: 'Courier New', monospace;
+      font-weight: bold;
+    }
+    /* Botões */
+    .back-to-top {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: #0d6efd;
+      color: white;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      transition: all 0.2s;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+    }
+    .back-to-top.show {
+      opacity: 1;
+      visibility: visible;
+    }
+    /* Estilos para impressão */
+    @media print {
+      body::before, .glass-card:first-of-type, .toc-sidebar, .theme-toggle-btn, .dropdown, .back-to-top, 
+      #acceptTermsCheckbox, #acceptBtn, #signatureActions, .btn-print, .btn-clear, .btn-confirm-sign {
+        display: none !important;
+      }
+      .section-card, .signature-card {
+        break-inside: avoid;
+        box-shadow: none;
+        background: white !important;
+        color: black !important;
+        border: 1px solid #ccc;
+      }
+      .signature-canvas {
+        border: 1px solid black;
+        background: white;
+      }
+      .signature-preview {
+        border: 1px solid black;
+      }
+      body {
+        background: white;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        width: 100%;
+        max-width: 100%;
+        padding: 0;
+      }
+      .signature-name, .signature-date {
+        font-size: 12pt;
+      }
+    }
+    .toc-link {
+      cursor: pointer;
+      transition: all 0.2s;
+      display: block;
+      padding: 0.4rem 0.8rem;
+      border-radius: 30px;
+      font-size: 0.9rem;
+    }
+    .toc-link:hover {
+      background: rgba(0,123,255,0.2);
+      transform: translateX(5px);
+    }
+    .toc-link.active {
+      background: #0d6efd;
+      color: white !important;
+    }
+    .theme-toggle-btn, .dropdown-toggle {
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    footer {
+      border-top: 1px solid rgba(0,0,0,0.1);
+    }
+    [data-bs-theme="dark"] footer {
+      border-top-color: rgba(255,255,255,0.1);
+    }
+    @media (max-width: 768px) {
+      .toc-sidebar {
+        margin-bottom: 2rem;
+      }
+      .section-card {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container py-3 py-md-4">
+  <!-- Header com tema e idioma -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 mb-md-4 pb-2 border-bottom">
+    <div class="d-flex align-items-center gap-2">
+      <img src="images/Lux-logo-bg.png" class="logo-point" onerror="this.style.display='none'" style="width:100px; height:50px; object-fit:contain;" alt="Logo AgroLux">
+      <h1 class="h3 fw-semibold m-0" id="pageTitle">Termos e Condições</h1>
+      <span class="badge bg-warning text-dark ms-2"><i class="fas fa-gavel me-1"></i> <span id="headerBadge">Documento Legal</span></span>
+    </div>
+    <div class="d-flex gap-2 mt-2 mt-sm-0">
+      <button id="themeSwitcher" class="theme-toggle-btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+        <i id="themeIcon" class="fas fa-moon"></i>
+      </button>
+      <div class="dropdown">
+        <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="fas fa-globe"></i> <span id="currentLangLabel">PT</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" href="#" data-lang="pt"><i class="fas fa-flag-checkered me-2"></i> Português</a></li>
+          <li><a class="dropdown-item" href="#" data-lang="en"><i class="fas fa-flag-usa me-2"></i> English</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero Section -->
+  <div class="glass-card text-white p-4 p-md-5 mb-5 text-center" style="background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);">
+    <i class="fas fa-handshake fa-3x mb-3"></i>
+    <h2 id="heroTitle">Transparência e confiança para todos os utilizadores</h2>
+    <p id="heroSub" class="lead mb-0">Leia atentamente os termos antes de assinar digitalmente</p>
+  </div>
+
+  <!-- Conteúdo principal + Índice lateral -->
+  <div class="row g-4">
+    <!-- Índice -->
+    <div class="col-lg-3 toc-sidebar">
+      <div class="section-card sticky-top" style="top: 20px; z-index: 10;">
+        <h5 class="mb-3"><i class="fas fa-list-ul me-2"></i> <span id="indexTitle">Índice</span></h5>
+        <nav id="tableOfContents">
+          <a class="toc-link" href="#intro" data-section="intro"><i class="fas fa-info-circle me-2"></i> <span>1. Introdução</span></a>
+          <a class="toc-link" href="#conta" data-section="conta"><i class="fas fa-user me-2"></i> <span>2. Conta do Utilizador</span></a>
+          <a class="toc-link" href="#uso" data-section="uso"><i class="fas fa-globe me-2"></i> <span>3. Uso da Plataforma</span></a>
+          <a class="toc-link" href="#rastreio" data-section="rastreio"><i class="fas fa-map-marker-alt me-2"></i> <span>4. Rastreamento</span></a>
+          <a class="toc-link" href="#conteudo" data-section="conteudo"><i class="fas fa-image me-2"></i> <span>5. Conteúdo</span></a>
+          <a class="toc-link" href="#seguranca" data-section="seguranca"><i class="fas fa-shield-alt me-2"></i> <span>6. Segurança</span></a>
+          <a class="toc-link" href="#fraudes" data-section="fraudes"><i class="fas fa-exclamation-triangle me-2"></i> <span>7. Fraudes</span></a>
+          <a class="toc-link" href="#limitacao" data-section="limitacao"><i class="fas fa-balance-scale me-2"></i> <span>8. Responsabilidade</span></a>
+          <a class="toc-link" href="#global" data-section="global"><i class="fas fa-globe-americas me-2"></i> <span>9. Uso Global</span></a>
+          <a class="toc-link" href="#privacidade" data-section="privacidade"><i class="fas fa-lock me-2"></i> <span>10. Privacidade</span></a>
+          <a class="toc-link" href="#alteracoes" data-section="alteracoes"><i class="fas fa-sync-alt me-2"></i> <span>11. Alterações</span></a>
+          <a class="toc-link" href="#contacto" data-section="contacto"><i class="fas fa-envelope me-2"></i> <span>12. Contacto</span></a>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Seções de Termos + Assinatura -->
+    <div class="col-lg-9">
+      <div id="termsContent">
+        <!-- 1. Introdução -->
+        <div id="intro" class="section-card"><h3><i class="fas fa-info-circle text-primary me-2"></i> <span id="introTitle">1. Introdução</span></h3><p id="introText">A AgroLux é uma plataforma digital que conecta agricultores, produtores e compradores do setor agrícola, permitindo a divulgação e comercialização de produtos através de redes sociais e ferramentas internas. Estes Termos e Condições regulam o acesso e uso da plataforma, estabelecendo direitos e deveres de todos os utilizadores. Ao utilizar a AgroLux, você concorda integralmente com estas disposições.</p></div>
+        <div id="conta" class="section-card"><h3><i class="fas fa-user-plus text-primary me-2"></i> <span id="contaTitle">2. Conta do Utilizador</span></h3><p id="contaText">Para usufruir dos serviços, é necessário criar uma conta fornecendo informações verdadeiras, completas e atualizadas. O utilizador é o único responsável pela confidencialidade das suas credenciais de acesso e por todas as atividades realizadas na sua conta. Caso suspeite de uso não autorizado, deverá notificar imediatamente a AgroLux.</p></div>
+        <div id="uso" class="section-card"><h3><i class="fas fa-store text-primary me-2"></i> <span id="usoTitlte">3. Uso da Plataforma</span></h3><p id="usoText">A AgroLux permite publicar produtos, partilhar anúncios em redes sociais e interagir com outros utilizadores. <strong>A plataforma não realiza transporte, não atua como intermediária de pagamentos físicos e não garante a entrega dos produtos.</strong> Qualquer acordo de venda, troca ou entrega é de exclusiva responsabilidade das partes envolvidas. A AgroLux atua apenas como um canal digital de divulgação.</p></div>
+        <div id="rastreio" class="section-card"><h3><i class="fas fa-location-dot text-primary me-2"></i> <span id="rastreioTitle">4. Rastreamento</span></h3><p id="rastreioText">Para melhorar a confiança, a plataforma pode solicitar acesso à localização aproximada (cidade/região), exibida apenas como referência geográfica. <strong>Não realizamos rastreamento contínuo ou monitorização de movimentação física.</strong> O utilizador pode revogar essa permissão a qualquer momento.</p></div>
+        <div id="conteudo" class="section-card"><h3><i class="fas fa-camera text-primary me-2"></i> <span id="conteudoTitle">5. Conteúdo</span></h3><p id="conteudoText">Todo o conteúdo multimédia enviado é de inteira responsabilidade do utilizador que o publica. É proibido material falso, enganoso, ilegal ou que infrinja direitos de terceiros. A AgroLux reserva-se o direito de remover conteúdos que violem estes termos.</p></div>
+        <div id="seguranca" class="section-card"><h3><i class="fas fa-key text-primary me-2"></i> <span id="segurancaTitle">6. Segurança da Conta</span></h3><p id="segurancaText">O utilizador compromete-se a utilizar medidas de segurança robustas (senhas fortes, autenticação em dois fatores). A AgroLux poderá suspender contas suspeitas ou fraudulentas.</p></div>
+        <div id="fraudes" class="section-card"><h3><i class="fas fa-gavel text-primary me-2"></i> <span id="fraudesTitle">7. Fraudes e Denúncias</span></h3><p id="fraudesText">Disponibilizamos um canal de denúncias para que os utilizadores reportem comportamentos fraudulentos. A AgroLux analisará as denúncias e poderá aplicar sanções. <strong>a plataforma não garante a veracidade total das informações publicadas pelos utilizadores</strong> – a diligência na negociação é sempre recomendada.</p></div>
+        <div id="limitacao" class="section-card"><h3><i class="fas fa-shield-heart text-primary me-2"></i> <span id="limitacaoTitle">8. Limitação de Responsabilidade</span></h3><p id="limitacaoText">A AgroLux não se responsabiliza por danos diretos ou indiretos decorrentes de negociações, entregas ou atos de terceiros. A plataforma é fornecida "no estado em que se encontra".</p></div>
+        <div id="global" class="section-card"><h3><i class="fas fa-plane text-primary me-2"></i> <span id="globalTitle">9. Uso Global</span></h3><p id="globalText">A AgroLux pode ser acedida internacionalmente. O utilizador é responsável por cumprir as leis locais do seu país.</p></div>
+        <div id="privacidade" class="section-card"><h3><i class="fas fa-database text-primary me-2"></i> <span id="privacidadeTitle">10. Dados e Privacidade</span></h3><p id="privacidadeText">Os dados pessoais serão tratados de acordo com a nossa Política de Privacidade. Não partilhamos informações sem consentimento, exceto quando exigido por lei.</p></div>
+        <div id="alteracoes" class="section-card"><h3><i class="fas fa-edit text-primary me-2"></i> <span id="alteracoesTitle">11. Alterações nos Termos</span></h3><p id="alteracoesText">A AgroLux poderá modificar estes Termos a qualquer momento. O uso continuado implica a aceitação dos novos termos.</p></div>
+        <div id="contacto" class="section-card"><h3><i class="fas fa-headset text-primary me-2"></i> <span id="contactoTitle">12. Contacto</span></h3><p id="contactoText">Dúvidas: <strong>suporte@agrolux.com</strong>.</p></div>
+      </div>
+
+      <!-- Aceitação + Assinatura Digital -->
+      <div class="section-card signature-card mt-4">
+        <h4 class="mb-3"><i class="fas fa-pen-alt text-primary me-2"></i> <span id="signatureTitle">Assinatura Digital Obrigatória</span></h4>
+        <!-- Checkbox de aceitação -->
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" id="acceptTermsCheckbox" style="transform: scale(1.2);">
+          <label class="form-check-label fw-bold" id="acceptTermsLabel" for="acceptTermsCheckbox">Li e aceito os Termos e Condições</label>
+        </div>
+        <!-- Nome do signatário -->
+        <div class="mb-3">
+          <label for="fullName" class="form-label fw-semibold"><i class="fas fa-user-edit me-1"></i> <span id="signatureNameLabel">Nome completo (como assinará)</span></label>
+          <input type="text" class="form-control" id="fullName" placeholder="Ex: João da Silva" autocomplete="name">
+        </div>
+        <!-- Área de desenho da assinatura -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold"><i class="fas fa-draw-polygon me-1"></i> <span id="signatureDrawLabel">Desenhe sua assinatura abaixo</span></label>
+          <canvas id="signatureCanvas" class="signature-canvas" width="500" height="180" style="width:100%; height:auto; max-width:500px; aspect-ratio:500/180; background:white;"></canvas>
+          <div class="mt-2 d-flex flex-wrap gap-2" id="signatureActions">
+            <button id="clearCanvasBtn" class="btn btn-outline-secondary btn-sm"><i class="fas fa-eraser"></i> <span id="clearBtnText">Limpar</span></button>
+            <button id="confirmSignatureBtn" class="btn btn-success btn-sm"><i class="fas fa-check-circle"></i> <span id="confirmSignText">Confirmar Assinatura</span></button>
+          </div>
+          <div id="signaturePreviewArea" class="mt-2" style="display:none;">
+            <small class="text-muted"><span id="previewText">Assinatura registada:</span></small>
+            <img id="signaturePreviewImg" class="signature-preview" alt="Pré-visualização da assinatura">
+          </div>
+        </div>
+        <!-- Botão principal e impressão -->
+        <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center">
+          <button id="acceptAndSignBtn" class="btn btn-primary btn-lg px-4 rounded-pill"><i class="fas fa-file-signature me-2"></i> <span id="acceptBtnText">Aceitar e Assinar Digitalmente</span></button>
+          <button id="printDocumentBtn" class="btn btn-outline-info btn-lg px-4 rounded-pill" disabled><i class="fas fa-print me-2"></i> <span id="printBtnText">Imprimir Termos Assinados</span></button>
+        </div>
+        <div id="signFeedback" class="mt-3 small"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="mt-5 pt-3 text-center text-muted small">
+    <span id="footerText">© AgroLux - Proteção e rastreabilidade para o Agro | Assinatura Digital com valor jurídico</span>
+  </footer>
+</div>
+
+<button id="backToTopBtn" class="back-to-top"><i class="fas fa-arrow-up"></i></button>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  // ---------- TRADUÇÕES ----------
+  const translations = {
+    pt: {
+      pageTitle:"Termos e Condições", headerBadge:"Documento Legal", heroTitle:"Transparência e confiança para todos", heroSub:"Leia os termos e assine digitalmente",
+      indexTitle:"Índice", signatureTitle:"Assinatura Digital Obrigatória", acceptTermsLabel:"Li e aceito os Termos e Condições",
+      signatureNameLabel:"Nome completo (como assinará)", signatureDrawLabel:"Desenhe sua assinatura abaixo", clearBtnText:"Limpar", confirmSignText:"Confirmar Assinatura",
+      previewText:"Assinatura registada:", acceptBtnText:"Aceitar e Assinar Digitalmente", printBtnText:"Imprimir Termos Assinados",
+      footerText:"© AgroLux - Proteção e rastreabilidade para o Agro | Assinatura Digital",
+      signSuccess:"✅ Assinatura registada com sucesso! Documento aceite e assinado.", signErrorCheck:"⚠️ Deve aceitar os Termos e preencher o nome e a assinatura.", signNoSignature:"✍️ Desenhe a assinatura no campo acima ou confirme-a.", printReady:"🖨️ Impressão disponível agora. Clique em Imprimir.",
+      acceptSuccess:"Obrigado! Termos aceites e assinatura confirmada.", acceptError:"Assinale a aceitação, preencha o nome e desenhe/confirme a assinatura.",
+      // demais textos (já existentes) permanecem para compatibilidade - mas vou copiar apenas chaves essenciais
+    },
+    en: {
+      pageTitle:"Terms and Conditions", headerBadge:"Legal Document", heroTitle:"Transparency and trust for all", heroSub:"Read terms and sign digitally",
+      indexTitle:"Index", signatureTitle:"Mandatory Digital Signature", acceptTermsLabel:"I have read and accept the Terms",
+      signatureNameLabel:"Full name (as you will sign)", signatureDrawLabel:"Draw your signature below", clearBtnText:"Clear", confirmSignText:"Confirm Signature",
+      previewText:"Registered signature:", acceptBtnText:"Accept and Sign Digitally", printBtnText:"Print Signed Terms",
+      footerText:"© AgroLux - Protection and traceability | Digital Signature",
+      signSuccess:"✅ Signature successfully recorded! Document accepted and signed.", signErrorCheck:"⚠️ You must accept the Terms, fill in your name and the signature.", signNoSignature:"✍️ Draw your signature above or confirm it.", printReady:"🖨️ Printing is now available. Click Print.",
+      acceptSuccess:"Thank you! Terms accepted and signature confirmed.", acceptError:"Check acceptance, fill name and draw/confirm signature."
+    }
+  };
+  let currentLang = 'pt';
+  function updateLanguageUI() {
+    const t = translations[currentLang];
+    document.getElementById('pageTitle').innerText = t.pageTitle;
+    document.getElementById('headerBadge').innerText = t.headerBadge;
+    document.getElementById('heroTitle').innerText = t.heroTitle;
+    document.getElementById('heroSub').innerText = t.heroSub;
+    document.getElementById('indexTitle').innerText = t.indexTitle;
+    document.getElementById('signatureTitle').innerText = t.signatureTitle;
+    document.getElementById('acceptTermsLabel').innerText = t.acceptTermsLabel;
+    document.getElementById('signatureNameLabel').innerText = t.signatureNameLabel;
+    document.getElementById('signatureDrawLabel').innerText = t.signatureDrawLabel;
+    document.getElementById('clearBtnText').innerText = t.clearBtnText;
+    document.getElementById('confirmSignText').innerText = t.confirmSignText;
+    document.getElementById('previewText').innerText = t.previewText;
+    document.getElementById('acceptBtnText').innerText = t.acceptBtnText;
+    document.getElementById('printBtnText').innerText = t.printBtnText;
+    document.getElementById('footerText').innerText = t.footerText;
+    document.getElementById('currentLangLabel').innerText = currentLang.toUpperCase();
+    // Atualizar tambem os textos de secoes (mantendo os originais do HTML para simplicidade, mas assegurar)
+    const intro = document.getElementById('introText'); if(intro) intro.innerText = currentLang==='pt'? "A AgroLux é uma plataforma digital..." : "AgroLux is a digital platform...";
+  }
+  document.querySelectorAll('[data-lang]').forEach(el => el.addEventListener('click', (e) => { e.preventDefault(); currentLang = el.getAttribute('data-lang'); updateLanguageUI(); }));
+
+  // Tema claro/escuro
+  const themeSwitcher = document.getElementById('themeSwitcher');
+  const themeIcon = document.getElementById('themeIcon');
+  function setTheme(theme) {
+    if (theme === 'dark') {
+      document.documentElement.setAttribute('data-bs-theme', 'dark');
+      document.body.classList.add('dark-mode');
+      themeIcon.className = 'fas fa-sun';
+      localStorage.setItem('agroTheme', 'dark');
+    } else {
+      document.documentElement.setAttribute('data-bs-theme', 'light');
+      document.body.classList.remove('dark-mode');
+      themeIcon.className = 'fas fa-moon';
+      localStorage.setItem('agroTheme', 'light');
+    }
+  }
+  themeSwitcher.addEventListener('click', () => { const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark'; setTheme(isDark ? 'light' : 'dark'); });
+  setTheme(localStorage.getItem('agroTheme') === 'dark' ? 'dark' : 'light');
+
+  // ---------- ASSINATURA DIGITAL ----------
+  const canvas = document.getElementById('signatureCanvas');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  let signatureConfirmed = false;
+  let signatureDataURL = "";
+
+  // Ajuste do tamanho do canvas para resolução correta (respeitando dimensions)
+  function resizeCanvas() {
+    const container = canvas.parentElement;
+    const maxWidth = Math.min(500, container.clientWidth - 20);
+    canvas.style.width = `${maxWidth}px`;
+    canvas.width = maxWidth;
+    canvas.height = 180;
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+  }
+  window.addEventListener('resize', () => { resizeCanvas(); if(signatureDataURL) loadSignatureFromURL(signatureDataURL); });
+  function loadSignatureFromURL(url) {
+    const img = new Image();
+    img.onload = () => { ctx.drawImage(img, 0, 0, canvas.width, canvas.height); };
+    img.src = url;
+  }
+
+  // Eventos de desenho (mouse e touch)
+  function startDrawing(e) { drawing = true; e.preventDefault(); draw(e); }
+  function endDrawing() { drawing = false; ctx.beginPath(); }
+  function draw(e) {
+    if (!drawing) return;
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    let clientX, clientY;
+    if (e.touches) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+    let x = (clientX - rect.left) * scaleX;
+    let y = (clientY - rect.top) * scaleY;
+    x = Math.min(Math.max(0, x), canvas.width);
+    y = Math.min(Math.max(0, y), canvas.height);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+  }
+  canvas.addEventListener('mousedown', startDrawing);
+  canvas.addEventListener('mousemove', draw);
+  canvas.addEventListener('mouseup', endDrawing);
+  canvas.addEventListener('touchstart', startDrawing);
+  canvas.addEventListener('touchmove', draw);
+  canvas.addEventListener('touchend', endDrawing);
+  document.getElementById('clearCanvasBtn').addEventListener('click', () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    signatureConfirmed = false;
+    signatureDataURL = "";
+    document.getElementById('signaturePreviewArea').style.display = 'none';
+    document.getElementById('signFeedback').innerHTML = '';
+  });
+  document.getElementById('confirmSignatureBtn').addEventListener('click', () => {
+    if (ctx.getImageData(0, 0, canvas.width, canvas.height).data.some(v => v !== 255)) {
+      signatureDataURL = canvas.toDataURL();
+      const previewImg = document.getElementById('signaturePreviewImg');
+      previewImg.src = signatureDataURL;
+      document.getElementById('signaturePreviewArea').style.display = 'block';
+      signatureConfirmed = true;
+      document.getElementById('signFeedback').innerHTML = `<div class="alert alert-success">${translations[currentLang].signSuccess}</div>`;
+      setTimeout(() => document.getElementById('signFeedback').innerHTML = '', 3000);
+    } else {
+      document.getElementById('signFeedback').innerHTML = `<div class="alert alert-warning">${translations[currentLang].signNoSignature}</div>`;
+      setTimeout(() => document.getElementById('signFeedback').innerHTML = '', 3000);
+    }
+  });
+
+  // Botão principal: Aceitar e Assinar
+  const acceptCheck = document.getElementById('acceptTermsCheckbox');
+  const fullNameInput = document.getElementById('fullName');
+  const acceptAndSignBtn = document.getElementById('acceptAndSignBtn');
+  const printBtn = document.getElementById('printDocumentBtn');
+  const feedbackDiv = document.getElementById('signFeedback');
+
+  acceptAndSignBtn.addEventListener('click', () => {
+    const isChecked = acceptCheck.checked;
+    const nameFilled = fullNameInput.value.trim() !== '';
+    if (!isChecked || !nameFilled || !signatureConfirmed) {
+      feedbackDiv.innerHTML = `<div class="alert alert-danger">${translations[currentLang].signErrorCheck}</div>`;
+      setTimeout(() => feedbackDiv.innerHTML = '', 4000);
+      return;
+    }
+    // Sucesso: armazenar localmente e habilitar impressão
+    localStorage.setItem('agrolux_terms_accepted', 'true');
+    localStorage.setItem('agrolux_signature', signatureDataURL);
+    localStorage.setItem('agrolux_signer_name', fullNameInput.value.trim());
+    feedbackDiv.innerHTML = `<div class="alert alert-success">${translations[currentLang].acceptSuccess}<br>${translations[currentLang].printReady}</div>`;
+    printBtn.disabled = false;
+    setTimeout(() => feedbackDiv.innerHTML = '', 5000);
+  });
+
+  // Impressão do documento completo + assinatura
+  printBtn.addEventListener('click', () => {
+    if (printBtn.disabled) return;
+    // Criar conteúdo impresso com todos os termos, nome e assinatura
+    const printWindow = window.open('', '_blank');
+    const termsContent = document.getElementById('termsContent').cloneNode(true);
+    const signatureCard = document.querySelector('.signature-card').cloneNode(true);
+    // Remover botões e campos interativos da cópia para impressão
+    const unwanted = signatureCard.querySelectorAll('#signatureActions, #acceptAndSignBtn, #printDocumentBtn, #signFeedback, .form-check, .btn, #clearCanvasBtn, #confirmSignatureBtn');
+    unwanted.forEach(el => el.remove());
+    // Adicionar dados da assinatura e nome
+    const signerName = fullNameInput.value.trim() || "____________________";
+    const signHTML = `<div style="margin-top: 20px; border-top:1px solid #ccc; padding:15px;"><h4>Assinatura Digital</h4><p><strong>Nome do signatário:</strong> ${signerName}</p><p><strong>Data:</strong> ${new Date().toLocaleString()}</p><p><strong>Assinatura:</strong></p><img src="${signatureDataURL}" style="max-width:300px; border:1px solid #aaa; background:white;"></div>`;
+    signatureCard.innerHTML += signHTML;
+    printWindow.document.write(`
+      <html><head><title>AgroLux - Termos Assinados</title>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+      <style>body { padding: 20px; } .no-print { display: none; } .signature-canvas { border: 1px solid black; } @media print { .no-print { display: none; } }</style>
+      </head><body><div class="container">${termsContent.outerHTML}<hr>${signatureCard.outerHTML}</div></body></html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+  });
+
+  // Navegação suave e active link do índice (restante do código original adaptado)
+  const tocLinks = document.querySelectorAll('.toc-link');
+  const sections = Array.from(document.querySelectorAll('.section-card[id]'));
+  function updateActiveLink() {
+    let current = '';
+    const scrollPos = window.scrollY + 150;
+    sections.forEach(section => {
+      const sectionTop = section.offsetTop;
+      const sectionBottom = sectionTop + section.offsetHeight;
+      if (scrollPos >= sectionTop && scrollPos < sectionBottom) current = section.getAttribute('id');
+    });
+    tocLinks.forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('data-section') === current) link.classList.add('active');
+    });
+  }
+  window.addEventListener('scroll', updateActiveLink);
+  tocLinks.forEach(link => link.addEventListener('click', (e) => {
+    e.preventDefault();
+    const targetId = link.getAttribute('href').substring(1);
+    const target = document.getElementById(targetId);
+    if(target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }));
+  const backBtn = document.getElementById('backToTopBtn');
+  window.addEventListener('scroll', () => backBtn.classList.toggle('show', window.scrollY > 400));
+  backBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+  // Inicializar canvas e tradução
+  resizeCanvas();
+  updateLanguageUI();
+  // Se já houver assinatura salva no localStorage (opcional)
+  if(localStorage.getItem('agrolux_signature')) {
+    const savedSig = localStorage.getItem('agrolux_signature');
+    loadSignatureFromURL(savedSig);
+    signatureConfirmed = true;
+    signatureDataURL = savedSig;
+    document.getElementById('signaturePreviewArea').style.display = 'block';
+    document.getElementById('signaturePreviewImg').src = savedSig;
+    const savedName = localStorage.getItem('agrolux_signer_name');
+    if(savedName) fullNameInput.value = savedName;
+    acceptCheck.checked = true;
+    printBtn.disabled = false;
+  }
+</script>
+</body>
+</html>

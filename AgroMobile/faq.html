@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>AgroLux · Central de Ajuda e FAQ</title>
+    <!-- Bootstrap 5 + Ícones + Fonts -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Times New Roman', Times, serif; }
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            transition: background 0.3s ease, color 0.2s;
+            position: relative;
+            min-height: 100vh;
+            overflow-x: auto;
+        }
+        /* Carrossel de fundo */
+        .carousel-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            overflow: hidden;
+        }
+        .carousel-bg .carousel-inner, .carousel-bg .carousel-item { height: 100%; }
+        .carousel-bg .carousel-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: -1;
+            pointer-events: none;
+            transition: background 0.3s;
+        }
+        body.light::before { background: rgba(240, 248, 242, 0.92); }
+        body.light { color: #143523; }
+        body.light .glass-card, body.light .top-bar, body.light .faq-card, body.light .category-chip {
+            background: rgba(250, 255, 250, 0.92);
+            border-color: rgba(60, 110, 80, 0.3);
+            color: #1a3a2b;
+        }
+        .glass-card, .top-bar, .faq-card, .category-chip {
+            background: rgba(18, 32, 28, 0.8);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(90, 180, 120, 0.4);
+            border-radius: 28px;
+        }
+        .top-bar {
+            padding: 12px 24px;
+            margin: 20px 20px 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .logo-center {
+            text-align: center;
+            margin: 10px 0 0 0;
+        }
+        .logo-center img {
+            max-height: 70px;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
+        }
+        body.light .logo-center img { filter: drop-shadow(0 2px 8px rgba(0,0,0,0.1)); }
+        .main-panel {
+            margin: 20px;
+            padding: 25px 30px;
+            transition: all 0.2s;
+        }
+        .category-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            border-radius: 60px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: rgba(30, 50, 40, 0.7);
+            color: #e0f2e9;
+            border: 1px solid rgba(111, 222, 156, 0.5);
+        }
+        .category-chip.active {
+            background: #6FDE9C;
+            color: #1a3a2b;
+            border-color: #6FDE9C;
+            box-shadow: 0 4px 12px rgba(111,222,156,0.3);
+        }
+        .category-chip:hover {
+            transform: translateY(-2px);
+            background: #5fce8c;
+            color: #0f2a1c;
+        }
+        .search-box {
+            background: rgba(255,255,240,0.15);
+            border-radius: 60px;
+            padding: 6px 20px;
+            border: 1px solid rgba(111,222,156,0.6);
+        }
+        .search-box input {
+            background: transparent;
+            border: none;
+            color: inherit;
+            width: 100%;
+            padding: 10px 0;
+            outline: none;
+        }
+        .faq-accordion .accordion-item {
+            background: transparent;
+            border: none;
+            margin-bottom: 12px;
+            border-radius: 24px !important;
+            overflow: hidden;
+            backdrop-filter: blur(4px);
+            background: rgba(30, 40, 35, 0.5);
+            border: 1px solid rgba(111,222,156,0.3);
+        }
+        body.light .faq-accordion .accordion-item {
+            background: rgba(245, 255, 245, 0.8);
+        }
+        .accordion-button {
+            background: transparent;
+            color: #eef5ea;
+            font-weight: 600;
+            border-radius: 24px;
+            box-shadow: none;
+        }
+        body.light .accordion-button {
+            color: #1a472a;
+        }
+        .accordion-button:not(.collapsed) {
+            background: rgba(111,222,156,0.2);
+            color: #c6ffd9;
+        }
+        body.light .accordion-button:not(.collapsed) {
+            background: rgba(60, 130, 80, 0.15);
+            color: #0a2f1d;
+        }
+        .accordion-button:focus {
+            box-shadow: none;
+            border-color: #6FDE9C;
+        }
+        .accordion-body {
+            color: #eef3ec;
+            border-top: 1px solid rgba(111,222,156,0.3);
+        }
+        body.light .accordion-body {
+            color: #1f3828;
+        }
+        .theme-switch { position: relative; display: inline-block; width: 56px; height: 28px; }
+        .theme-switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #2c3e2f; transition: 0.3s; border-radius: 34px;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 6px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 22px; width: 22px; left: 3px; bottom: 3px;
+            background-color: white; transition: 0.3s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #6FDE9C; }
+        input:checked + .slider:before { transform: translateX(28px); }
+        .lang-btn {
+            background: transparent; border: 1px solid #6FDE9C; border-radius: 40px;
+            padding: 4px 12px; color: inherit; cursor: pointer;
+        }
+        .btn-outline-success-custom {
+            border: 1px solid #6FDE9C;
+            background: transparent;
+            border-radius: 50px;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+        .btn-outline-success-custom:hover {
+            background: #6FDE9C;
+            color: #1a3a2b;
+        }
+        footer { text-align: center; padding: 20px; font-size: 0.75rem; opacity: 0.7; }
+        @media (max-width: 768px) {
+            .main-panel { padding: 16px; margin: 12px; }
+            .category-chip { padding: 5px 16px; font-size: 0.8rem; }
+        }
+        .empty-faq {
+            text-align: center;
+            padding: 40px;
+            font-style: italic;
+        }
+        .help-footer-buttons .btn {
+            border-radius: 60px;
+            padding: 10px 28px;
+            font-weight: 600;
+            margin: 8px;
+        }
+        
+        
+        /* OUTHER CSS */
+        .codec{
+            align-items: center;
+            text-align: center;
+            margin: 10px 0 0 0;
+            height: 200px;
+            width: 200px;
+            color: blue;
+        }
+        
+         .logo-panel{
+      border-radius: 50px;
+      width: 50px;
+      height: 50px;
+    }
+    </style>
+</head>
+<body>
+    <!-- Carrossel de fundo igual ao estilo original -->
+    <div id="bgCarousel" class="carousel-bg carousel slide" data-bs-ride="carousel" data-bs-interval="7000">
+        <div class="carousel-inner">
+            <div class="carousel-item active"><img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2070&auto=format" alt="Campo agrícola"></div>
+            <div class="carousel-item"><img src="https://images.unsplash.com/photo-1592982537447-6f2a6a0d0ff8?q=80&w=2070&auto=format" alt="Feira produtos"></div>
+            <div class="carousel-item"><img src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?q=80&w=2070&auto=format" alt="Colheita"></div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#bgCarousel" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
+        <button class="carousel-control-next" type="button" data-bs-target="#bgCarousel" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>
+    </div>
+
+    <div class="logo-center">
+        <a href="index.html"><img src="images/Lux-logo-bg.png" 
+                                  alt="AgroLux Logo" 
+                                  onerror="this.src='https://placehold.co/200x70?text=AGROLUX+ASSISTÊNCIA'; this.style.width='200px'">
+        </a>
+    </div>
+    <div class="top-bar">
+        <div><i class="fas fa-question-circle"></i> <strong id="platformTitle">Central de Ajuda · FAQ Inteligente</strong></div>
+        <div class="d-flex gap-3 align-items-center">
+            <div class="theme-switch-wrapper">
+                <label class="theme-switch">
+                    <input type="checkbox" id="themeToggleCheckbox">
+                    <div class="slider"><i class="fas fa-sun"></i><i class="fas fa-moon"></i></div>
+                </label>
+            </div>
+            <button class="lang-btn" id="langToggleBtn"><i class="fas fa-language"></i> <span id="langLabel">PT</span></button>
+        </div>
+    </div>
+
+    <div class="main-panel">
+        <!-- cabeçalho FAQ -->
+        <div class="text-center mb-4">
+            <h1 class="display-5 fw-bold"><i class="fas fa-headset text-success"></i> Central de Ajuda</h1>
+            <p class="lead">Encontre respostas rápidas para as dúvidas mais frequentes — sem esperar atendimento.</p>
+        </div>
+
+        <!-- barra de pesquisa + filtros categoria -->
+        <div class="glass-card p-4 rounded-4 mb-5">
+            <div class="row g-3 align-items-center">
+                <div class="col-md-6">
+                    <div class="search-box d-flex align-items-center gap-2">
+                        <i class="fas fa-search text-success"></i>
+                        <input type="text" id="searchFaqInput" class="form-control bg-transparent border-0" placeholder="Pesquisar pergunta... Ex: QR Code, WhatsApp, publicar produto">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex flex-wrap gap-2 justify-content-md-end" id="categoryFilters">
+                        <!-- categorias dinamicas via js, mas já incluímos estrutura manual também para garantir -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Container FAQ acordeão dinâmico (renderizado via JavaScript) -->
+        <div id="faqAccordionContainer" class="faq-accordion accordion">
+            <!-- as perguntas serão injetadas aqui -->
+            <div class="text-center py-5" id="loadingFaqPlaceholder">
+                <i class="fas fa-spinner fa-spin fa-2x text-success"></i> Carregando perguntas frequentes...
+            </div>
+        </div>
+
+        <!-- Área de contato / ajuda adicional com redirecionamento 404 -->
+        <div class="glass-card p-4 rounded-4 mt-5 text-center">
+            <h4><i class="fas fa-life-ring"></i> Ainda precisa de ajuda?</h4>
+            <p class="mb-3">Nossa equipe virtual está disponível para orientações personalizadas.</p>
+            <div class="help-footer-buttons d-flex flex-wrap justify-content-center">
+                <button id="chatbotRedirectBtn" class="btn btn-outline-success-custom">
+                    <img class="logo-panel" 
+                             src="images/agri-bot.png" 
+                             onerror="this.src='https://via.placeholder.com/24'">
+                    Falar com o ChatBot
+                </button>
+                <button id="supportRedirectBtn" class="btn btn-success-custom btn-outline-success-custom"><i class="fas fa-headset"></i> Contactar Suporte</button>
+            </div>
+            <small class="text-muted mt-2 d-block"><i class="fas fa-external-link-alt"></i> Os links de suporte direcionam para página informativa (404)</small>
+        </div>
+    </div>
+
+    <footer>AgroLux · FAQ Inteligente para Agricultores e Compradores · Angola 2025</footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // --------------------------------------------------------------
+        //  BASE DE DADOS DAS PERGUNTAS FREQUENTES (categorias, perguntas, respostas)
+        // --------------------------------------------------------------
+        const faqDatabase = [
+            { id: 1, category: "produtos", question: "🌾 Como cadastrar um novo produto na minha vitrine?", answer: "No painel principal, clique em 'Cadastro e Gestão de Produtos', preencha nome, quantidade, preço, localização e imagem. Após salvar, o produto aparece automaticamente na sua vitrine digital para partilha nas redes sociais." },
+            { id: 2, category: "produtos", question: "✏️ Posso editar ou remover um produto depois de publicado?", answer: "Sim! Na lista de produtos, use os botões Editar (lápis) ou Remover (lixeira). As alterações são salvas instantaneamente e o link de partilha é atualizado." },
+            { id: 3, category: "produtos", question: "🏷️ O que significa o selo 'Destaque' nos produtos?", answer: "O selo destaque torna o produto mais visível na plataforma. Você pode ativar essa opção no card do produto para priorizar itens com melhor saída." },
+            { id: 4, category: "redes sociais", question: "📲 Como partilhar um produto diretamente no WhatsApp?", answer: "Selecione o produto desejado na área 'Partilha Rápida' e clique no botão WhatsApp. O sistema gera uma mensagem pronta com nome, preço e localização para enviar a clientes." },
+            { id: 5, category: "redes sociais", question: "📘 É possível publicar no Facebook ou Instagram usando a AgroLux?", answer: "Sim! Use os botões específicos de Facebook (gera post com link da plataforma) e Instagram (copia legenda pronta com hashtags). Dessa forma, você divulga em segundos." },
+            { id: 6, category: "redes sociais", question: "🚀 Quais as vantagens de usar redes sociais para vender produtos agrícolas?", answer: "Amplia o alcance sem custo, atrai compradores de outras províncias e cria relacionamento com o cliente. A AgroLux fornece orientação gratuita para alavancar suas vendas." },
+            { id: 7, category: "qr-code", question: "📱 Como gerar um QR Code do meu produto?", answer: "Após cadastrar o produto, vá até 'Partilha Rápida & QR Code', selecione o produto e clique 'QR Code'. O código é gerado automaticamente com as informações comerciais, podendo ser impresso ou partilhado." },
+            { id: 8, category: "qr-code", question: "🗺️ O QR Code pode conter a localização exacta da fazenda?", answer: "Não! Incluímos automaticamente a localização que você registou no produto. O comprador pode visualizar a região e contactar para negociação directa." },
+            { id: 9, category: "qr-code", question: "🔁 Dá para actualizar o QR Code após editar o produto?", answer: "Sim. Basta gerar novamente o QR Code na mesma ferramenta; ele reflectirá os dados actualizados. O QR antigo pode ser substituído." },
+            { id: 10, category: "chatbot", question: "🤖 Como o ChatBot pode ajudar os meus clientes?", answer: "O assistente virtual da AgroLux responde perguntas comuns sobre preços, disponibilidade e localização, 24h por dia. Isso reduz a necessidade de atendimento humano imediato e agiliza negócios." },
+            { id: 11, category: "chatbot", question: "💬 Quais tipos de pergunta o ChatBot entende?", answer: "Ele reconhece perguntas sobre 'preço', 'stock', 'localização', 'contacto do vendedor' e dicas de vendas sociais. Basta digitar na área de chat que recebe resposta automática." },
+            { id: 12, category: "conta", question: "🛡️ Preciso criar conta para usar a AgroLux?", answer: "A versão demonstrativa não exige login, mas os dados ficam armazenados localmente. Para maior segurança e contratos digitais, recomendamos manter nome e documento válido durante a assinatura de contrato." },
+            { id: 13, category: "conta", question: "🔒 Como recuperar informações se trocar de dispositivo?", answer: "Actualmente os produtos ficam salvos no navegador (localStorage). Recomendamos partilhar os links dos produtos ou guardar o QR Code para não perder dados." },
+            { id: 14, category: "conta", question: "📄 O contrato digital tem validade legal?", answer: "Sim! A assinatura digital (texto ou desenhada) tem validade conforme a legislação angolana (Lei n.º 14/21). A AgroLux arquiva o termo de aceitação." }
+        ];
+
+        // tradução simples mas mantemos PT, apenas para interface mantém original
+        let currentLang = 'pt';
+        let activeCategory = "todos";
+        let searchTerm = "";
+
+        // referências DOM
+        const container = document.getElementById('faqAccordionContainer');
+        const searchInput = document.getElementById('searchFaqInput');
+        const categoryFilterDiv = document.getElementById('categoryFilters');
+
+        // Categorias disponíveis (rótulos bonitos)
+        const categoriesMap = [
+            { id: "todos", label: "📌 Todos", icon: "fa-grid" },
+            { id: "produtos", label: " Produtos", icon: "fa-apple-alt" },
+            { id: "redes sociais", label: "Redes Sociais", icon: "fa-share-alt" },
+            { id: "qr-code", label: " QR Code", icon: "fa-qrcode" },
+            { id: "chatbot", label: " ChatBot", icon: "fa-comment-dots" },
+            { id: "conta", label: " Conta e Segurança", icon: "fa-shield-alt" }
+        ];
+
+        // Função para filtrar perguntas baseado na categoria e termo de busca
+        function filterFaqs() {
+            let filtered = faqDatabase.filter(faq => {
+                const matchesCategory = (activeCategory === "todos" || faq.category === activeCategory);
+                const matchesSearch = searchTerm === "" || faq.question.toLowerCase().includes(searchTerm.toLowerCase()) || faq.answer.toLowerCase().includes(searchTerm.toLowerCase());
+                return matchesCategory && matchesSearch;
+            });
+            return filtered;
+        }
+
+        // Renderização do accordion com bootstrap collapse
+        function renderFaqs() {
+            const filtered = filterFaqs();
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="glass-card p-5 text-center rounded-4"><i class="fas fa-search fa-3x"></i><h5 class="mt-3">Nenhuma pergunta encontrada</h5><p>Tente outro termo ou categoria diferente.</p></div>`;
+                return;
+            }
+
+            // agrupar por categoria para exibir títulos organizados (quando não for "todos")
+            let grouped = {};
+            if (activeCategory === "todos") {
+                filtered.forEach(faq => { if (!grouped[faq.category]) grouped[faq.category] = []; grouped[faq.category].push(faq); });
+            } else {
+                grouped[activeCategory] = filtered;
+            }
+
+            let html = '';
+            let accordionCounter = 0;
+            for (const [cat, faqsArray] of Object.entries(grouped)) {
+                if (faqsArray.length === 0) continue;
+                let categoryDisplayName = categoriesMap.find(c => c.id === cat)?.label || cat.charAt(0).toUpperCase() + cat.slice(1);
+                html += `<div class="mb-4"><h3 class="mb-3"><i class="fas ${categoriesMap.find(c=>c.id===cat)?.icon || 'fa-folder-open'} text-success"></i> ${categoryDisplayName}</h3>`;
+                faqsArray.forEach(faq => {
+                    const collapseId = `faqCollapse${accordionCounter}`;
+                    const headingId = `faqHeading${accordionCounter}`;
+                    html += `
+                        <div class="accordion-item mb-3 rounded-4">
+                            <h2 class="accordion-header" id="${headingId}">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="false" aria-controls="${collapseId}">
+                                    <strong><i class="fas fa-question-circle text-success me-2"></i> ${faq.question}</strong>
+                                </button>
+                            </h2>
+                            <div id="${collapseId}" class="accordion-collapse collapse" aria-labelledby="${headingId}" data-bs-parent="#faqAccordionContainer">
+                                <div class="accordion-body">
+                                    <i class="fas fa-reply-all me-2 text-success"></i> ${faq.answer}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    accordionCounter++;
+                });
+                html += `</div>`;
+            }
+            container.innerHTML = html;
+
+            // reaplicar eventos de collapse bootstrap (já funcionam pelo data-bs-toggle)
+        }
+
+        // Renderizar botões de categoria com destaque
+        function renderCategoryFilters() {
+            let btnsHtml = '';
+            categoriesMap.forEach(cat => {
+                const isActive = (activeCategory === cat.id);
+                btnsHtml += `
+                    <button class="category-chip ${isActive ? 'active' : ''}" data-category="${cat.id}">
+                        <i class="fas ${cat.icon}"></i> ${cat.label}
+                    </button>
+                `;
+            });
+            categoryFilterDiv.innerHTML = btnsHtml;
+            // adicionar event listeners
+            document.querySelectorAll('.category-chip').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const catId = btn.getAttribute('data-category');
+                    activeCategory = catId;
+                    renderCategoryFilters();  // atualiza estilo ativo
+                    renderFaqs();              // re-render perguntas
+                });
+            });
+        }
+
+        // Atualizar busca e re-ordenar
+        function handleSearch() {
+            searchTerm = searchInput.value.trim();
+            renderFaqs();
+        }
+
+        // Carregamento inicial
+        function initFaq() {
+            renderCategoryFilters();
+            renderFaqs();
+            searchInput.addEventListener('input', handleSearch);
+        }
+
+        // ========== REDIRECIONAMENTO PARA 404.HTML (conforme pedido) ==========
+        function redirectTo404() {
+            // redireciona para página 404.html (não criada, apenas direcionamento)
+            window.location.href = "404.html";
+        }
+
+        // ========== THEME E LANG ==========
+        function applyTheme(isLight) {
+            if (isLight) document.body.classList.add('light');
+            else document.body.classList.remove('light');
+            const checkbox = document.getElementById('themeToggleCheckbox');
+            if (checkbox) checkbox.checked = isLight;
+            localStorage.setItem('agrolux_theme', isLight ? 'light' : 'dark');
+        }
+        const themeToggle = document.getElementById('themeToggleCheckbox');
+        if (themeToggle) {
+            themeToggle.addEventListener('change', (e) => applyTheme(e.target.checked));
+            const savedTheme = localStorage.getItem('agrolux_theme');
+            if (savedTheme === 'light') applyTheme(true);
+            else applyTheme(false);
+        }
+        // Language toggle apenas demostrativo
+        const langBtn = document.getElementById('langToggleBtn');
+        if (langBtn) {
+            langBtn.addEventListener('click', () => {
+                alert("🌍 AgroLux disponível em Português. Em breve mais idiomas. As respostas estão em PT.");
+            });
+        }
+
+        // eventos dos botões de suporte -> redirecionar 404
+        const chatbotRedirect = document.getElementById('chatbotRedirectBtn');
+        const supportRedirect = document.getElementById('supportRedirectBtn');
+        if (chatbotRedirect) chatbotRedirect.addEventListener('click', redirectTo404);
+        if (supportRedirect) supportRedirect.addEventListener('click', redirectTo404);
+
+        // Adicional: outros possíveis links que o usuário queira simular (clique em contacto)
+        // já está ok.
+
+        // Inicialização
+        initFaq();
+
+        // Ajuste extra: se houver necessidade de garantir que o collapse funcione com elementos dinamicos, o bootstrap já lida.
+        // Pequena correção: garantir que todos os accordions dinamicos estão corretamente registrados após renderização.
+        // Bootstrap 5 collapse requer inicialização normal - funciona.
+        // Garantir que os ícones de carrossel funcionem
+    </script>
+</body>
+</html>

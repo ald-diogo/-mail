@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>AgroLux - Política de Privacidade com Assinatura Digital</title>
+  <!-- Bootstrap 5.3 + Icons + Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    :root {
+      --transition-speed: 0.2s;
+    }
+    body {
+      background-image: url('images/Bg-entregas.jpg');
+      background-size: cover;
+      background-position: center 30%;
+      background-repeat: no-repeat;
+      transition: background 0.2s ease, color 0.2s ease;
+      font-family: 'Times New Roman', Times, serif;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: -1;
+      pointer-events: none;
+    }
+    body.light-mode::before {
+      background: rgba(255, 255, 255, 0.85);
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      border-radius: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      transition: all 0.3s;
+    }
+    [data-bs-theme="dark"] .glass-card {
+      background: rgba(0, 0, 0, 0.5);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    .section-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(4px);
+      border-radius: 1.2rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    [data-bs-theme="dark"] .section-card {
+      background: rgba(20, 20, 30, 0.9);
+      color: #f0f0f0;
+    }
+    .section-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+    }
+    /* Estilos para assinatura digital */
+    .signature-canvas {
+      border: 2px dashed #6c757d;
+      border-radius: 12px;
+      background: white;
+      width: 100%;
+      height: auto;
+      cursor: crosshair;
+      touch-action: none;
+    }
+    [data-bs-theme="dark"] .signature-canvas {
+      background: #f8f9fa;
+      border-color: #adb5bd;
+    }
+    .signature-preview {
+      max-width: 100%;
+      max-height: 80px;
+      margin-top: 10px;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      background: #fff;
+    }
+    /* Estilos para impressão */
+    @media print {
+      body::before, .glass-card:first-of-type, .toc-sidebar, .theme-toggle-btn, .dropdown, .back-to-top,
+      #acceptPrivacyCheckbox, #acceptAndSignBtn, #signatureActions, .btn-print, .btn-clear, .btn-confirm-sign {
+        display: none !important;
+      }
+      .section-card, .signature-card {
+        break-inside: avoid;
+        box-shadow: none;
+        background: white !important;
+        color: black !important;
+        border: 1px solid #ccc;
+      }
+      .signature-canvas {
+        border: 1px solid black;
+        background: white;
+      }
+      .signature-preview {
+        border: 1px solid black;
+      }
+      body {
+        background: white;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        width: 100%;
+        max-width: 100%;
+        padding: 0;
+      }
+    }
+    .toc-link {
+      cursor: pointer;
+      transition: all 0.2s;
+      display: block;
+      padding: 0.4rem 0.8rem;
+      border-radius: 30px;
+      font-size: 0.9rem;
+    }
+    .toc-link:hover {
+      background: rgba(0,123,255,0.2);
+      transform: translateX(5px);
+    }
+    .toc-link.active {
+      background: #0d6efd;
+      color: white !important;
+    }
+    .theme-toggle-btn, .dropdown-toggle {
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    .logo-point {
+      width: 100px;
+      height: 50px;
+      object-fit: contain;
+    }
+    footer {
+      border-top: 1px solid rgba(0,0,0,0.1);
+    }
+    [data-bs-theme="dark"] footer {
+      border-top-color: rgba(255,255,255,0.1);
+    }
+    @media (max-width: 768px) {
+      .toc-sidebar {
+        margin-bottom: 2rem;
+      }
+      .section-card {
+        padding: 1rem;
+      }
+    }
+    .highlight {
+      background: rgba(13, 110, 253, 0.2);
+      font-weight: 500;
+      padding: 0 0.2rem;
+      border-radius: 6px;
+    }
+    .back-to-top {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: #0d6efd;
+      color: white;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      transition: all 0.2s;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+    }
+    .back-to-top.show {
+      opacity: 1;
+      visibility: visible;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container py-3 py-md-4">
+  <!-- Header com tema e idioma -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 mb-md-4 pb-2 border-bottom">
+    <div class="d-flex align-items-center gap-2">
+      <img src="images/Lux-logo-bg.png" class="logo-point" onerror="this.style.display='none'" alt="Logo AgroLux">
+      <h1 class="h3 fw-semibold m-0" id="pageTitle">Política de Privacidade</h1>
+      <span class="badge bg-warning text-dark ms-2"><i class="fas fa-shield-alt me-1"></i> <span id="headerBadge">Documento de Privacidade</span></span>
+    </div>
+    <div class="d-flex gap-2 mt-2 mt-sm-0">
+      <button id="themeSwitcher" class="theme-toggle-btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+        <i id="themeIcon" class="fas fa-moon"></i>
+      </button>
+      <div class="dropdown">
+        <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="fas fa-globe"></i> <span id="currentLangLabel">PT</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" href="#" data-lang="pt"><i class="fas fa-flag-checkered me-2"></i> Português</a></li>
+          <li><a class="dropdown-item" href="#" data-lang="en"><i class="fas fa-flag-usa me-2"></i> English</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero Section -->
+  <div class="glass-card text-white p-4 p-md-5 mb-5 text-center" style="background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);">
+    <i class="fas fa-lock fa-3x mb-3"></i>
+    <h2 id="heroTitle">A sua privacidade é importante para nós</h2>
+    <p id="heroSub" class="lead mb-0">Leia atentamente e assine digitalmente para confirmar a sua aceitação</p>
+  </div>
+
+  <!-- Conteúdo principal + Índice lateral -->
+  <div class="row g-4">
+    <!-- Índice lateral -->
+    <div class="col-lg-3 toc-sidebar">
+      <div class="section-card sticky-top" style="top: 20px; z-index: 10;">
+        <h5 class="mb-3"><i class="fas fa-list-ul me-2"></i> <span id="indexTitle">Conteúdo</span></h5>
+        <nav id="tableOfContents">
+          <a class="toc-link" href="#intro" data-section="intro"><i class="fas fa-info-circle me-2"></i> <span>1. Introdução</span></a>
+          <a class="toc-link" href="#dados_recolhidos" data-section="dados_recolhidos"><i class="fas fa-database me-2"></i> <span>2. Dados Recolhidos</span></a>
+          <a class="toc-link" href="#localizacao" data-section="localizacao"><i class="fas fa-map-marker-alt me-2"></i> <span>3. Localização e Mapas</span></a>
+          <a class="toc-link" href="#conteudo_usuario" data-section="conteudo_usuario"><i class="fas fa-camera me-2"></i> <span>4. Conteúdo do Utilizador</span></a>
+          <a class="toc-link" href="#uso_dados" data-section="uso_dados"><i class="fas fa-chart-line me-2"></i> <span>5. Como os Dados São Usados</span></a>
+          <a class="toc-link" href="#seguranca" data-section="seguranca"><i class="fas fa-shield-alt me-2"></i> <span>6. Segurança</span></a>
+          <a class="toc-link" href="#partilha_dados" data-section="partilha_dados"><i class="fas fa-share-alt me-2"></i> <span>7. Partilha de Dados</span></a>
+          <a class="toc-link" href="#uso_internacional" data-section="uso_internacional"><i class="fas fa-globe-americas me-2"></i> <span>8. Uso Internacional</span></a>
+          <a class="toc-link" href="#retencao_dados" data-section="retencao_dados"><i class="fas fa-clock me-2"></i> <span>9. Retenção de Dados</span></a>
+          <a class="toc-link" href="#direitos" data-section="direitos"><i class="fas fa-user-check me-2"></i> <span>10. Direitos do Utilizador</span></a>
+          <a class="toc-link" href="#alteracoes" data-section="alteracoes"><i class="fas fa-sync-alt me-2"></i> <span>11. Alterações</span></a>
+          <a class="toc-link" href="#contacto" data-section="contacto"><i class="fas fa-envelope me-2"></i> <span>12. Contacto</span></a>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Seções da Política de Privacidade -->
+    <div class="col-lg-9">
+      <div id="privacyContent">
+        <!-- 1. Introdução -->
+        <div id="intro" class="section-card">
+          <h3><i class="fas fa-info-circle text-primary me-2"></i> <span id="introTitle">1. Introdução</span></h3>
+          <p id="introText">A AgroLux valoriza a sua privacidade e está comprometida com a proteção dos dados pessoais dos utilizadores. Esta Política de Privacidade descreve como recolhemos, utilizamos, armazenamos e partilhamos as informações quando utiliza a nossa plataforma agrícola global, que inclui funcionalidades de publicação, partilha em redes sociais, rastreabilidade digital e visualização de mapas/globo terrestre.</p>
+        </div>
+        <!-- 2. Dados Recolhidos -->
+        <div id="dados_recolhidos" class="section-card">
+          <h3><i class="fas fa-database text-primary me-2"></i> <span id="dadosRecolhidosTitle">2. Dados Recolhidos</span></h3>
+          <p id="dadosRecolhidosText">Para fornecer os nossos serviços, podemos recolher as seguintes categorias de dados: <span class="highlight">informações de registo</span> (nome, e-mail, telefone), <span class="highlight">conteúdo multimédia</span> (fotos, vídeos, descrições de produtos), <span class="highlight">dados de localização aproximada</span> (cidade/região), <span class="highlight">dados de atividade</span> (interações, anúncios publicados, partilhas) e <span class="highlight">dados técnicos</span> (tipo de dispositivo, sistema operativo, logs de acesso). Todos os dados são fornecidos voluntariamente ou necessários para o funcionamento adequado da plataforma.</p>
+        </div>
+        <!-- 3. Localização e Mapas -->
+        <div id="localizacao" class="section-card">
+          <h3><i class="fas fa-map-marker-alt text-primary me-2"></i> <span id="localizacaoTitle">3. Localização e Mapas</span></h3>
+          <p id="localizacaoText">A nossa plataforma utiliza a localização aproximada (derivada do IP ou permissão do dispositivo) para melhorar a rastreabilidade e exibir produtos no mapa/globo terrestre. <strong>A localização é sempre não exata, limitada ao nível de cidade/região</strong>, e serve apenas como referência geográfica para aumentar a confiança entre agricultores e compradores. Nunca monitorizamos movimentações em tempo real nem partilhamos coordenadas precisas. O utilizador pode revogar o acesso à localização nas definições do navegador ou da conta a qualquer momento.</p>
+        </div>
+        <!-- 4. Conteúdo do Utilizador -->
+        <div id="conteudo_usuario" class="section-card">
+          <h3><i class="fas fa-camera text-primary me-2"></i> <span id="conteudoUsuarioTitle">4. Conteúdo do Utilizador</span></h3>
+          <p id="conteudoUsuarioText">Todos os conteúdos multimédia (fotos, vídeos, legendas) publicados na AgroLux são de responsabilidade exclusiva do utilizador. Ao enviar este conteúdo, concede à plataforma uma licença para o armazenar, exibir e permitir a partilha através de redes sociais integradas. <strong>É proibido publicar material ilegal, falso, enganoso ou que viole direitos de terceiros.</strong> A AgroLux reserva-se o direito de remover conteúdos que violem a lei ou esta política, sem aviso prévio.</p>
+        </div>
+        <!-- 5. Como os Dados São Usados -->
+        <div id="uso_dados" class="section-card">
+          <h3><i class="fas fa-chart-line text-primary me-2"></i> <span id="usoDadosTitle">5. Como os Dados São Usados</span></h3>
+          <p id="usoDadosText">Os dados recolhidos servem para: (i) operar e melhorar a plataforma, (ii) personalizar a experiência (exibição de produtos por região), (iii) garantir a segurança das contas e prevenir fraudes, (iv) <span class="highlight">calcular métricas de confiança e reputação</span> baseadas na atividade e histórico, (v) comunicar atualizações e alertas, (vi) desenvolver novos recursos de rastreabilidade e mapas, e (vii) cumprir obrigações legais. Nunca utilizamos os seus dados para decisões automatizadas com efeitos legais sem o seu consentimento explícito.</p>
+        </div>
+        <!-- 6. Segurança -->
+        <div id="seguranca" class="section-card">
+          <h3><i class="fas fa-shield-alt text-primary me-2"></i> <span id="segurancaTitle">6. Segurança</span></h3>
+          <p id="segurancaText">Adotamos medidas técnicas e organizacionais adequadas para proteger os dados contra acessos não autorizados, perda ou destruição. Isso inclui encriptação de dados sensíveis, monitorização de atividades suspeitas e controlos de acesso internos. Contudo, nenhum sistema é 100% seguro; recomendamos que utilize senhas fortes e ative a autenticação de dois fatores quando disponível. Em caso de violação de dados que possa afetar os seus direitos, notificaremos as autoridades e os utilizadores conforme exigido por lei.</p>
+        </div>
+        <!-- 7. Partilha de Dados -->
+        <div id="partilha_dados" class="section-card">
+          <h3><i class="fas fa-share-alt text-primary me-2"></i> <span id="partilhaTitle">7. Partilha de Dados</span></h3>
+          <p id="partilhaText"><strong>A AgroLux não vende nem aluga dados pessoais dos utilizadores.</strong> Podemos partilhar informações com: (i) prestadores de serviços técnicos (hospedagem, análises) que atuam sob contratos de confidencialidade; (ii) quando exigido por lei ou ordem judicial; (iii) para proteger os direitos, propriedade ou segurança da AgroLux, utilizadores ou público. Os conteúdos públicos (anúncios, fotos) são visíveis por outros utilizadores da plataforma e podem ser partilhados em redes sociais a seu pedido.</p>
+        </div>
+        <!-- 8. Uso Internacional -->
+        <div id="uso_internacional" class="section-card">
+          <h3><i class="fas fa-globe-americas text-primary me-2"></i> <span id="usoInternacionalTitle">8. Uso Internacional</span></h3>
+          <p id="usoInternacionalText">A AgroLux opera globalmente; os dados podem ser processados em servidores localizados em diferentes países, incluindo fora do seu país de residência. Ao utilizar a plataforma, consente com a transferência internacional dos seus dados. Comprometemo-nos a aplicar salvaguardas adequadas (cláusulas contratuais padrão) para garantir um nível de proteção consistente com esta Política e com as leis aplicáveis, como o GDPR quando for o caso.</p>
+        </div>
+        <!-- 9. Retenção de Dados -->
+        <div id="retencao_dados" class="section-card">
+          <h3><i class="fas fa-clock text-primary me-2"></i> <span id="retencaoTitle">9. Retenção de Dados</span></h3>
+          <p id="retencaoText">Conservamos os seus dados pessoais enquanto a sua conta estiver ativa ou conforme necessário para cumprir finalidades descritas nesta política. Após o encerramento da conta, podemos reter informações anonimizadas para fins estatísticos ou cumprir obrigações legais (ex: registos de transações por 5 anos). Poderá solicitar a eliminação dos seus dados nos termos da secção "Direitos do Utilizador".</p>
+        </div>
+        <!-- 10. Direitos do Utilizador -->
+        <div id="direitos" class="section-card">
+          <h3><i class="fas fa-user-check text-primary me-2"></i> <span id="direitosTitle">10. Direitos do Utilizador</span></h3>
+          <p id="direitosText">Dependendo da sua jurisdição, você pode ter direitos como: aceder aos seus dados, retificar informações incorretas, solicitar a eliminação da conta e dados associados, restringir o processamento, portabilidade dos dados e retirar consentimento a qualquer momento. Para exercer esses direitos, entre em contacto através do e-mail indicado abaixo. Responderemos dentro do prazo legal aplicável (geralmente até 30 dias).</p>
+        </div>
+        <!-- 11. Alterações -->
+        <div id="alteracoes" class="section-card">
+          <h3><i class="fas fa-sync-alt text-primary me-2"></i> <span id="alteracoesTitle">11. Alterações</span></h3>
+          <p id="alteracoesText">Esta Política de Privacidade pode ser atualizada periodicamente para refletir mudanças nas nossas práticas ou obrigações legais. Publicaremos a versão revista na plataforma com a data de “última atualização”. O uso continuado da AgroLux após a entrada em vigor das alterações constitui a sua aceitação. Recomendamos a revisão periódica deste documento.</p>
+        </div>
+        <!-- 12. Contacto -->
+        <div id="contacto" class="section-card">
+          <h3><i class="fas fa-headset text-primary me-2"></i> <span id="contactoTitle">12. Contacto</span></h3>
+          <p id="contactoText">Se tiver dúvidas sobre esta Política de Privacidade, desejar exercer os seus direitos ou reportar um incidente de segurança, contacte-nos através do e-mail: <strong>privacidade@agrolux.com</strong> ou utilize o formulário de suporte integrado na aplicação. Responderemos com a maior brevidade possível.</p>
+        </div>
+      </div>
+
+      <!-- Módulo de Assinatura Digital (substitui o checkbox simples) -->
+      <div class="section-card signature-card mt-4">
+        <h4 class="mb-3"><i class="fas fa-pen-alt text-primary me-2"></i> <span id="signatureTitle">Assinatura Digital Obrigatória</span></h4>
+        
+        <!-- Checkbox de aceitação da política -->
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" id="acceptPrivacyCheckbox" style="transform: scale(1.2);">
+          <label class="form-check-label fw-bold" id="acceptTermsLabel" for="acceptPrivacyCheckbox">Li e aceito a Política de Privacidade</label>
+        </div>
+
+        <!-- Nome do signatário -->
+        <div class="mb-3">
+          <label for="fullName" class="form-label fw-semibold"><i class="fas fa-user-edit me-1"></i> <span id="signatureNameLabel">Nome completo (como assinará)</span></label>
+          <input type="text" class="form-control" id="fullName" placeholder="Ex: Maria do Carmo" autocomplete="name">
+        </div>
+
+        <!-- Canvas para desenhar a assinatura -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold"><i class="fas fa-draw-polygon me-1"></i> <span id="signatureDrawLabel">Desenhe sua assinatura abaixo</span></label>
+          <canvas id="signatureCanvas" class="signature-canvas" width="500" height="180" style="width:100%; height:auto; max-width:500px; aspect-ratio:500/180; background:white;"></canvas>
+          <div class="mt-2 d-flex flex-wrap gap-2" id="signatureActions">
+            <button id="clearCanvasBtn" class="btn btn-outline-secondary btn-sm"><i class="fas fa-eraser"></i> <span id="clearBtnText">Limpar</span></button>
+            <button id="confirmSignatureBtn" class="btn btn-success btn-sm"><i class="fas fa-check-circle"></i> <span id="confirmSignText">Confirmar Assinatura</span></button>
+          </div>
+          <div id="signaturePreviewArea" class="mt-2" style="display:none;">
+            <small class="text-muted"><span id="previewText">Assinatura registada:</span></small>
+            <img id="signaturePreviewImg" class="signature-preview" alt="Pré-visualização da assinatura">
+          </div>
+        </div>
+
+        <!-- Botões principais: Aceitar+Assinar e Imprimir -->
+        <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center">
+          <button id="acceptAndSignBtn" class="btn btn-primary btn-lg px-4 rounded-pill"><i class="fas fa-file-signature me-2"></i> <span id="acceptBtnText">Aceitar e Assinar Digitalmente</span></button>
+          <button id="printDocumentBtn" class="btn btn-outline-info btn-lg px-4 rounded-pill" disabled><i class="fas fa-print me-2"></i> <span id="printBtnText">Imprimir Política Assinada</span></button>
+        </div>
+        <div id="signFeedback" class="mt-3 small"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="mt-5 pt-3 text-center text-muted small">
+    <span id="footerText">© AgroLux - Privacidade e rastreabilidade para o Agro | Assinatura digital com valor jurídico</span>
+  </footer>
+</div>
+
+<!-- Botão Voltar ao Topo -->
+<button id="backToTopBtn" class="back-to-top" title="Voltar ao topo"><i class="fas fa-arrow-up"></i></button>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  // --------------------------- TRADUÇÕES COMPLETAS (Política de Privacidade + Assinatura) ---------------------------
+  const translations = {
+    pt: {
+      pageTitle: "Política de Privacidade",
+      headerBadge: "Documento de Privacidade",
+      heroTitle: "A sua privacidade é importante para nós",
+      heroSub: "Leia atentamente e assine digitalmente para confirmar a sua aceitação",
+      indexTitle: "Conteúdo",
+      introTitle: "1. Introdução",
+      introText: "A AgroLux valoriza a sua privacidade e está comprometida com a proteção dos dados pessoais dos utilizadores. Esta Política de Privacidade descreve como recolhemos, utilizamos, armazenamos e partilhamos as informações quando utiliza a nossa plataforma agrícola global, que inclui funcionalidades de publicação, partilha em redes sociais, rastreabilidade digital e visualização de mapas/globo terrestre.",
+      dadosRecolhidosTitle: "2. Dados Recolhidos",
+      dadosRecolhidosText: "Para fornecer os nossos serviços, podemos recolher as seguintes categorias de dados: informações de registo (nome, e-mail, telefone), conteúdo multimédia (fotos, vídeos, descrições de produtos), dados de localização aproximada (cidade/região), dados de atividade (interações, anúncios publicados, partilhas) e dados técnicos (tipo de dispositivo, sistema operativo, logs de acesso). Todos os dados são fornecidos voluntariamente ou necessários para o funcionamento adequado da plataforma.",
+      localizacaoTitle: "3. Localização e Mapas",
+      localizacaoText: "A nossa plataforma utiliza a localização aproximada (derivada do IP ou permissão do dispositivo) para melhorar a rastreabilidade e exibir produtos no mapa/globo terrestre. A localização é sempre não exata, limitada ao nível de cidade/região, e serve apenas como referência geográfica para aumentar a confiança entre agricultores e compradores. Nunca monitorizamos movimentações em tempo real nem partilhamos coordenadas precisas. O utilizador pode revogar o acesso à localização nas definições do navegador ou da conta a qualquer momento.",
+      conteudoUsuarioTitle: "4. Conteúdo do Utilizador",
+      conteudoUsuarioText: "Todos os conteúdos multimédia (fotos, vídeos, legendas) publicados na AgroLux são de responsabilidade exclusiva do utilizador. Ao enviar este conteúdo, concede à plataforma uma licença para o armazenar, exibir e permitir a partilha através de redes sociais integradas. É proibido publicar material ilegal, falso, enganoso ou que viole direitos de terceiros. A AgroLux reserva-se o direito de remover conteúdos que violem a lei ou esta política, sem aviso prévio.",
+      usoDadosTitle: "5. Como os Dados São Usados",
+      usoDadosText: "Os dados recolhidos servem para: (i) operar e melhorar a plataforma, (ii) personalizar a experiência (exibição de produtos por região), (iii) garantir a segurança das contas e prevenir fraudes, (iv) calcular métricas de confiança e reputação baseadas na atividade e histórico, (v) comunicar atualizações e alertas, (vi) desenvolver novos recursos de rastreabilidade e mapas, e (vii) cumprir obrigações legais. Nunca utilizamos os seus dados para decisões automatizadas com efeitos legais sem o seu consentimento explícito.",
+      segurancaTitle: "6. Segurança",
+      segurancaText: "Adotamos medidas técnicas e organizacionais adequadas para proteger os dados contra acessos não autorizados, perda ou destruição. Isso inclui encriptação de dados sensíveis, monitorização de atividades suspeitas e controlos de acesso internos. Contudo, nenhum sistema é 100% seguro; recomendamos que utilize senhas fortes e ative a autenticação de dois fatores quando disponível. Em caso de violação de dados que possa afetar os seus direitos, notificaremos as autoridades e os utilizadores conforme exigido por lei.",
+      partilhaTitle: "7. Partilha de Dados",
+      partilhaText: "A AgroLux não vende nem aluga dados pessoais dos utilizadores. Podemos partilhar informações com: (i) prestadores de serviços técnicos (hospedagem, análises) que atuam sob contratos de confidencialidade; (ii) quando exigido por lei ou ordem judicial; (iii) para proteger os direitos, propriedade ou segurança da AgroLux, utilizadores ou público. Os conteúdos públicos (anúncios, fotos) são visíveis por outros utilizadores da plataforma e podem ser partilhados em redes sociais a seu pedido.",
+      usoInternacionalTitle: "8. Uso Internacional",
+      usoInternacionalText: "A AgroLux opera globalmente; os dados podem ser processados em servidores localizados em diferentes países, incluindo fora do seu país de residência. Ao utilizar a plataforma, consente com a transferência internacional dos seus dados. Comprometemo-nos a aplicar salvaguardas adequadas (cláusulas contratuais padrão) para garantir um nível de proteção consistente com esta Política e com as leis aplicáveis, como o GDPR quando for o caso.",
+      retencaoTitle: "9. Retenção de Dados",
+      retencaoText: "Conservamos os seus dados pessoais enquanto a sua conta estiver ativa ou conforme necessário para cumprir finalidades descritas nesta política. Após o encerramento da conta, podemos reter informações anonimizadas para fins estatísticos ou cumprir obrigações legais (ex: registos de transações por 5 anos). Poderá solicitar a eliminação dos seus dados nos termos da secção 'Direitos do Utilizador'.",
+      direitosTitle: "10. Direitos do Utilizador",
+      direitosText: "Dependendo da sua jurisdição, você pode ter direitos como: aceder aos seus dados, retificar informações incorretas, solicitar a eliminação da conta e dados associados, restringir o processamento, portabilidade dos dados e retirar consentimento a qualquer momento. Para exercer esses direitos, entre em contacto através do e-mail indicado abaixo. Responderemos dentro do prazo legal aplicável (geralmente até 30 dias).",
+      alteracoesTitle: "11. Alterações",
+      alteracoesText: "Esta Política de Privacidade pode ser atualizada periodicamente para refletir mudanças nas nossas práticas ou obrigações legais. Publicaremos a versão revista na plataforma com a data de 'última atualização'. O uso continuado da AgroLux após a entrada em vigor das alterações constitui a sua aceitação. Recomendamos a revisão periódica deste documento.",
+      contactoTitle: "12. Contacto",
+      contactoText: "Se tiver dúvidas sobre esta Política de Privacidade, desejar exercer os seus direitos ou reportar um incidente de segurança, contacte-nos através do e-mail: privacidade@agrolux.com ou utilize o formulário de suporte integrado na aplicação. Responderemos com a maior brevidade possível.",
+      signatureTitle: "Assinatura Digital Obrigatória",
+      acceptTermsLabel: "Li e aceito a Política de Privacidade",
+      signatureNameLabel: "Nome completo (como assinará)",
+      signatureDrawLabel: "Desenhe sua assinatura abaixo",
+      clearBtnText: "Limpar",
+      confirmSignText: "Confirmar Assinatura",
+      previewText: "Assinatura registada:",
+      acceptBtnText: "Aceitar e Assinar Digitalmente",
+      printBtnText: "Imprimir Política Assinada",
+      footerText: "© AgroLux - Privacidade e rastreabilidade para o Agro | Assinatura digital com valor jurídico",
+      signSuccess: "✅ Assinatura registada com sucesso!",
+      signNoSignature: "✍️ Desenhe a assinatura no campo acima e confirme-a.",
+      signErrorCheck: "⚠️ Deve aceitar os Termos, preencher o nome e confirmar a assinatura.",
+      acceptSuccess: "Obrigado! Política de Privacidade aceite e assinada digitalmente. Agora pode imprimir o documento.",
+      printReady: "🖨️ Impressão disponível. Clique em 'Imprimir Política Assinada'."
+    },
+    en: {
+      pageTitle: "Privacy Policy",
+      headerBadge: "Privacy Document",
+      heroTitle: "Your privacy matters to us",
+      heroSub: "Read carefully and sign digitally to confirm your acceptance",
+      indexTitle: "Contents",
+      introTitle: "1. Introduction",
+      introText: "AgroLux values your privacy and is committed to protecting users' personal data. This Privacy Policy describes how we collect, use, store and share information when you use our global agricultural platform, which includes publishing features, social media sharing, digital traceability and map/globe visualization.",
+      dadosRecolhidosTitle: "2. Data Collected",
+      dadosRecolhidosText: "To provide our services, we may collect the following categories of data: registration information (name, email, phone), multimedia content (photos, videos, product descriptions), approximate location data (city/region), activity data (interactions, published ads, shares) and technical data (device type, operating system, access logs). All data is provided voluntarily or is necessary for the platform to function properly.",
+      localizacaoTitle: "3. Location and Maps",
+      localizacaoText: "Our platform uses approximate location (derived from IP or device permission) to improve traceability and display products on the map/globe. Location is always non-exact, limited to city/region level, and serves only as a geographical reference to increase trust between farmers and buyers. We never track real-time movements or share precise coordinates. You can revoke location access at any time in your browser or account settings.",
+      conteudoUsuarioTitle: "4. User Content",
+      conteudoUsuarioText: "All multimedia content (photos, videos, captions) posted on AgroLux is the sole responsibility of the user. By submitting this content, you grant the platform a license to store, display and enable sharing through integrated social networks. Posting illegal, false, misleading or infringing material is prohibited. AgroLux reserves the right to remove content that violates the law or this policy without prior notice.",
+      usoDadosTitle: "5. How Data Is Used",
+      usoDadosText: "Collected data serves to: (i) operate and improve the platform, (ii) personalize experience (display products by region), (iii) ensure account security and prevent fraud, (iv) calculate trust and reputation metrics based on activity and history, (v) communicate updates and alerts, (vi) develop new traceability and mapping features, and (vii) comply with legal obligations. We never use your data for automated decisions with legal effects without your explicit consent.",
+      segurancaTitle: "6. Security",
+      segurancaText: "We adopt appropriate technical and organizational measures to protect data against unauthorized access, loss or destruction. This includes encryption of sensitive data, monitoring of suspicious activities and internal access controls. However, no system is 100% secure; we recommend using strong passwords and enabling two-factor authentication when available. In case of a data breach that may affect your rights, we will notify authorities and users as required by law.",
+      partilhaTitle: "7. Data Sharing",
+      partilhaText: "AgroLux does not sell or rent users' personal data. We may share information with: (i) technical service providers (hosting, analytics) acting under confidentiality agreements; (ii) when required by law or court order; (iii) to protect the rights, property or safety of AgroLux, users or the public. Public content (ads, photos) is visible to other platform users and may be shared on social networks at your request.",
+      usoInternacionalTitle: "8. International Use",
+      usoInternacionalText: "AgroLux operates globally; data may be processed on servers located in different countries, including outside your country of residence. By using the platform, you consent to the international transfer of your data. We commit to applying adequate safeguards (standard contractual clauses) to ensure a level of protection consistent with this Policy and applicable laws, such as GDPR when applicable.",
+      retencaoTitle: "9. Data Retention",
+      retencaoText: "We retain your personal data while your account is active or as necessary to fulfill the purposes described in this policy. After account closure, we may retain anonymized information for statistical purposes or to comply with legal obligations (e.g., transaction records for 5 years). You may request deletion of your data under the 'User Rights' section.",
+      direitosTitle: "10. User Rights",
+      direitosText: "Depending on your jurisdiction, you may have rights such as: accessing your data, rectifying inaccurate information, requesting deletion of account and associated data, restricting processing, data portability and withdrawing consent at any time. To exercise these rights, contact us via the email below. We will respond within the applicable legal period (usually up to 30 days).",
+      alteracoesTitle: "11. Changes",
+      alteracoesText: "This Privacy Policy may be updated periodically to reflect changes in our practices or legal obligations. We will post the revised version on the platform with a 'last updated' date. Continued use of AgroLux after changes take effect constitutes your acceptance. We recommend periodic review of this document.",
+      contactoTitle: "12. Contact",
+      contactoText: "If you have questions about this Privacy Policy, wish to exercise your rights or report a security incident, contact us at: privacy@agrolux.com or use the integrated support form in the application. We will respond as quickly as possible.",
+      signatureTitle: "Mandatory Digital Signature",
+      acceptTermsLabel: "I have read and accept the Privacy Policy",
+      signatureNameLabel: "Full name (as you will sign)",
+      signatureDrawLabel: "Draw your signature below",
+      clearBtnText: "Clear",
+      confirmSignText: "Confirm Signature",
+      previewText: "Registered signature:",
+      acceptBtnText: "Accept and Sign Digitally",
+      printBtnText: "Print Signed Policy",
+      footerText: "© AgroLux - Privacy and traceability for Agribusiness | Digital signature with legal value",
+      signSuccess: "✅ Signature successfully recorded!",
+      signNoSignature: "✍️ Draw your signature above and confirm it.",
+      signErrorCheck: "⚠️ You must accept the Terms, fill in your name and confirm the signature.",
+      acceptSuccess: "Thank you! Privacy Policy accepted and digitally signed. You can now print the document.",
+      printReady: "🖨️ Printing is now available. Click 'Print Signed Policy'."
+    }
+  };
+
+  let currentLang = 'pt';
+
+  function updateLanguageUI() {
+    const t = translations[currentLang];
+    document.getElementById('pageTitle').innerText = t.pageTitle;
+    document.getElementById('headerBadge').innerText = t.headerBadge;
+    document.getElementById('heroTitle').innerText = t.heroTitle;
+    document.getElementById('heroSub').innerText = t.heroSub;
+    document.getElementById('indexTitle').innerText = t.indexTitle;
+    document.getElementById('introTitle').innerText = t.introTitle;
+    document.getElementById('introText').innerText = t.introText;
+    document.getElementById('dadosRecolhidosTitle').innerText = t.dadosRecolhidosTitle;
+    document.getElementById('dadosRecolhidosText').innerHTML = t.dadosRecolhidosText;
+    document.getElementById('localizacaoTitle').innerText = t.localizacaoTitle;
+    document.getElementById('localizacaoText').innerHTML = t.localizacaoText;
+    document.getElementById('conteudoUsuarioTitle').innerText = t.conteudoUsuarioTitle;
+    document.getElementById('conteudoUsuarioText').innerHTML = t.conteudoUsuarioText;
+    document.getElementById('usoDadosTitle').innerText = t.usoDadosTitle;
+    document.getElementById('usoDadosText').innerHTML = t.usoDadosText;
+    document.getElementById('segurancaTitle').innerText = t.segurancaTitle;
+    document.getElementById('segurancaText').innerHTML = t.segurancaText;
+    document.getElementById('partilhaTitle').innerText = t.partilhaTitle;
+    document.getElementById('partilhaText').innerHTML = t.partilhaText;
+    document.getElementById('usoInternacionalTitle').innerText = t.usoInternacionalTitle;
+    document.getElementById('usoInternacionalText').innerHTML = t.usoInternacionalText;
+    document.getElementById('retencaoTitle').innerText = t.retencaoTitle;
+    document.getElementById('retencaoText').innerHTML = t.retencaoText;
+    document.getElementById('direitosTitle').innerText = t.direitosTitle;
+    document.getElementById('direitosText').innerHTML = t.direitosText;
+    document.getElementById('alteracoesTitle').innerText = t.alteracoesTitle;
+    document.getElementById('alteracoesText').innerHTML = t.alteracoesText;
+    document.getElementById('contactoTitle').innerText = t.contactoTitle;
+    document.getElementById('contactoText').innerHTML = t.contactoText;
+    document.getElementById('signatureTitle').innerText = t.signatureTitle;
+    document.getElementById('acceptTermsLabel').innerText = t.acceptTermsLabel;
+    document.getElementById('signatureNameLabel').innerText = t.signatureNameLabel;
+    document.getElementById('signatureDrawLabel').innerText = t.signatureDrawLabel;
+    document.getElementById('clearBtnText').innerText = t.clearBtnText;
+    document.getElementById('confirmSignText').innerText = t.confirmSignText;
+    document.getElementById('previewText').innerText = t.previewText;
+    document.getElementById('acceptBtnText').innerText = t.acceptBtnText;
+    document.getElementById('printBtnText').innerText = t.printBtnText;
+    document.getElementById('footerText').innerText = t.footerText;
+    document.getElementById('currentLangLabel').innerText = currentLang.toUpperCase();
+
+    // Atualizar índice
+    const ptIndex = {
+      intro: "1. Introdução", dados_recolhidos: "2. Dados Recolhidos", localizacao: "3. Localização e Mapas",
+      conteudo_usuario: "4. Conteúdo do Utilizador", uso_dados: "5. Como os Dados São Usados",
+      seguranca: "6. Segurança", partilha_dados: "7. Partilha de Dados", uso_internacional: "8. Uso Internacional",
+      retencao_dados: "9. Retenção de Dados", direitos: "10. Direitos do Utilizador",
+      alteracoes: "11. Alterações", contacto: "12. Contacto"
+    };
+    const enIndex = {
+      intro: "1. Introduction", dados_recolhidos: "2. Data Collected", localizacao: "3. Location and Maps",
+      conteudo_usuario: "4. User Content", uso_dados: "5. How Data Is Used",
+      seguranca: "6. Security", partilha_dados: "7. Data Sharing", uso_internacional: "8. International Use",
+      retencao_dados: "9. Data Retention", direitos: "10. User Rights",
+      alteracoes: "11. Changes", contacto: "12. Contact"
+    };
+    const idx = currentLang === 'pt' ? ptIndex : enIndex;
+    Object.keys(idx).forEach(key => {
+      const span = document.querySelector(`.toc-link[data-section="${key}"] span`);
+      if (span) span.innerText = idx[key];
+    });
+  }
+
+  // Idioma
+  document.querySelectorAll('[data-lang]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.preventDefault();
+      const newLang = el.getAttribute('data-lang');
+      if(newLang !== currentLang) {
+        currentLang = newLang;
+        updateLanguageUI();
+      }
+    });
+  });
+
+  // Tema escuro/claro
+  const themeSwitcher = document.getElementById('themeSwitcher');
+  const themeIcon = document.getElementById('themeIcon');
+  function setTheme(theme) {
+    if (theme === 'dark') {
+      document.documentElement.setAttribute('data-bs-theme', 'dark');
+      document.body.classList.add('dark-mode');
+      themeIcon.className = 'fas fa-sun';
+      localStorage.setItem('agroTheme', 'dark');
+    } else {
+      document.documentElement.setAttribute('data-bs-theme', 'light');
+      document.body.classList.remove('dark-mode');
+      themeIcon.className = 'fas fa-moon';
+      localStorage.setItem('agroTheme', 'light');
+    }
+  }
+  themeSwitcher.addEventListener('click', () => {
+    const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+    setTheme(isDark ? 'light' : 'dark');
+  });
+  setTheme(localStorage.getItem('agroTheme') === 'dark' ? 'dark' : 'light');
+
+  // Scroll suave e índice ativo
+  const tocLinks = document.querySelectorAll('.toc-link');
+  const sections = document.querySelectorAll('.section-card[id]');
+  function updateActiveLink() {
+    let current = '';
+    const scrollPos = window.scrollY + 150;
+    sections.forEach(section => {
+      const sectionTop = section.offsetTop;
+      const sectionBottom = sectionTop + section.offsetHeight;
+      if (scrollPos >= sectionTop && scrollPos < sectionBottom) current = section.getAttribute('id');
+    });
+    tocLinks.forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('data-section') === current) link.classList.add('active');
+    });
+  }
+  window.addEventListener('scroll', updateActiveLink);
+  tocLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetId = link.getAttribute('href').substring(1);
+      const target = document.getElementById(targetId);
+      if(target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // Botão voltar ao topo
+  const backBtn = document.getElementById('backToTopBtn');
+  window.addEventListener('scroll', () => backBtn.classList.toggle('show', window.scrollY > 400));
+  backBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+  // ---------- MÓDULO DE ASSINATURA DIGITAL ----------
+  const canvas = document.getElementById('signatureCanvas');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  let signatureConfirmed = false;
+  let signatureDataURL = "";
+
+  function resizeCanvas() {
+    const container = canvas.parentElement;
+    const maxWidth = Math.min(500, container.clientWidth - 20);
+    canvas.style.width = `${maxWidth}px`;
+    canvas.width = maxWidth;
+    canvas.height = 180;
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+  }
+
+  function loadSignatureFromURL(url) {
+    const img = new Image();
+    img.onload = () => ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    img.src = url;
+  }
+
+  function startDrawing(e) { drawing = true; e.preventDefault(); draw(e); }
+  function endDrawing() { drawing = false; ctx.beginPath(); }
+  function draw(e) {
+    if (!drawing) return;
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    let clientX, clientY;
+    if (e.touches) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+    let x = (clientX - rect.left) * scaleX;
+    let y = (clientY - rect.top) * scaleY;
+    x = Math.min(Math.max(0, x), canvas.width);
+    y = Math.min(Math.max(0, y), canvas.height);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+  }
+
+  canvas.addEventListener('mousedown', startDrawing);
+  canvas.addEventListener('mousemove', draw);
+  canvas.addEventListener('mouseup', endDrawing);
+  canvas.addEventListener('touchstart', startDrawing);
+  canvas.addEventListener('touchmove', draw);
+  canvas.addEventListener('touchend', endDrawing);
+
+  document.getElementById('clearCanvasBtn').addEventListener('click', () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    signatureConfirmed = false;
+    signatureDataURL = "";
+    document.getElementById('signaturePreviewArea').style.display = 'none';
+    document.getElementById('signFeedback').innerHTML = '';
+  });
+
+  document.getElementById('confirmSignatureBtn').addEventListener('click', () => {
+    const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    const hasDrawing = Array.from(pixels).some(v => v !== 255);
+    if (hasDrawing) {
+      signatureDataURL = canvas.toDataURL();
+      document.getElementById('signaturePreviewImg').src = signatureDataURL;
+      document.getElementById('signaturePreviewArea').style.display = 'block';
+      signatureConfirmed = true;
+      const msg = translations[currentLang].signSuccess;
+      document.getElementById('signFeedback').innerHTML = `<div class="alert alert-success">${msg}</div>`;
+      setTimeout(() => document.getElementById('signFeedback').innerHTML = '', 3000);
+    } else {
+      const msg = translations[currentLang].signNoSignature;
+      document.getElementById('signFeedback').innerHTML = `<div class="alert alert-warning">${msg}</div>`;
+      setTimeout(() => document.getElementById('signFeedback').innerHTML = '', 3000);
+    }
+  });
+
+  // Aceitar e assinar
+  const acceptCheck = document.getElementById('acceptPrivacyCheckbox');
+  const fullNameInput = document.getElementById('fullName');
+  const acceptAndSignBtn = document.getElementById('acceptAndSignBtn');
+  const printBtn = document.getElementById('printDocumentBtn');
+  const feedbackDiv = document.getElementById('signFeedback');
+
+  acceptAndSignBtn.addEventListener('click', () => {
+    const isChecked = acceptCheck.checked;
+    const nameFilled = fullNameInput.value.trim() !== '';
+    if (!isChecked || !nameFilled || !signatureConfirmed) {
+      feedbackDiv.innerHTML = `<div class="alert alert-danger">${translations[currentLang].signErrorCheck}</div>`;
+      setTimeout(() => feedbackDiv.innerHTML = '', 4000);
+      return;
+    }
+    // Salvar no localStorage
+    localStorage.setItem('agrolux_privacy_accepted', 'true');
+    localStorage.setItem('agrolux_privacy_signature', signatureDataURL);
+    localStorage.setItem('agrolux_privacy_signer', fullNameInput.value.trim());
+    feedbackDiv.innerHTML = `<div class="alert alert-success">${translations[currentLang].acceptSuccess}<br>${translations[currentLang].printReady}</div>`;
+    printBtn.disabled = false;
+    setTimeout(() => feedbackDiv.innerHTML = '', 5000);
+  });
+
+  // Impressão do documento com assinatura
+  printBtn.addEventListener('click', () => {
+    if (printBtn.disabled) return;
+    const printWindow = window.open('', '_blank');
+    const termsContent = document.getElementById('privacyContent').cloneNode(true);
+    const signatureCard = document.querySelector('.signature-card').cloneNode(true);
+    // Remover elementos interativos da cópia
+    const unwanted = signatureCard.querySelectorAll('#signatureActions, #acceptAndSignBtn, #printDocumentBtn, #signFeedback, .form-check, .btn, #clearCanvasBtn, #confirmSignatureBtn');
+    unwanted.forEach(el => el.remove());
+    const signerName = fullNameInput.value.trim() || "____________________";
+    const signHTML = `<div style="margin-top: 20px; border-top:1px solid #ccc; padding:15px;">
+                        <h4>Assinatura Digital</h4>
+                        <p><strong>Nome do signatário:</strong> ${signerName}</p>
+                        <p><strong>Data:</strong> ${new Date().toLocaleString()}</p>
+                        <p><strong>Assinatura:</strong></p>
+                        <img src="${signatureDataURL}" style="max-width:300px; border:1px solid #aaa; background:white;">
+                      </div>`;
+    signatureCard.innerHTML += signHTML;
+    printWindow.document.write(`
+      <html><head><title>AgroLux - Política de Privacidade Assinada</title>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+      <style>body { padding: 20px; } .no-print { display: none; } @media print { .no-print { display: none; } }</style>
+      </head><body><div class="container">${termsContent.outerHTML}<hr>${signatureCard.outerHTML}</div></body></html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+  });
+
+  // Inicializar canvas e possíveis dados salvos
+  window.addEventListener('resize', () => { resizeCanvas(); if(signatureDataURL) loadSignatureFromURL(signatureDataURL); });
+  resizeCanvas();
+  updateLanguageUI();
+
+  // Recuperar aceitação anterior (opcional)
+  if (localStorage.getItem('agrolux_privacy_accepted') === 'true') {
+    const savedSig = localStorage.getItem('agrolux_privacy_signature');
+    if (savedSig) {
+      loadSignatureFromURL(savedSig);
+      signatureConfirmed = true;
+      signatureDataURL = savedSig;
+      document.getElementById('signaturePreviewArea').style.display = 'block';
+      document.getElementById('signaturePreviewImg').src = savedSig;
+      const savedName = localStorage.getItem('agrolux_privacy_signer');
+      if (savedName) fullNameInput.value = savedName;
+      acceptCheck.checked = true;
+      printBtn.disabled = false;
+    }
+  }
+</script>
+</body>
+</html>

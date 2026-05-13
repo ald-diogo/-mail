@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Global Traceability · Culturas do Mundo</title>
+    <!-- Bootstrap 5.3 + Icons + Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Leaflet CSS (Mapa) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * { transition: background 0.2s, color 0.2s, border-color 0.2s; font-family: 'Times New Roman', Times, serif;}
+        body {
+            font-family: 'Segoe UI', 'Roboto', system-ui, sans-serif;
+            background-image: url('images/Bg-entregas.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            position: relative;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 20, 0, 0.65);
+            z-index: -1;
+            backdrop-filter: blur(2px);
+        }
+        body.light::before { background-color: rgba(245, 248, 240, 0.7); }
+        body.dark::before { background-color: rgba(0, 15, 0, 0.85); }
+
+        .hero-video {
+            position: relative;
+            height: 42vh;
+            min-height: 260px;
+            overflow: hidden;
+            border-radius: 0 0 2rem 2rem;
+            margin-bottom: 1.8rem;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.3);
+        }
+        .hero-video video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(2px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .hero-text h1 { font-size: 2.4rem; font-weight: 700; letter-spacing: -0.5px; }
+        .glass-card {
+            background: rgba(30, 30, 35, 0.65);
+            backdrop-filter: blur(14px);
+            border-radius: 1.8rem;
+            border: 1px solid rgba(255,255,255,0.25);
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.2);
+        }
+        body.light .glass-card {
+            background: rgba(255, 255, 245, 0.75);
+            border-color: rgba(0,0,0,0.1);
+        }
+        .map-container, .globe-container {
+            width: 100%;
+            height: 340px;
+            border-radius: 1.2rem;
+            overflow: hidden;
+            background: #111;
+        }
+        .view-toggle .btn-group { width: 100%; }
+        .culture-badge {
+            background: #2e7d32cc;
+            backdrop-filter: blur(4px);
+            border-radius: 40px;
+            padding: 6px 14px;
+        }
+        .info-highlight {
+            background: linear-gradient(120deg, #2e7d32 0%, #4caf50 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: bold;
+        }
+        footer { font-size: 0.75rem; opacity: 0.8; }
+        .loader-search {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid rgba(0,0,0,0.2);
+            border-radius: 50%;
+            border-top-color: #2e7d32;
+            animation: spin 0.5s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .marker-clickable { cursor: pointer; }
+        .leaflet-marker-icon { filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
+        .culture-card-img {
+            width: 100%;
+            max-height: 180px;
+            object-fit: cover;
+            border-radius: 1.2rem;
+        }
+        @media (max-width: 768px) {
+            .hero-video { height: 32vh; }
+            .hero-text h1 { font-size: 1.8rem; }
+        }
+        .btn-outline-success.active, .btn-outline-primary.active { box-shadow: 0 0 8px currentColor; }
+        .trust-fill { transition: width 0.4s ease; } /* pequeno detalhe visual */
+        .tip-icon { width: 28px; text-align: center; }
+        
+        /*====================================Outher  Css=======================================*/
+       .logo-maker{
+      border-radius: 50px;
+      width: 50px;
+      height: 50px;
+    }
+    
+    .logo-panel{
+      border-radius: 50px;
+      width: 30px;
+      height: 30px;
+    }
+        
+        .logo-panel { 
+            width: 24px;
+            height: 24px; 
+            vertical-align: middle;
+            margin-right: 5px; 
+        }
+        
+        .logo-point {
+            width: 110px; 
+            height: 50px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Hero Section -->
+<div class="hero-video">
+    <video autoplay muted loop playsinline>
+        <source src="https://assets.mixkit.co/videos/preview/mixkit-ripe-wheat-field-close-up-1235.mp4" type="video/mp4">
+    </video>
+    <div class="hero-overlay">
+        <div class="hero-text px-3">
+            <h1 class="display-5 fw-bold"><i class="fa-solid fa-location-dot"></i> Rastreabilidade Global</h1>
+            <p class="lead fs-5">Explore culturas agrícolas, descubra origens e rastreie safras em qualquer lugar do mundo</p>
+        </div>
+    </div>
+</div>
+
+<div class="container py-3">
+    <!-- Header simplificado (SEM perfil, SEM ícones replicados) -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom border-light">
+        <div class="d-flex align-items-center gap-3">
+            <h2 class="h4 fw-semibold m-0">
+                <a href="index.html" >
+                    <img src="images/Lux-logo-bg.png" class="logo-point" onerror="this.style.display='none'"/>
+                </a>
+                Trace & Discover
+            </h2>
+            <span class="badge bg-success bg-opacity-75"><i class="fas fa-globe-americas me-1"></i> Dados verificados</span>
+        </div>
+        <div class="d-flex gap-2 mt-2 mt-sm-0">
+            <button id="themeSwitcher" class="btn btn-outline-light rounded-circle" style="width: 40px; height: 40px;"><i id="themeIcon" class="fas fa-moon"></i></button>
+            <div class="dropdown">
+                <button class="btn btn-outline-light dropdown-toggle d-flex gap-2" type="button" data-bs-toggle="dropdown"><i class="fas fa-language"></i> <span id="currentLangLabel">PT</span></button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#" data-lang="pt"><i class="fas fa-flag-checkered me-2"></i> Português</a></li>
+                    <li><a class="dropdown-item" href="#" data-lang="en"><i class="fas fa-flag-usa me-2"></i> English</a></li>
+                    <li><a class="dropdown-item" href="#" data-lang="es"><i class="fas fa-flag me-2"></i> Español</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barra de Pesquisa (busca por cultura / região) -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-md-8 col-lg-6">
+            <div class="input-group shadow-sm">
+                <input type="text" class="form-control form-control-lg" id="searchInput" placeholder="🔍 Buscar cultura (ex: Café, Trigo, Soja) ou país...">
+                <button class="btn btn-success btn-lg" id="searchBtn"><i class="fas fa-map-pin"></i> Rastrear</button>
+            </div>
+            <div id="searchLoader" class="text-center mt-2" style="display: none;"><span class="loader-search"></span> <span id="searchLoadText">Localizando cultura...</span></div>
+            <div id="searchFeedback" class="small text-warning text-center mt-1"></div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- COLUNA PRINCIPAL: INFORMAÇÕES DA CULTURA + DETALHES -->
+        <div class="col-lg-7">
+            <!-- Card Dinâmico da Cultura Selecionada -->
+            <div class="card shadow border-0 rounded-4 glass-card mb-4 overflow-hidden">
+                <div class="card-body p-4">
+                    <div class="row g-4">
+                        <div class="col-md-5">
+                            <img id="cultureImage" src="https://placehold.co/500x400/2e7d32/white?text=Cultura+Agrícola" class="img-fluid rounded-4 culture-card-img" alt="Cultura">
+                            <div class="mt-3 d-flex justify-content-between">
+                                <span class="badge bg-success bg-opacity-75 py-2 px-3">
+                                     <span id="cultureTypeBadge">Grão</span></span>
+                                <span class="badge bg-warning bg-opacity-25 text-dark py-2 px-3">
+                                     <span id="harvestSeason">Safra: Set - Mar</span></span>
+                            </div>
+                        </div>
+                        <div class="col-md-7">
+                            <h2 id="cultureName" class="fw-bold display-6 mb-2">Café Arábica</h2>
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                <span class="badge bg-info bg-opacity-75 text-dark">
+                                    <i class="fas fa-map-marker-alt"></i> <span id="cultureRegion">Minas Gerais, Brasil</span></span>
+                                <span class="badge bg-light text-dark"><i class="fas fa-globe"></i> <span id="cultureCountry">Brasil</span></span>
+                            </div>
+                            <p id="cultureDescription" class="mt-2 opacity-90">Café de altitude com certificação de origem. Um dos mais sustentáveis do mundo, produzido em sistema agroflorestal.</p>
+                            <hr class="my-3">
+                            <div class="row small">
+                                <div class="col-6"> 
+                                    <strong id="climaLabel">Clima ideal:</strong> 
+                                    <span id="climate">Tropical / Subtropical</span>
+                                </div>
+                                <div class="col-6"> 
+                                    <strong id="prodLabel">Produção anual:</strong> 
+                                    <span id="productionVolume">~3,2 mi ton</span>
+                                </div>
+                            </div>
+                            <div class="mt-3 d-flex flex-wrap gap-2">
+                                <button class="btn btn-sm btn-outline-success" id="shareCultureBtn"><i class="fab fa-whatsapp"></i> Compartilhar rastreio</button>
+                                <button class="btn btn-sm btn-outline-light" id="copyTraceLink"><i class="fas fa-link"></i> Copiar link</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dicas & Sustentabilidade + Curiosidades -->
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="card glass-card h-100 border-0 rounded-4 p-3">
+                        <h5><i class="fas fa-lightbulb text-warning me-2"></i> <span id="tipsTitle">🌱 Dicas de Rastreabilidade</span></h5>
+                        <ul class="list-unstyled small mt-2" id="tipsList">
+                            <li class="mb-2"><i class="fas fa-seedling text-success me-2"></i> Verifique selos de origem e certificações</li>
+                            <li class="mb-2"><i class="fas fa-globe me-2"></i> Use geolocalização para confirmar região produtora</li>
+                            <li class="mb-2"><i class="fas fa-hand-holding-heart me-2"></i> Priorize culturas com rastreabilidade blockchain</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card glass-card h-100 border-0 rounded-4 p-3">
+                        <h5><i class="fas fa-chart-simple text-primary me-2"></i> <span id="impactTitle">📊 Impacto Ambiental</span></h5>
+                        <div class="mt-2" id="impactText">
+                            <p><i class="fas fa-water"></i> Uso hídrico otimizado · <i class="fas fa-cloud-sun"></i> Baixa pegada de carbono</p>
+                            <div class="progress mb-2" style="height: 6px;"><div class="progress-bar bg-success" id="sustainabilityFill" style="width: 88%"></div></div>
+                            <span id="sustainabilityLabel">Sustentabilidade: 88% (Muito responsável)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- COLUNA DIREITA: MAPA + GLOBO (RASTREAMENTO VISUAL) -->
+        <div class="col-lg-5">
+            <div class="card glass-card border-0 rounded-4 mb-4">
+                <div class="card-body">
+                    <h5 class="mb-3"><i class="fas fa-map text-success me-2"></i> <span id="geoTitle">Origem & Rastreabilidade Geográfica</span></h5>
+                    <div class="view-toggle mb-3">
+                        <div class="btn-group w-100" role="group">
+                            <button type="button" id="mapViewBtn" class="btn btn-outline-success active"><i class="fas fa-map"></i> Ver no Mapa</button>
+                            <button type="button" id="globeViewBtn" class="btn btn-outline-primary"><i class="fas fa-globe-americas"></i> Ver no Globo 3D</button>
+                        </div>
+                    </div>
+                    <div id="mapContainer" class="map-container" style="display: block;"></div>
+                    <div id="globeContainer" class="globe-container" style="display: none;"></div>
+                    <small class="text-muted d-block mt-2"><i class="fas fa-location-dot"></i> <span id="locHint">Clique nos marcadores (mapa/globo) para explorar outras culturas</span></small>
+                </div>
+            </div>
+
+            <!-- Lista rápida de culturas em destaque (para descoberta rápida) -->
+            <div class="card glass-card border-0 rounded-4">
+                <div class="card-body">
+                    <h6><i class="fas fa-compass me-2"></i> Culturas em Destaque</h6>
+                    <div id="quickCulturesList" class="d-flex flex-wrap gap-2 mt-2">
+                        <!-- preenchido via JS -->
+                    </div>
+                    <hr class="my-2">
+                    <p class="small text-muted mb-0"><i class="fas fa-info-circle"></i> 
+                        <span id="globeHelpText">No globo, clique diretamente nos pinos para descobrir detalhes da cultura.</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="mt-5 pt-3 text-center text-white-50 small">
+        <span><i class="fa-solid fa-location-dot"></i> Rastreabilidade Digital · Dados abertos sobre culturas globais</span>
+        <div class="mt-1">
+    © AgroLux — Transparência e segurança para o agro mundial 
+    <a href="termos.html">Termos de uso</a> e 
+    <a href="privacy.html">Políticas de Privacidade</a>
+</div>
+    </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- THREE.JS + ORBIT CONTROLS PARA GLOBO MODERNO -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+<script>
+    // ======================= BANCO DE CULTURAS GLOBAIS (RASTREABILIDADE) =======================
+    const culturesDB = [
+        { id: 1, 
+         name: "Café Arábica", 
+         name_en: "Arabica Coffee",
+         name_es: "Café Arábica",
+         type: "Grão", 
+         region: "Minas Gerais", 
+         country: "Brasil",
+         lat: -22.121,
+         lng: -45.040,
+         desc_pt: "Café arábica de altitude, certificado e com rastreabilidade de origem.", 
+         desc_en: "High-altitude Arabica coffee, certified origin traceability.", 
+         desc_es: "Café arábica de altura, rastreabilidad certificada.",
+         harvest: "Maio - Setembro", 
+         climate: "Tropical de altitude",
+         volume: "2.8 mi ton", 
+         sustain: 92, 
+         image: "images/cafe-arabica.png" },
+        { id: 2,
+         name: "Milho Premium", 
+         name_en: "Premium Corn",
+         name_es: "Maíz Premium",
+         type: "Cereal", 
+         region: "Iowa", 
+         country: "EUA", 
+         lat: 42.032, 
+         lng: -93.642,
+         desc_pt: "Milho transgênico e não transgênico, grãos com alta rastreabilidade.",
+         desc_en: "High traceability corn from Iowa.",
+         desc_es: "Maíz con alta trazabilidad.",
+         harvest: "Agosto - Outubro", 
+         climate: "Continental",
+         volume: "380 mi t", 
+         sustain: 78, 
+         image: "images/milho-premium.png" 
+        },
+        { id: 3, 
+         name: "Soja Sustentável", 
+         name_en: "Sustainable Soy", 
+         name_es: "Soja Sostenible", 
+         type: "Leguminosa", 
+         region: "Buenos Aires",
+         country: "Argentina", 
+         lat: -34.603, 
+         lng: -58.381,
+         desc_pt: "Soja com boas práticas, baixo desmatamento.", 
+         desc_en: "Soy with low deforestation impact.", 
+         desc_es: "Soja con impacto reducido.", 
+         harvest: "Março - Junho", 
+         climate: "Templado", 
+         volume: "52 mi t",
+         sustain: 81,
+         image: "images/soja-sustentavel.png"
+        },
+        { id: 4, 
+         name: "Trigo Dourado", 
+         name_en: "Golden Wheat", 
+         name_es: "Trigo Dorado", 
+         type: "Cereal", 
+         region: "Beauce",
+         country: "França",
+         lat: 48.202, 
+         lng: 1.585,
+         desc_pt: "Trigo mole para panificação, tradição europeia.", 
+         desc_en: "Soft wheat for bakery, European tradition.", 
+         desc_es: "Trigo blando para panadería.",
+         harvest: "Julho - Agosto", 
+         climate: "Oceânico",
+         volume: "36 mi t", 
+         sustain: 85, 
+         image: "images/trigo-dourado.png"
+        },
+        { id: 5, 
+         name: "Arroz Orgânico",
+         name_en: "Organic Rice",
+         name_es: "Arroz Orgánico", 
+         type: "Cereal", 
+         region: "Delta do Mekong",
+         country: "Vietnã", 
+         lat: 10.823, 
+         lng: 106.629, 
+         desc_pt: "Arroz cultivado em sistema agroecológico.", 
+         desc_en: "Agroecological rice farming.",
+         desc_es: "Arroz agroecológico.", 
+         harvest: "Abril - Maio", 
+         climate: "Monção tropical", 
+         volume: "43 mi t", 
+         sustain: 90, 
+         image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=500&auto=format"
+        },
+        { id: 6, 
+         name: "Cacau Fino",
+         name_en: "Fine Cocoa", 
+         name_es: "Cacao Fino", 
+         type: "Fruta",
+         region: "Kumasi", 
+         country: "Gana",
+         lat: 6.688, 
+         lng: -1.624, 
+         desc_pt: "Cacau com comércio justo e rastreamento de fazenda.",
+         desc_en: "Fair-trade cocoa with farm traceability.", 
+         desc_es: "Cacao de comercio justo.",
+         harvest: "Outubro - Março",
+         climate: "Equatorial", 
+         volume: "1.1 mi t", 
+         sustain: 88, 
+         image: "images/cacau-fino.png"
+        },
+        { id: 7, 
+         name: "Oliva Extra Virgem", 
+         name_en: "Extra Virgin Olive", 
+         name_es: "Oliva Virgen Extra", 
+         type: "Azeitona", 
+         region: "Apúlia", 
+         country: "Itália",
+         lat: 40.852, 
+         lng: 17.125, 
+         desc_pt: "Azeitonas colhidas manualmente, DOP certificada.",
+         desc_en: "Hand-picked olives with PDO certification.",
+         desc_es: "Aceitunas DOP.",
+         harvest: "Outubro - Novembro",
+         climate: "Mediterrâneo", 
+         volume: "320 mil t",
+         sustain: 94, 
+         image: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=500&auto=format" 
+        },
+        { id: 8, 
+         name: "Uva Tinta", 
+         name_en: "Red Wine Grape",
+         name_es: "Uva Tinta", 
+         type: "Vitivinicultura",
+         region: "La Rioja", 
+         country: "Espanha",
+         lat: 42.462, 
+         lng: -2.446, 
+         desc_pt: "Uvas para vinho com denominação de origem.",
+         desc_en: "Wine grapes with origin denomination.",
+         desc_es: "Uvas con denominación.", 
+         harvest: "Setembro", 
+         climate: "Mediterrâneo",
+         volume: "4.8 mi t",
+         sustain: 82, 
+         image: "images/uva-tinta.png" },
+        { id: 9,
+         name: "Quinoa Andina",
+         name_en: "Andean Quinoa", 
+         name_es: "Quinoa Andina",
+         type: "Pseudocereal", 
+         region: "Puno", 
+         country: "Peru", 
+         lat: -15.840,
+         lng: -70.020, 
+         desc_pt: "Quinoa orgânica de origem ancestral.",
+         desc_en: "Organic ancestral quinoa.", 
+         desc_es: "Quinoa orgánica ancestral.",
+         harvest: "Maio - Junho",
+         climate: "Andino",
+         volume: "110 mil t",
+         sustain: 96, 
+         image: "images/quinoa.png" }
+    ];
+    
+    // Variáveis globais
+    let currentLang = 'pt';
+    let currentCulture = culturesDB[0];
+    let map, currentMapMarkers = [], selectedMapMarker = null, mapCircle;
+    let globeActive = false, globeScene, globeCamera, globeRenderer, globeEarth, globeMarkersGroup, globeControls, globeInitialized = false;
+    let globeMarkersList = []; // armazena { mesh, cultureId }
+    
+    // Helper: traduções para interface reduzida
+    const translations = {
+        pt: { tipsTitle: "🌱 Dicas de Rastreabilidade", impactTitle: "📊 Impacto Ambiental", geoTitle: "📍 Origem Geográfica", climaLabel: "Clima ideal:", prodLabel: "Produção anual:", sustainabilityLabel: "Sustentabilidade:", searchPlaceholder: "Buscar cultura (ex: Café, Trigo, Soja) ou país...", searchBtn: "Rastrear", globeHelpText: "No globo, clique diretamente nos pinos para descobrir detalhes da cultura.", locHint: "Clique nos marcadores (mapa/globo) para explorar outras culturas" },
+        en: { tipsTitle: "🌱 Traceability Tips", impactTitle: "📊 Environmental Impact", geoTitle: "📍 Geographic Origin", climaLabel: "Ideal climate:", prodLabel: "Annual output:", sustainabilityLabel: "Sustainability:", searchPlaceholder: "Search crop (e.g., Coffee, Wheat, Soy) or country...", searchBtn: "Trace", globeHelpText: "On globe, click pins to discover crop details.", locHint: "Click markers on map/globe to explore crops" },
+        es: { tipsTitle: "🌱 Consejos de trazabilidad", impactTitle: "📊 Impacto ambiental", geoTitle: "📍 Origen Geográfico", climaLabel: "Clima ideal:", prodLabel: "Producción anual:", sustainabilityLabel: "Sostenibilidad:", searchPlaceholder: "Buscar cultivo (Café, Trigo, Soja) o país...", searchBtn: "Rastrear", globeHelpText: "En el globo, haga clic en los pines para descubrir cultivos.", locHint: "Haga clic en marcadores en mapa/globo" }
+    };
+    
+    function updateUITexts() {
+        const t = translations[currentLang];
+        document.getElementById('tipsTitle').innerText = t.tipsTitle;
+        document.getElementById('impactTitle').innerText = t.impactTitle;
+        document.getElementById('geoTitle').innerText = t.geoTitle;
+        document.getElementById('climaLabel').innerHTML = `<i class="fas fa-tint text-info"></i> ${t.climaLabel}`;
+        document.getElementById('prodLabel').innerHTML = `<i class="fas fa-chart-line"></i> ${t.prodLabel}`;
+        document.getElementById('sustainabilityLabel').innerText = t.sustainabilityLabel;
+        document.getElementById('searchInput').placeholder = t.searchPlaceholder;
+        document.getElementById('searchBtn').innerHTML = `<i class="fas fa-map-pin"></i> ${t.searchBtn}`;
+        document.getElementById('globeHelpText').innerText = t.globeHelpText;
+        document.getElementById('locHint').innerText = t.locHint;
+        // atualizar conteúdo descrição da cultura ativa
+        renderCultureInfo(currentCulture);
+    }
+    
+    // Renderizar informações da cultura selecionada
+    function renderCultureInfo(culture) {
+        const t = translations[currentLang];
+        let descField = currentLang === 'pt' ? culture.desc_pt : (currentLang === 'en' ? culture.desc_en : culture.desc_es);
+        if(!descField) descField = culture.desc_pt;
+        document.getElementById('cultureName').innerHTML = currentLang === 'en' ? culture.name_en || culture.name : (currentLang === 'es' ? culture.name_es || culture.name : culture.name);
+        document.getElementById('cultureRegion').innerText = `${culture.region}, ${culture.country}`;
+        document.getElementById('cultureCountry').innerText = culture.country;
+        document.getElementById('cultureDescription').innerText = descField;
+        document.getElementById('harvestSeason').innerHTML = `<i class="fas fa-calendar-alt"></i> Safra: ${culture.harvest}`;
+        document.getElementById('climate').innerText = culture.climate;
+        document.getElementById('productionVolume').innerText = culture.volume;
+        document.getElementById('cultureTypeBadge').innerHTML = `<i class="fas fa-leaf me-1"></i> ${culture.type}`;
+        document.getElementById('cultureImage').src = culture.image + "?w=400&auto=format";
+        const sustainVal = culture.sustain || 85;
+        document.getElementById('sustainabilityFill').style.width = sustainVal + "%";
+        document.getElementById('sustainabilityLabel').innerHTML = `${t.sustainabilityLabel} ${sustainVal}% (${sustainVal > 85 ? '🌟 Excelente' : (sustainVal > 70 ? '👍 Boa' : '♻️ Em evolução')})`;
+        // atualizar dicas específicas baseado no tipo
+        const tipsList = document.getElementById('tipsList');
+        tipsList.innerHTML = `
+            <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Origem: ${culture.region}, ${culture.country}</li>
+            <li class="mb-2"><i class="fas fa-tachometer-alt me-2"></i> Rastreabilidade digital ativa via geolocalização</li>
+            <li class="mb-2"><i class="fas fa-map-marked-alt me-2"></i> Coordenadas verificadas: ${culture.lat.toFixed(3)}, ${culture.lng.toFixed(3)}</li>
+        `;
+        document.getElementById('impactText').innerHTML = `<p><i class="fas fa-seedling"></i> Práticas agrícolas responsáveis · ${culture.type} certificado</p>`;
+    }
+    
+    // Atualizar mapa (Leaflet)
+    function updateMapForCulture(culture) {
+        if(!map) initMap();
+        // remover markers antigos
+        currentMapMarkers.forEach(m => map.removeLayer(m));
+        currentMapMarkers = [];
+        // adicionar todos os marcadores do mundo (para descoberta)
+        culturesDB.forEach(c => {
+            const marker = L.marker([c.lat, c.lng]).bindPopup(`<b>${currentLang === 'en' ? (c.name_en || c.name) : (currentLang === 'es' ? (c.name_es || c.name) : c.name)}</b><br>📍 ${c.region}, ${c.country}<br><button class='btn btn-sm btn-success mt-1' onclick='window.selectCultureById(${c.id})'>🌾 Ver detalhes</button>`);
+            marker.addTo(map);
+            currentMapMarkers.push(marker);
+            if(c.id === culture.id) {
+                selectedMapMarker = marker;
+                marker.openPopup();
+            }
+        });
+        map.setView([culture.lat, culture.lng], 6);
+        if(mapCircle) map.removeLayer(mapCircle);
+        mapCircle = L.circle([culture.lat, culture.lng], { radius: 50000, color: '#ffaa44', fillColor: '#ffaa44', fillOpacity: 0.2 }).addTo(map);
+    }
+    
+    function initMap() {
+        if(map) return;
+        map = L.map('mapContainer').setView([0, 0], 2);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; OpenStreetMap & CartoDB' }).addTo(map);
+        updateMapForCulture(currentCulture);
+    }
+    
+    // GLOBO MODERNO com marcadores clicáveis
+    function initGlobe() {
+        if(globeInitialized) return;
+        const container = document.getElementById('globeContainer');
+        const width = container.clientWidth, height = container.clientHeight;
+        globeScene = new THREE.Scene();
+        globeCamera = new THREE.PerspectiveCamera(45, width/height, 0.1, 1000);
+        globeRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        globeRenderer.setSize(width, height);
+        container.appendChild(globeRenderer.domElement);
+        globeControls = new THREE.OrbitControls(globeCamera, globeRenderer.domElement);
+        globeControls.enableDamping = true, globeControls.dampingFactor = 0.05, globeControls.autoRotate = false, globeControls.enableZoom = true;
+        
+        const textureLoader = new THREE.TextureLoader();
+        const earthMap = textureLoader.load('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg');
+        const earthMat = new THREE.MeshStandardMaterial({ map: earthMap, roughness: 0.5 });
+        const geometry = new THREE.SphereGeometry(1.2, 128, 128);
+        globeEarth = new THREE.Mesh(geometry, earthMat);
+        globeScene.add(globeEarth);
+        
+        // atmosfera sutil
+        const atmosGeo = new THREE.SphereGeometry(1.22, 64, 64);
+        const atmosMat = new THREE.MeshPhongMaterial({ color: 0xaaccff, transparent: true, opacity: 0.12 });
+        globeScene.add(new THREE.Mesh(atmosGeo, atmosMat));
+        
+        // luzes
+        globeScene.add(new THREE.AmbientLight(0x404060));
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+        dirLight.position.set(5, 3, 5);
+        globeScene.add(dirLight);
+        globeScene.add(new THREE.PointLight(0x4466cc, 0.4));
+        
+        globeMarkersGroup = new THREE.Group();
+        globeScene.add(globeMarkersGroup);
+        globeCamera.position.set(0, 0, 3.4);
+        
+        // adicionar marcadores para todas as culturas
+        addAllGlobeMarkers();
+        
+        // raycasting para clique
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        globeRenderer.domElement.style.cursor = 'pointer';
+        globeRenderer.domElement.addEventListener('click', (event) => {
+            const rect = globeRenderer.domElement.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            raycaster.setFromCamera(mouse, globeCamera);
+            const intersects = raycaster.intersectObjects(globeMarkersList.map(m => m.mesh));
+            if(intersects.length > 0) {
+                const hitMesh = intersects[0].object;
+                const markerData = globeMarkersList.find(m => m.mesh === hitMesh);
+                if(markerData) selectCultureById(markerData.cultureId);
+            }
+        });
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            if(globeControls) globeControls.update();
+            if(globeEarth) globeEarth.rotation.y += 0.0008;
+            globeRenderer.render(globeScene, globeCamera);
+        }
+        animate();
+        globeInitialized = true;
+    }
+    
+    function addAllGlobeMarkers() {
+        while(globeMarkersGroup.children.length) globeMarkersGroup.remove(globeMarkersGroup.children[0]);
+        globeMarkersList = [];
+        const radius = 1.23;
+        culturesDB.forEach(culture => {
+            const phi = (90 - culture.lat) * Math.PI / 180;
+            const theta = culture.lng * Math.PI / 180;
+            const x = radius * Math.sin(phi) * Math.cos(theta);
+            const y = radius * Math.cos(phi);
+            const z = radius * Math.sin(phi) * Math.sin(theta);
+            const markerGeo = new THREE.SphereGeometry(0.045, 24, 24);
+            const markerMat = new THREE.MeshStandardMaterial({ color: 0xffaa44, emissive: 0x442200 });
+            const markerMesh = new THREE.Mesh(markerGeo, markerMat);
+            markerMesh.position.set(x, y, z);
+            globeMarkersGroup.add(markerMesh);
+            globeMarkersList.push({ mesh: markerMesh, cultureId: culture.id });
+            
+            // anel decorativo ao redor da cultura selecionada
+            if(culture.id === currentCulture.id) {
+                const ringGeo = new THREE.SphereGeometry(0.07, 16, 16);
+                const ringMat = new THREE.MeshStandardMaterial({ color: 0xffaa66, emissive: 0xff4400, transparent: true });
+                const ring = new THREE.Mesh(ringGeo, ringMat);
+                ring.position.set(x, y, z);
+                globeMarkersGroup.add(ring);
+            }
+        });
+    }
+    
+    function highlightGlobeCulture(cultureId) {
+        if(!globeInitialized) return;
+        // re-add markers para atualizar anel
+        addAllGlobeMarkers();
+        // opcional realce extra
+    }
+    
+    // função global para selecionar cultura (chamada por popup e busca)
+    window.selectCultureById = function(id) {
+        const newCulture = culturesDB.find(c => c.id === id);
+        if(newCulture) {
+            currentCulture = newCulture;
+            renderCultureInfo(currentCulture);
+            if(map) updateMapForCulture(currentCulture);
+            if(globeInitialized) { addAllGlobeMarkers(); highlightGlobeCulture(id); }
+            else if(globeActive && !globeInitialized) initGlobe();
+        }
+    };
+    
+    // Pesquisa
+    function searchCulture(query) {
+        if(!query) return;
+        const lowerQuery = query.toLowerCase();
+        const found = culturesDB.find(c => 
+            c.name.toLowerCase().includes(lowerQuery) || 
+            c.country.toLowerCase().includes(lowerQuery) ||
+            c.region.toLowerCase().includes(lowerQuery) ||
+            (c.name_en && c.name_en.toLowerCase().includes(lowerQuery))
+        );
+        if(found) {
+            selectCultureById(found.id);
+            document.getElementById('searchFeedback').innerHTML = '';
+        } else {
+            document.getElementById('searchFeedback').innerHTML = currentLang === 'pt' ? '⚠️ Nenhuma cultura encontrada. Tente "Café", "Milho", "Quinoa"...' : '⚠️ No culture found.';
+            setTimeout(()=>document.getElementById('searchFeedback').innerHTML='', 2500);
+        }
+    }
+    
+    // Alternância Mapa/Globo
+    document.getElementById('mapViewBtn').addEventListener('click', () => {
+        document.getElementById('mapContainer').style.display = 'block';
+        document.getElementById('globeContainer').style.display = 'none';
+        document.getElementById('mapViewBtn').classList.add('active');
+        document.getElementById('globeViewBtn').classList.remove('active');
+        if(!map) initMap(); else map.invalidateSize();
+        globeActive = false;
+    });
+    document.getElementById('globeViewBtn').addEventListener('click', () => {
+        document.getElementById('mapContainer').style.display = 'none';
+        document.getElementById('globeContainer').style.display = 'block';
+        document.getElementById('globeViewBtn').classList.add('active');
+        document.getElementById('mapViewBtn').classList.remove('active');
+        initGlobe();
+        globeActive = true;
+        setTimeout(() => { if(globeRenderer) globeRenderer.setSize(document.getElementById('globeContainer').clientWidth, document.getElementById('globeContainer').clientHeight); }, 100);
+    });
+    
+    // Compartilhar cultura
+    document.getElementById('shareCultureBtn').addEventListener('click', () => {
+        const text = `🌾 Descubra a cultura ${currentCulture.name} (${currentCulture.region}) - Rastreabilidade global.`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    });
+    document.getElementById('copyTraceLink').addEventListener('click', () => {
+        navigator.clipboard.writeText(window.location.href); alert('Link copiado!');
+    });
+    
+    // Inicializar lista rápida
+    function buildQuickList() {
+        const container = document.getElementById('quickCulturesList');
+        container.innerHTML = '';
+        culturesDB.slice(0, 6).forEach(c => {
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-sm btn-outline-light rounded-pill';
+            btn.innerText = c.name;
+            btn.onclick = () => selectCultureById(c.id);
+            container.appendChild(btn);
+        });
+    }
+    
+    // Tema
+    const themeSwitcher = document.getElementById('themeSwitcher'), themeIcon = document.getElementById('themeIcon');
+    function setTheme(theme) {
+        if(theme === 'dark') { document.documentElement.setAttribute('data-bs-theme','dark'); document.body.classList.add('dark'); document.body.classList.remove('light'); themeIcon.className='fas fa-sun'; localStorage.setItem('agroTheme','dark'); }
+        else { document.documentElement.setAttribute('data-bs-theme','light'); document.body.classList.remove('dark'); document.body.classList.add('light'); themeIcon.className='fas fa-moon'; localStorage.setItem('agroTheme','light'); }
+    }
+    themeSwitcher.addEventListener('click',()=>{ const isDark=document.documentElement.getAttribute('data-bs-theme')==='dark'; setTheme(isDark?'light':'dark'); });
+    if(localStorage.getItem('agroTheme')==='dark') setTheme('dark'); else setTheme('light');
+    
+    document.querySelectorAll('[data-lang]').forEach(el => el.addEventListener('click', (e) => {
+        e.preventDefault();
+        currentLang = el.getAttribute('data-lang');
+        updateUITexts();
+        renderCultureInfo(currentCulture);
+        if(map) updateMapForCulture(currentCulture);
+        document.getElementById('currentLangLabel').innerText = currentLang.toUpperCase();
+    }));
+    
+    document.getElementById('searchBtn').addEventListener('click', () => {
+        const query = document.getElementById('searchInput').value.trim();
+        if(query) searchCulture(query);
+    });
+    document.getElementById('searchInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') document.getElementById('searchBtn').click(); });
+    
+    // Inicialização completa
+    buildQuickList();
+    updateUITexts();
+    renderCultureInfo(currentCulture);
+    initMap();  // carrega mapa com todos os marcadores
+    // Não congelaremos a página: tudo otimizado e sem loops infinitos
+    window.addEventListener('resize', () => {
+        if(globeInitialized && document.getElementById('globeContainer').style.display !== 'none') {
+            const w = document.getElementById('globeContainer').clientWidth, h = document.getElementById('globeContainer').clientHeight;
+            globeRenderer.setSize(w, h);
+            globeCamera.aspect = w/h;
+            globeCamera.updateProjectionMatrix();
+        }
+    });
+</script>
+</body>
+</html>

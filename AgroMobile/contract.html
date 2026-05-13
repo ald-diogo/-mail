@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>AgroLux | Contrato Digital + Vendas Sociais</title>
+    <!-- Bootstrap 5 + Ícones + Fonts + QRCode -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <!-- Bibliotecas para gerar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Times New Roman', Times, serif; }
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            transition: background 0.3s ease, color 0.2s;
+            position: relative;
+            min-height: 100vh;
+            overflow-x: auto;
+        }
+        /* Carrossel de fundo */
+        .carousel-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            overflow: hidden;
+        }
+        .carousel-bg .carousel-inner, .carousel-bg .carousel-item { height: 100%; }
+        .carousel-bg .carousel-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: -1;
+            pointer-events: none;
+            transition: background 0.3s;
+        }
+        body.light::before { background: rgba(240, 248, 242, 0.92); }
+        body.light { color: #143523; }
+        body.light .glass-card, body.light .main-panel, body.light .top-bar, body.light .product-card, body.light .chat-card, body.light .contract-card {
+            background: rgba(250, 255, 250, 0.92);
+            border-color: rgba(60, 110, 80, 0.3);
+            color: #1a3a2b;
+        }
+        .glass-card, .main-panel, .top-bar, .product-card, .chat-card, .contract-card {
+            background: rgba(18, 32, 28, 0.8);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(90, 180, 120, 0.4);
+            border-radius: 28px;
+        }
+        .top-bar {
+            padding: 12px 24px;
+            margin: 20px 20px 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .logo-center {
+            text-align: center;
+            margin: 10px 0 0 0;
+        }
+        .logo-center img {
+            max-height: 70px;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
+        }
+        body.light .logo-center img { filter: drop-shadow(0 2px 8px rgba(0,0,0,0.1)); }
+        .main-panel {
+            margin: 20px;
+            padding: 25px 30px;
+            transition: all 0.2s;
+        }
+        .product-card {
+            border-radius: 24px;
+            padding: 16px;
+            margin-bottom: 20px;
+            transition: transform 0.2s;
+            height: 100%;
+        }
+        .product-card:hover { transform: translateY(-5px); }
+        .product-img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 20px;
+            background: #e9ecef;
+        }
+        .featured-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ffc107;
+            color: #2c3e2f;
+            border-radius: 50px;
+            padding: 5px 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        .btn-share-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            border-radius: 40px;
+        }
+        .btn-whatsapp { background: #25D366; color: white; border: none; }
+        .btn-facebook { background: #1877F2; color: white; }
+        .btn-instagram { background: #E4405F; color: white; }
+        .qr-code-container {
+            background: white;
+            padding: 10px;
+            border-radius: 16px;
+            display: inline-block;
+        }
+        .faq-question {
+            background: rgba(111,222,156,0.15);
+            border-radius: 50px;
+            padding: 6px 15px;
+            margin: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.85rem;
+        }
+        .faq-question:hover {
+            background: #6FDE9C;
+            color: #1e2a1f;
+        }
+        .chat-message {
+            background: rgba(255,255,240,0.2);
+            border-radius: 18px;
+            padding: 10px 14px;
+            margin: 8px 0;
+        }
+        .theme-switch { position: relative; display: inline-block; width: 56px; height: 28px; }
+        .theme-switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #2c3e2f; transition: 0.3s; border-radius: 34px;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 6px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 22px; width: 22px; left: 3px; bottom: 3px;
+            background-color: white; transition: 0.3s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #6FDE9C; }
+        input:checked + .slider:before { transform: translateX(28px); }
+        .lang-btn {
+            background: transparent; border: 1px solid #6FDE9C; border-radius: 40px;
+            padding: 4px 12px; color: inherit; cursor: pointer;
+        }
+        footer { text-align: center; padding: 20px; font-size: 0.75rem; opacity: 0.7; }
+        /* Estilos para assinatura digital */
+        .signature-pad {
+            border: 2px dashed rgba(111,222,156,0.7);
+            border-radius: 16px;
+            background: rgba(255,255,240,0.1);
+            touch-action: none;
+            cursor: crosshair;
+            width: 100%;
+            height: 160px;
+        }
+        .btn-clear-sign {
+            background: rgba(200,70,70,0.8);
+            border: none;
+            color: white;
+            border-radius: 40px;
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+        .contract-link {
+            color: #6FDE9C;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        @media (max-width: 768px) {
+            .main-panel { padding: 16px; margin: 12px; }
+            .signature-pad { height: 120px; }
+        }
+        
+        /* OUTHER CSS */
+        .codec{
+            align-items: center;
+            text-align: center;
+            margin: 10px 0 0 0;
+            height: 200px;
+            width: 200px;
+            color: blue;
+        }
+        
+        .logo-panel{
+            border-radius: 50px;
+            width: 50px;
+            height: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div id="bgCarousel" class="carousel-bg carousel slide" data-bs-ride="carousel" data-bs-interval="7000">
+        <div class="carousel-inner">
+            <div class="carousel-item active"><img src="images/Bg-entregas.jpg" alt="Fazenda"></div>
+            <div class="carousel-item"><img src="images/vender.jpg" alt="Plantação"></div>
+            <div class="carousel-item"><img src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?q=80&w=2070&auto=format" alt="Colheita"></div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#bgCarousel" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
+        <button class="carousel-control-next" type="button" data-bs-target="#bgCarousel" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>
+    </div>
+
+    <div class="logo-center">
+        <a href="index.html"><img src="images/Lux-logo-bg.png" alt="AgroLux Logo" onerror="this.src='https://placehold.co/200x70?text=AGROLUX+ASSISTÊNCIA'; this.style.width='200px'"></a>
+    </div>
+    <div class="top-bar">
+        <div><strong id="platformTitle"> AgroLux · Contrato Digital + Venda Social</strong></div>
+        <div class="d-flex gap-3 align-items-center">
+            <div class="theme-switch-wrapper">
+                <label class="theme-switch">
+                    <input type="checkbox" id="themeToggleCheckbox">
+                    <div class="slider"><i class="fas fa-sun"></i><i class="fas fa-moon"></i></div>
+                </label>
+            </div>
+            <button class="lang-btn" id="langToggleBtn">
+                <i class="fas fa-question-circle"></i><a href="faq.html" ><span>FAQ</span></a>
+            </button>
+        </div>
+    </div>
+
+    <div class="main-panel">
+        <!-- Seção explicativa -->
+        <div class="alert alert-success bg-opacity-25 border-0 rounded-4 mb-4">
+            <i class="fas fa-chalkboard-user"></i> <strong id="helpTextTitle"> Plataforma de Orientação em Vendas Sociais</strong><br>
+            <span id="helpDesc">A AgroLux não comercializa nem impõe taxas: apenas forma o agricultor sobre como usar redes sociais (Facebook, WhatsApp, Instagram) para vender mais. Gerencie produtos, crie links rápidos, QR Codes e assine contrato digital com validade legal. Sua vitrine digital gratuita.</span>
+        </div>
+
+        <div class="row g-4">
+            <!-- COLUNA ESQUERDA: CADASTRO E GESTÃO DE PRODUTOS -->
+            <div class="col-lg-6">
+                <div class="glass-card p-3 p-md-4 rounded-4">
+                    <h4><i class="fas fa-boxes"></i> <span id="prodManageTitle"> Cadastro e Gestão de Produtos</span></h4>
+                    <hr>
+                    <form id="productForm">
+                        <input type="hidden" id="editId" value="">
+                        <div class="row g-2">
+                            <div class="col-md-6"><label class="form-label"><i class="fas fa-apple-alt"></i> <span id="prodNameLabel">Nome do produto</span></label><input type="text" id="prodName" class="form-control" placeholder="Ex: Milho, Tomate" required></div>
+                            <div class="col-md-3"><label class="form-label"><span id="qtyLabel">Quantidade (kg/un)</span></label><input type="number" id="prodQty" class="form-control" placeholder="Qtd" required></div>
+                            <div class="col-md-3"><label class="form-label"><span id="priceLabel">Preço (Kz)</span></label><input type="number" id="prodPrice" class="form-control" placeholder="Preço ref." required></div>
+                            <div class="col-md-6"><label class="form-label"><i class="fas fa-map-marker-alt"></i> <span id="locLabel">Localização</span></label><input type="text" id="prodLocation" class="form-control" placeholder="Província/Município" required></div>
+                            <div class="col-md-6"><label class="form-label"><i class="fas fa-image"></i> <span id="imgLabel">Imagem do produto</span></label><input type="file" id="prodImage" class="form-control" accept="image/*"><small class="text-muted" id="imgHint">(carregue ou mantenha atual)</small></div>
+                            <div class="col-12 mt-2"><button type="submit" class="btn btn-success" id="submitBtn"><i class="fas fa-save"></i> <span id="saveBtnText">Registar Produto</span></button>
+                            <button type="button" class="btn btn-secondary" id="cancelEditBtn" style="display:none"><span id="cancelText">Cancelar</span></button></div>
+                        </div>
+                    </form>
+                </div>
+                <div class="glass-card p-3 p-md-4 rounded-4 mt-4">
+                    <h5><i class="fas fa-list-ul"></i> <span id="productListTitle">Seus Produtos (vitrine social)</span></h5>
+                    <div id="productsContainer" class="row mt-3"></div>
+                </div>
+            </div>
+
+            <!-- COLUNA DIREITA: FERRAMENTAS DE PARTILHA E CHAT -->
+            <div class="col-lg-6">
+                <div class="glass-card p-3 p-md-4 rounded-4 mb-4">
+                    <h5><i class="fas fa-share-alt"></i> <span id="shareToolsTitle">Partilha Rápida & QR Code</span></h5>
+                    <p id="shareDesc">Gere links diretos para redes sociais e QR Code do produto.</p>
+                    <div class="row g-2 align-items-end">
+                        <div class="col-8"><select id="shareProductSelect" class="form-select"><option value="">-- Selecione um produto --</option></select></div>
+                        <div class="col-4"><button id="generateQrBtn" class="btn btn-outline-success w-100"><i class="fas fa-qrcode"></i> <span id="qrBtnText">QR Code</span></button></div>
+                    </div>
+                    <div class="row mt-3 g-2">
+                        <div class="col-4"><button id="shareFbBtn" class="btn btn-facebook w-100"><i class="fab fa-facebook-f"></i> Facebook</button></div>
+                        <div class="col-4"><button id="shareWpBtn" class="btn btn-whatsapp w-100"><i class="fab fa-whatsapp"></i> WhatsApp</button></div>
+                        <div class="col-4"><button id="shareIgBtn" class="btn btn-instagram w-100"><i class="fab fa-instagram"></i> Instagram</button></div>
+                    </div>
+                    
+                    <div class="row mt-3 g-2">
+                        <a href="index.html">
+                        <img style="color: blue; background-color: blue;" class="codec" src="images/codex.png" alt="Qr Code" onerror="this.src='https://placehold.co/200x70?text=AGROLUX+ASSISTÊNCIA'; this.style.width='200px'"></a>
+                    </div>
+                    
+                    <div class="mt-3 text-center" id="qrCodeDisplay" style="min-height: 130px;"></div>
+                </div>
+
+                <div class="glass-card p-3 p-md-4 rounded-4 mb-4">
+                    <h5><img class="logo-panel" src="images/agri-bot.png" onerror="this.src='https://via.placeholder.com/24'"> <span id="chatTitle"> Assistente Inteligente (FAQ)</span></h5>
+                    <div id="chatWindow" style="max-height: 250px; overflow-y: auto;" class="mb-2">
+                        <div class="chat-message bg-success bg-opacity-25"><i class="fas fa-leaf"></i> <span id="welcomeMsg">Olá! Sou o assistente AgroLux. Posso informar preços, disponibilidade e localização.</span></div>
+                    </div>
+                    <div class="d-flex flex-wrap justify-content-center gap-2 mb-2">
+                        <button class="faq-question" data-question="preco"><span id="faqPrice">💰 Preço</span></button>
+                        <button class="faq-question" data-question="stock"><span id="faqStock">📦 Disponibilidade</span></button>
+                        <button class="faq-question" data-question="local"><span id="faqLocal">📍 Localização</span></button>
+                        <button class="faq-question" data-question="contato"><span id="faqContact">📞 Contactar vendedor</span></button>
+                        <button class="faq-question" data-question="social"><span id="faqSocial">🌐 Vantagens redes sociais</span></button>
+                    </div>
+                    <div class="input-group"><input type="text" id="chatInput" class="form-control" placeholder="Escreva sua pergunta..."><button class="btn btn-success" id="sendChatBtn"><i class="fas fa-paper-plane"></i> <span id="askBtnText">Perguntar</span></button></div>
+                </div>
+
+                <div class="glass-card p-3 p-md-4 rounded-4">
+                    <h5><i class="fas fa-address-card"></i> <span id="contactTitle">📞 Contacto direto comprador-vendedor</span></h5>
+                    <div class="row">
+                        <div class="col-md-6"><p><i class="fab fa-whatsapp text-success"></i> <strong>WhatsApp:</strong> <span id="sellerPhone">+244 938 089 671</span><br><i class="fas fa-envelope"></i> <strong>Email:</strong> <span id="sellerEmail">antoniodiogo958@gmail.com</span><br><i class="fas fa-map-pin"></i> <strong>Localização:</strong> <span id="sellerLocation">Malanje / (Angola)</span></p>
+                        <a id="whatsappDirectLink" href="https://wa.me/244923456789?text=Olá!%20Vi%20seus%20produtos%20na%20AgroLux" target="_blank" class="btn btn-whatsapp btn-sm w-100"><i class="fab fa-whatsapp"></i> <span id="contactWpBtn">Falar via WhatsApp</span></a></div>
+                        <div class="col-md-6"><label><span id="requestLabel">📋 Pedido de informação rápida</span></label><input type="text" id="reqName" class="form-control mb-2" placeholder="Seu nome"><input type="text" id="reqMessage" class="form-control mb-2" placeholder="Ex: Gostaria de saber preço da mandioca"><button id="sendRequestBtn" class="btn btn-outline-light btn-sm"><i class="fas fa-paper-plane"></i> <span id="requestBtnText">Enviar pedido</span></button></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTRATO DIGITAL COM ASSINATURA + PDF -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="contract-card glass-card p-4 rounded-4">
+                    <h3><i class="fas fa-file-signature"></i> <span id="contractTitle">Contrato de Adesão e Boas Práticas AgroLux</span></h3>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-7">
+                            <div id="contractTerms">
+                                <p><strong id="clause1">Cláusula 1 – Objecto:</strong> <span id="clause1Text">O presente contrato formaliza a adesão do agricultor/comprador à plataforma AgroLux, que oferece orientação gratuita para vendas sociais e gestão de produtos.</span></p>
+                                <p><strong id="clause2">Cláusula 2 – Compromissos:</strong> <span id="clause2Text">O utilizador compromete-se a fornecer informações verdadeiras sobre os produtos, respeitar os compradores e usar as ferramentas de partilha de forma ética.</span></p>
+                                <p><strong id="clause3">Cláusula 3 – Isenção de Responsabilidade:</strong> <span id="clause3Text">A AgroLux não realiza transações financeiras nem garante vendas, apenas disponibiliza meios tecnológicos para ampliar a visibilidade do agricultor.</span></p>
+                                <p><strong id="clause4">Cláusula 4 – Assinatura Digital:</strong> <span id="clause4Text">A assinatura digital (desenho ou nome completo) confirma a aceitação integral dos termos e tem validade legal nos termos da legislação angolana.</span></p>
+                                <p><i class="fas fa-link"></i> <span id="contractLinkNote">Consulte os termos completos:</span> <a href="#" id="fullContractLink" class="contract-link" data-bs-toggle="modal" data-bs-target="#contractModal"><span id="readFullLink">📜 Ler contrato na íntegra</span></a></p>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="bg-dark bg-opacity-25 p-3 rounded-4">
+                                <h5><i class="fas fa-pen-fancy"></i> <span id="signatureSectionTitle">Assinatura Digital (obrigatória)</span></h5>
+                                <div class="mb-2">
+                                    <label class="form-label"><span id="fullNameLabel">Nome completo (igual ao documento)</span></label>
+                                    <input type="text" id="signerName" class="form-control" placeholder="Ex: João Manuel da Silva">
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label"><span id="idDocLabel">BI / Passaporte / NIF</span></label>
+                                    <input type="text" id="signerDoc" class="form-control" placeholder="Nº de documento">
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label"><span id="signatureMethodLabel">Método de assinatura:</span></label>
+                                    <div class="btn-group w-100 mb-2">
+                                        <button type="button" id="chooseTypeText" class="btn btn-outline-light"><i class="fas fa-keyboard"></i> <span id="textSignBtnLabel">Assinar por texto</span></button>
+                                        <button type="button" id="chooseTypeDraw" class="btn btn-outline-success"><i class="fas fa-draw-polygon"></i> <span id="drawSignBtnLabel">Desenhar assinatura</span></button>
+                                    </div>
+                                    <!-- Assinatura por texto -->
+                                    <div id="textSignatureDiv">
+                                        <input type="text" id="textSignature" class="form-control" placeholder="Digite seu nome completo como assinatura eletrónica">
+                                    </div>
+                                    <!-- Assinatura desenhada -->
+                                    <div id="drawSignatureDiv" style="display: none;">
+                                        <canvas id="signatureCanvas" class="signature-pad" width="400" height="160" style="width:100%; height:auto; background:#fff; border-radius:12px;"></canvas>
+                                        <button type="button" id="clearCanvasBtn" class="btn-clear-sign mt-2"><i class="fas fa-eraser"></i> <span id="clearSignBtnText">Limpar assinatura</span></button>
+                                        <small class="text-muted d-block"><span id="drawHint">Use o rato ou toque para desenhar a sua assinatura</span></small>
+                                    </div>
+                                </div>
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="acceptTermsCheckbox">
+                                    <label class="form-check-label" for="acceptTermsCheckbox" id="acceptTermsLabel">
+                                        Li e aceito todas as cláusulas do contrato e os termos de uso.
+                                    </label>
+                                </div>
+                                <button id="signContractBtn" class="btn btn-success w-100"><i class="fas fa-signature"></i> <span id="signNowBtnText">Assinar Contrato Digital</span></button>
+                                <div id="contractSignatureHistory" class="mt-3">
+                                    <small><i class="fas fa-history"></i> <span id="historyLabel">Últimas assinaturas registadas:</span></small>
+                                    <ul id="signatureList" class="list-unstyled small mt-1"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer><i class="fas fa-hand-holding-heart"></i> AgroLux · Contrato legal + orientação para vendas sociais · Angola</footer>
+
+    <!-- Modal para contrato completo -->
+    <div class="modal fade" id="contractModal" tabindex="-1" aria-labelledby="contractModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content bg-dark text-light">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="contractModalLabel">📑 Contrato Integral AgroLux</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>TERMOS E CONDIÇÕES COMPLETOS</strong></p>
+                    <p>1. A AgroLux é uma plataforma de orientação tecnológica, não intermediando compra e venda.<br>
+                    2. O utilizador responsabiliza-se pela precisão dos dados inseridos (produtos, localização, preços).<br>
+                    3. A assinatura digital (texto ou desenho) tem o mesmo valor jurídico que a assinatura manuscrita nos termos da Lei n.º 14/21 (Angola).<br>
+                    4. Os dados pessoais serão tratados apenas para fins de gestão do contrato e melhorias da plataforma.<br>
+                    5. O contrato pode ser rescindido a qualquer momento pelo utilizador através da remoção dos dados.<br>
+                    6. Ao assinar, o utilizador declara ter capacidade legal e consentimento para os termos.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ---------------- MESMA LÓGICA ORIGINAL DE PRODUTOS ----------------
+        let products = [];
+        let currentLang = 'pt';
+        let selectedProductId = null;
+        let signatureDrawing = false; let drawCtx, canvas;
+
+        function loadProducts() {
+            const stored = localStorage.getItem('agrolux_products');
+            if(stored) products = JSON.parse(stored);
+            else products = [
+                { 
+                    id: Date.now()+1,
+                    name: "Milho Branco",
+                    quantity: 500, price: 120,
+                    location: "Huíla",
+                    image: null,
+                    featured: true 
+                },
+                { 
+                    id: Date.now()+2, 
+                    name: "Tomate", 
+                    quantity: 200, 
+                    price: 350, 
+                    location: "Luanda",
+                    image: null, 
+                    featured: false 
+                }
+            ]; 
+            saveProducts();
+            renderProducts();
+            updateProductSelect(); 
+        }
+        function saveProducts() 
+        { 
+            localStorage.setItem('agrolux_products', JSON.stringify(products));
+        }
+        function renderProducts()
+        {
+            let container = document.getElementById('productsContainer'); container.innerHTML = ''; 
+            if(products.length===0)
+            { 
+                container.innerHTML='<p class="text-muted">Nenhum produto cadastrado.</p>';
+                return;
+            } products.forEach(prod=>
+                               { 
+                let col=document.createElement('div'); col.className='col-md-6 col-12'; col.innerHTML=`<div class="product-card position-relative">${prod.featured?'<div class="featured-badge"><i class="fas fa-star"></i> Destaque</div>':''}<img src="${prod.image||'images/milho.png'}" class="product-img" onerror="this.src='https://placehold.co/400x200?text=Imagem'"><div class="mt-2"><strong>${prod.name}</strong> <span class="badge bg-secondary">${prod.quantity} un/kg</span></div><div>💰 ${prod.price} Kz | 📍 ${prod.location}</div><div class="mt-2 d-flex gap-1 flex-wrap"><button class="btn btn-sm btn-outline-primary edit-product" data-id="${prod.id}"><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-outline-danger delete-product" data-id="${prod.id}"><i class="fas fa-trash"></i></button><button class="btn btn-sm btn-outline-warning toggle-featured" data-id="${prod.id}">
+                <i class="fas fa-star"></i> ${prod.featured?'Desmarcar':'Destacar'}</button><button class="btn btn-sm btn-success share-this-product" data-id="${prod.id}"><i class="fas fa-share-alt"></i> Compartilhar</button></div></div>`; container.appendChild(col); }); attachProductEvents(); }
+        function attachProductEvents(){ document.querySelectorAll('.edit-product').forEach(btn=>btn.addEventListener('click',(e)=>editProduct(parseInt(btn.dataset.id)))); document.querySelectorAll('.delete-product').forEach(btn=>btn.addEventListener('click',(e)=>deleteProduct(parseInt(btn.dataset.id)))); document.querySelectorAll('.toggle-featured').forEach(btn=>btn.addEventListener('click',(e)=>toggleFeatured(parseInt(btn.dataset.id)))); document.querySelectorAll('.share-this-product').forEach(btn=>btn.addEventListener('click',(e)=>selectProductForShare(parseInt(btn.dataset.id)))); }
+        function updateProductSelect(){ let select=document.getElementById('shareProductSelect'); select.innerHTML='<option value="">-- Produto para partilha/QR --</option>'+products.map(p=>`<option value="${p.id}">${p.name} (${p.price} Kz)</option>`).join(''); }
+        function selectProductForShare(id){ let product=products.find(p=>p.id===id); if(product){ document.getElementById('shareProductSelect').value=id; showQRCode(product); } }
+        function showQRCode(product){ let div=document.getElementById('qrCodeDisplay'); div.innerHTML=''; new QRCode(div, { text: `Produto: ${product.name} | ${product.quantity} un | Preço: ${product.price} Kz | Local: ${product.location} | WhatsApp: ${document.getElementById('sellerPhone').innerText}`, width:120, height:120 }); }
+        function editProduct(id){ let prod=products.find(p=>p.id===id); if(prod){ document.getElementById('prodName').value=prod.name; document.getElementById('prodQty').value=prod.quantity; document.getElementById('prodPrice').value=prod.price; document.getElementById('prodLocation').value=prod.location; document.getElementById('editId').value=id; document.getElementById('submitBtn').innerHTML='<i class="fas fa-sync-alt"></i> Atualizar Produto'; document.getElementById('cancelEditBtn').style.display='inline-block'; } }
+        function deleteProduct(id){ if(confirm("Remover?")){ products=products.filter(p=>p.id!==id); saveProducts(); renderProducts(); updateProductSelect(); } }
+        function toggleFeatured(id){ let prod=products.find(p=>p.id===id); if(prod){ prod.featured=!prod.featured; saveProducts(); renderProducts(); updateProductSelect(); } }
+        document.getElementById('productForm').addEventListener('submit', (e)=>{ e.preventDefault(); let id=document.getElementById('editId').value?parseInt(document.getElementById('editId').value):null; let file=document.getElementById('prodImage').files[0]; if(file){ let reader=new FileReader(); reader.onload=ev=>saveProductFinal(id, ev.target.result); reader.readAsDataURL(file); } else { let existing=products.find(p=>p.id===id); saveProductFinal(id, existing?existing.image:null); } });
+        function saveProductFinal(id,imgData){ let name=document.getElementById('prodName').value.trim(); if(!name) return; let newProd={ id:id||Date.now(), name:name, quantity:parseInt(document.getElementById('prodQty').value), price:parseFloat(document.getElementById('prodPrice').value), location:document.getElementById('prodLocation').value, image:imgData, featured:id? (products.find(p=>p.id===id)?.featured||false):false }; if(id){ let idx=products.findIndex(p=>p.id===id); if(idx!==-1) products[idx]=newProd; } else products.push(newProd); saveProducts(); renderProducts(); updateProductSelect(); document.getElementById('productForm').reset(); document.getElementById('editId').value=''; document.getElementById('submitBtn').innerHTML='<i class="fas fa-save"></i> Registar Produto'; document.getElementById('cancelEditBtn').style.display='none'; }
+        document.getElementById('cancelEditBtn').addEventListener('click',()=>{ document.getElementById('productForm').reset(); document.getElementById('editId').value=''; document.getElementById('submitBtn').innerHTML='<i class="fas fa-save"></i> Registar Produto'; document.getElementById('cancelEditBtn').style.display='none'; });
+        document.getElementById('generateQrBtn').addEventListener('click',()=>{ let id=document.getElementById('shareProductSelect').value; if(id){ let prod=products.find(p=>p.id==id); if(prod) showQRCode(prod); } else alert("Selecione produto primeiro"); });
+        document.getElementById('shareFbBtn').addEventListener('click',()=>{ let prod=getSelectedProduct(); if(prod){ let msg=`🌾 ${prod.name} | ${prod.quantity} kg/un | ${prod.price} Kz | Local: ${prod.location} | AgroLux`; window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}&quote=${encodeURIComponent(msg)}`,'_blank'); } });
+        document.getElementById('shareWpBtn').addEventListener('click',()=>{ let prod=getSelectedProduct(); if(prod){ let msg=`🌾 ${prod.name} | Quantidade: ${prod.quantity} | Preço: ${prod.price} Kz | Local: ${prod.location}`; window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`,'_blank'); } });
+        document.getElementById('shareIgBtn').addEventListener('click',()=>{ let prod=getSelectedProduct(); if(prod) alert(`Copie a legenda: ${prod.name} - ${prod.price} Kz. Use #AgroLux`); });
+        function getSelectedProduct(){ let id=document.getElementById('shareProductSelect').value; if(!id){ alert("Selecione produto"); return null; } return products.find(p=>p.id==id); }
+
+        // CHATBOT SIMPLES
+        function getAnswer(q){ let prod=products.find(p=>p.featured)||products[0]; if(!prod && q!=='social' && q!=='contato') return "Cadastre produtos primeiro."; if(q==='preco') return `💰 Preço: ${prod?.price||'N/D'} Kz`; if(q==='stock') return `📦 Disponibilidade: ${prod?.quantity||0} un/kg`; if(q==='local') return `📍 Local: ${prod?.location||'Angola'}`; if(q==='contato') return `📞 WhatsApp ${document.getElementById('sellerPhone').innerText}`; if(q==='social') return "Redes sociais ampliam vendas sem custo!"; return "Pergunte sobre preço, stock ou localização."; }
+        document.querySelectorAll('.faq-question').forEach(btn=>btn.addEventListener('click',()=>{ let chat=document.getElementById('chatWindow'); let msg=document.createElement('div'); msg.className='chat-message bg-success bg-opacity-25'; msg.innerHTML=`<i class="fas fa-robot"></i> ${getAnswer(btn.dataset.question)}`; chat.appendChild(msg); chat.scrollTop=chat.scrollHeight; }));
+        document.getElementById('sendChatBtn').addEventListener('click',()=>{ let inp=document.getElementById('chatInput'); let txt=inp.value.trim(); if(!txt) return; let chat=document.getElementById('chatWindow'); let userMsg=document.createElement('div'); userMsg.className='chat-message bg-primary bg-opacity-25 text-end'; userMsg.innerHTML=`<i class="fas fa-user"></i> ${txt}`; chat.appendChild(userMsg); let lower=txt.toLowerCase(); let answer=""; if(lower.includes('preço')) answer=getAnswer('preco'); else if(lower.includes('dispon')) answer=getAnswer('stock'); else if(lower.includes('local')) answer=getAnswer('local'); else if(lower.includes('whatsapp')) answer=getAnswer('contato'); else answer=getAnswer('social'); let botMsg=document.createElement('div'); botMsg.className='chat-message bg-success bg-opacity-25'; botMsg.innerHTML=`<i class="fas fa-robot"></i> ${answer}`; chat.appendChild(botMsg); chat.scrollTop=chat.scrollHeight; inp.value=''; });
+        document.getElementById('sendRequestBtn').addEventListener('click',()=>{ let nome=document.getElementById('reqName').value; if(!nome) return alert("Preencha nome"); alert(`Pedido enviado! Obrigado ${nome}.`); document.getElementById('reqName').value=''; document.getElementById('reqMessage').value=''; });
+
+        // ================== CONTRATO + ASSINATURA DIGITAL + PDF ==================
+        let signatureDataURL = null;
+        canvas = document.getElementById('signatureCanvas');
+        drawCtx = canvas.getContext('2d');
+        function resizeCanvas(){ let container = canvas.parentElement; let width = container.clientWidth; canvas.width = width; canvas.height = 140; drawCtx.fillStyle = '#fff'; drawCtx.fillRect(0,0,canvas.width,canvas.height); drawCtx.strokeStyle = '#1e4d2e'; drawCtx.lineWidth = 2; drawCtx.lineCap = 'round'; }
+        window.addEventListener('resize', resizeCanvas);
+        let drawing = false;
+        function startDraw(e){ drawing=true; let rect=canvas.getBoundingClientRect(); let x=(e.clientX-rect.left)*(canvas.width/rect.width); let y=(e.clientY-rect.top)*(canvas.height/rect.height); drawCtx.beginPath(); drawCtx.moveTo(x,y); drawCtx.lineTo(x,y); drawCtx.stroke(); }
+        function drawMove(e){ if(!drawing) return; let rect=canvas.getBoundingClientRect(); let x=(e.clientX-rect.left)*(canvas.width/rect.width); let y=(e.clientY-rect.top)*(canvas.height/rect.height); drawCtx.lineTo(x,y); drawCtx.stroke(); drawCtx.beginPath(); drawCtx.moveTo(x,y); }
+        function endDraw(){ drawing=false; drawCtx.beginPath(); signatureDataURL = canvas.toDataURL(); }
+        canvas.addEventListener('mousedown', startDraw); canvas.addEventListener('mousemove', drawMove); canvas.addEventListener('mouseup', endDraw); canvas.addEventListener('touchstart', (e)=>{ e.preventDefault(); let touch=e.touches[0]; startDraw(touch); }); canvas.addEventListener('touchmove', (e)=>{ e.preventDefault(); let touch=e.touches[0]; drawMove(touch); }); canvas.addEventListener('touchend', endDraw);
+        document.getElementById('clearCanvasBtn').addEventListener('click',()=>{ drawCtx.clearRect(0,0,canvas.width,canvas.height); drawCtx.fillStyle='#fff'; drawCtx.fillRect(0,0,canvas.width,canvas.height); signatureDataURL=null; });
+        document.getElementById('chooseTypeText').addEventListener('click',()=>{ document.getElementById('textSignatureDiv').style.display='block'; document.getElementById('drawSignatureDiv').style.display='none'; });
+        document.getElementById('chooseTypeDraw').addEventListener('click',()=>{ document.getElementById('textSignatureDiv').style.display='none'; document.getElementById('drawSignatureDiv').style.display='block'; resizeCanvas(); });
+        
+        function loadSignatures(){ let signs=JSON.parse(localStorage.getItem('agrolux_signatures')||'[]'); let list=document.getElementById('signatureList'); list.innerHTML=''; signs.slice(-5).reverse().forEach(s=>{ let li=document.createElement('li'); li.innerHTML=`<i class="fas fa-check-circle text-success"></i> ${s.name} (${s.doc}) - ${s.date}`; list.appendChild(li); }); }
+        
+        // FUNÇÃO PARA GERAR PDF DO CONTRATO ASSINADO
+        async function gerarPDF(record, signatureValue, signatureType) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+            const pageWidth = doc.internal.pageSize.getWidth();
+            let y = 20;
+            
+            // Título
+            doc.setFontSize(18);
+            doc.setFont(undefined, 'bold');
+            doc.text("AgroLux - Contrato de Adesão", pageWidth / 2, y, { align: 'center' });
+            y += 10;
+            doc.setFontSize(11);
+            doc.setFont(undefined, 'normal');
+            doc.text(`Data: ${record.date}`, 20, y);
+            y += 8;
+            
+            // Dados do signatário
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'bold');
+            doc.text("Dados do Outorgante:", 20, y);
+            y += 6;
+            doc.setFont(undefined, 'normal');
+            doc.text(`Nome completo: ${record.name}`, 20, y); y += 5;
+            doc.text(`Documento (BI/NIF): ${record.doc}`, 20, y); y += 8;
+            
+            // Termos resumidos
+            doc.setFont(undefined, 'bold');
+            doc.text("Cláusulas principais:", 20, y); y += 6;
+            doc.setFont(undefined, 'normal');
+            const termos = [
+                "1. Objecto: adesão à plataforma AgroLux para orientação em vendas sociais.",
+                "2. Compromissos: informações verdadeiras e uso ético das ferramentas.",
+                "3. Isenção: AgroLux não realiza transações financeiras nem garante vendas.",
+                "4. Assinatura digital: tem validade legal nos termos da Lei angolana."
+            ];
+            termos.forEach(t => { doc.text(t, 20, y); y += 5; });
+            y += 5;
+            
+            // Lista de produtos do agricultor
+            doc.setFont(undefined, 'bold');
+            doc.text("Produtos cadastrados no momento da assinatura:", 20, y); y += 6;
+            doc.setFont(undefined, 'normal');
+            if (products.length === 0) {
+                doc.text("Nenhum produto cadastrado.", 20, y); y += 5;
+            } else {
+                products.forEach(prod => {
+                    doc.text(`- ${prod.name}: ${prod.quantity} kg/un · ${prod.price} Kz · ${prod.location}`, 20, y);
+                    y += 5;
+                    if (y > 270) { doc.addPage(); y = 20; }
+                });
+            }
+            y += 8;
+            
+            // Assinatura
+            doc.setFont(undefined, 'bold');
+            doc.text("Assinatura digital:", 20, y); y += 8;
+            if (signatureType === 'texto') {
+                doc.setFont(undefined, 'italic');
+                doc.text(`Assinatura por texto: ${signatureValue}`, 20, y);
+            } else {
+                try {
+                    // Adicionar imagem da assinatura desenhada
+                    const imgData = signatureValue; // já é dataURL
+                    const imgWidth = 60;
+                    const imgHeight = 25;
+                    doc.addImage(imgData, 'PNG', 20, y, imgWidth, imgHeight);
+                    y += imgHeight + 5;
+                    doc.text("(assinatura manuscrita digitalizada)", 20, y);
+                } catch(e) { doc.text("(imagem da assinatura não disponível)", 20, y); }
+            }
+            y += 12;
+            
+            // Nota final
+            doc.setFontSize(9);
+            doc.setTextColor(100);
+            doc.text("Documento gerado eletronicamente pela plataforma AgroLux. O outorgante declara que leu e aceita todos os termos.", 20, y);
+            
+            // Salvar PDF
+            doc.save(`Contrato_AgroLux_${record.name.replace(/\s/g,'_')}.pdf`);
+        }
+        
+        // LISTENER PRINCIPAL DO BOTÃO ASSINAR
+        document.getElementById('signContractBtn').addEventListener('click', async () => {
+            let name = document.getElementById('signerName').value.trim();
+            let docNum = document.getElementById('signerDoc').value.trim();
+            let accept = document.getElementById('acceptTermsCheckbox').checked;
+            if (!name || !docNum) { alert("Preencha nome completo e documento de identificação."); return; }
+            if (!accept) { alert("Deve aceitar os termos do contrato."); return; }
+            
+            let signatureValue = "";
+            let signatureType = "";
+            let isTextVisible = document.getElementById('textSignatureDiv').style.display !== 'none';
+            if (isTextVisible) {
+                signatureValue = document.getElementById('textSignature').value.trim();
+                if (!signatureValue) signatureValue = name;
+                signatureType = "texto";
+            } else {
+                if (!signatureDataURL) { alert("Desenhe a sua assinatura no quadro acima."); return; }
+                signatureValue = signatureDataURL;
+                signatureType = "desenho";
+            }
+            
+            let now = new Date().toLocaleString('pt-PT');
+            let contractRecord = { name: name, doc: docNum, signature: signatureValue, signatureType: signatureType, date: now, termsAccepted: true };
+            let signatures = JSON.parse(localStorage.getItem('agrolux_signatures') || '[]');
+            signatures.unshift(contractRecord);
+            localStorage.setItem('agrolux_signatures', JSON.stringify(signatures));
+            loadSignatures();
+            
+            alert(`✅ Contrato assinado digitalmente por ${name} em ${now}. Obrigado!`);
+            
+            // GERAR PDF AUTOMATICAMENTE APÓS ASSINAR
+            await gerarPDF(contractRecord, signatureValue, signatureType);
+            
+            // Limpar campos
+            document.getElementById('signerName').value = '';
+            document.getElementById('signerDoc').value = '';
+            document.getElementById('textSignature').value = '';
+            drawCtx.clearRect(0, 0, canvas.width, canvas.height);
+            drawCtx.fillStyle = '#fff';
+            drawCtx.fillRect(0, 0, canvas.width, canvas.height);
+            signatureDataURL = null;
+            document.getElementById('acceptTermsCheckbox').checked = false;
+        });
+        
+        loadSignatures();
+        // theme / language
+        function applyTheme(isLight){ if(isLight) document.body.classList.add('light'); else document.body.classList.remove('light'); document.getElementById('themeToggleCheckbox').checked=isLight; localStorage.setItem('agrolux_theme', isLight?'light':'dark'); }
+        document.getElementById('themeToggleCheckbox').addEventListener('change',(e)=>applyTheme(e.target.checked));
+        if(localStorage.getItem('agrolux_theme')==='light') applyTheme(true); else applyTheme(false);
+        document.getElementById('langToggleBtn').addEventListener('click',()=>{ alert("Idioma atual: Português. Funcionalidade multilíngue em breve."); });
+        loadProducts(); resizeCanvas();
+    </script>
+</body>
+</html>

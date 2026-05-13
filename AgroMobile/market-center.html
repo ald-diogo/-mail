@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>AgroLux | Centro de Marketing Digital</title>
+    <!-- Bootstrap 5 + Icons + Font Awesome + Google Fonts -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background 0.2s ease, color 0.2s ease, border-color 0.2s;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f4f7fc;
+            color: #1a2c3e;
+            overflow-x: hidden;
+        }
+
+        /* Tema Claro (padrão) */
+        :root {
+            --bg-body: #f4f7fc;
+            --card-bg: #ffffff;
+            --text-primary: #1a2c3e;
+            --text-secondary: #2c4b6b;
+            --border-light: #e2edf2;
+            --accent: #3b8c5a;
+            --accent-hover: #2d6e46;
+            --shadow-sm: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.02);
+            --shadow-md: 0 20px 25px -12px rgba(0,0,0,0.08);
+            --gradient-header: linear-gradient(135deg, #1c6e3f 0%, #2a9d6e 100%);
+        }
+
+        body.dark-theme {
+            --bg-body: #0f1724;
+            --card-bg: #1e2937;
+            --text-primary: #eef2ff;
+            --text-secondary: #cbd5e6;
+            --border-light: #2d3a4a;
+            --accent: #4c9f70;
+            --accent-hover: #68b886;
+            --shadow-sm: 0 10px 25px -5px rgba(0,0,0,0.3);
+            --shadow-md: 0 20px 25px -12px rgba(0,0,0,0.4);
+            --gradient-header: linear-gradient(135deg, #0e4f30, #1f7a4a);
+        }
+
+        body {
+            background: var(--bg-body);
+            color: var(--text-primary);
+        }
+
+        .card, .glass-card {
+            background: var(--card-bg);
+            border: none;
+            border-radius: 28px;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+        .btn-gradient {
+            background: var(--gradient-header);
+            border: none;
+            color: white;
+            font-weight: 600;
+            border-radius: 40px;
+            padding: 10px 24px;
+            transition: 0.2s;
+        }
+        .btn-gradient:hover {
+            filter: brightness(1.05);
+            transform: scale(0.98);
+            color: white;
+        }
+        .btn-outline-accent {
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            background: transparent;
+            border-radius: 40px;
+            font-weight: 500;
+        }
+        .btn-outline-accent:hover {
+            background: var(--accent);
+            color: white;
+        }
+        .badge-smart {
+            background: rgba(59, 140, 90, 0.12);
+            color: var(--accent);
+            border-radius: 50px;
+            padding: 6px 14px;
+            font-weight: 500;
+        }
+        .icon-circle {
+            width: 48px;
+            height: 48px;
+            background: rgba(59, 140, 90, 0.1);
+            border-radius: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+        }
+        h1, h2, h3 {
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+        .section-title {
+            font-size: 1.6rem;
+            border-left: 5px solid var(--accent);
+            padding-left: 16px;
+            margin-bottom: 1.5rem;
+        }
+        .btn-icon-only {
+            background: transparent;
+            border: none;
+            font-size: 1.4rem;
+            color: var(--accent);
+            transition: 0.2s;
+        }
+        .btn-icon-only:hover {
+            transform: scale(1.1);
+            color: var(--accent-hover);
+        }
+        .time-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+        footer {
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-light);
+        }
+        .copy-btn, .edit-btn, .refresh-btn {
+            cursor: pointer;
+            font-size: 0.9rem;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+        }
+        .copy-btn:hover, .edit-btn:hover, .refresh-btn:hover {
+            color: var(--accent);
+        }
+        .hashtag-text {
+            color: var(--accent);
+            font-size: 0.8rem;
+        }
+        @media (max-width: 768px) {
+            .section-title {
+                font-size: 1.3rem;
+            }
+            .btn-gradient {
+                padding: 8px 18px;
+            }
+        }
+        .glowing-icon {
+            text-shadow: 0 0 2px var(--accent);
+        }
+        .theme-thumb {
+            cursor: pointer;
+            font-size: 1.8rem;
+            transition: 0.2s;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container py-4 py-md-5">
+        <!-- Header com botões flutuantes -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="icon-circle">
+                    <i class="fas fa-chart-line fa-2x"></i>
+                </div>
+                <div>
+                    <h1 class="display-6 fw-bold" data-i18n="main_title">Centro de Marketing Digital</h1>
+                    <p class="text-secondary-emphasis mb-0" data-i18n="main_sub">Venda mais com estratégias inteligentes</p>
+                </div>
+            </div>
+            <div class="d-flex gap-3 mt-3 mt-sm-0">
+                <!-- Botão ThumbIcon Tema -->
+                <button id="themeToggleBtn" class="btn btn-outline-accent rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                    <i id="themeIcon" class="fas fa-thumbs-up fa-xl"></i>
+                </button>
+                <!-- Botão Idioma -->
+                <button id="langToggleBtn" class="btn btn-outline-accent rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                    <i class="fas fa-language fa-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 2. Dicas Automáticas de Vendas -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="card p-4 p-xl-5">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap">
+                        <div>
+                            <i class="fas fa-lightbulb text-warning fa-2x mb-2"></i>
+                            <h3 class="h4 fw-bold" data-i18n="tip_title"> Dica do Dia</h3>
+                        </div>
+                        <button id="newTipBtn" class="btn btn-sm btn-outline-accent">
+                            <i class="fas fa-sync-alt"></i> <span data-i18n="new_tip_btn">Nova dica</span></button>
+                    </div>
+                    <p id="tipText" class="fs-5 mt-3 fw-medium" style="color: var(--accent);">
+                        Publique seus produtos pela manhã entre 07h e 10h para alcançar mais compradores.</p>
+                    <small class="text-secondary" data-i18n="tip_helper">✔️ Dicas para vender mais, atrair clientes e criar confiança digital.</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Melhores Horários para Publicar -->
+        <div class="mb-5">
+            <div class="section-title"><i class="fas fa-clock me-2"></i><span data-i18n="best_hours_title">
+                Melhores Horários para Publicar</span></div>
+            <div class="row g-4">
+                <div class="col-md-4"><div class="time-card"><i class="fab fa-whatsapp fa-2x text-success mb-2"></i><h5 class="fw-bold">WhatsApp</h5><p data-i18n="whats_time">08h às 10h</p></div></div>
+                <div class="col-md-4"><div class="time-card"><i class="fab fa-facebook fa-2x text-primary mb-2"></i><h5 class="fw-bold">Facebook</h5><p data-i18n="fb_time">12h às 14h</p></div></div>
+                <div class="col-md-4"><div class="time-card"><i class="fab fa-instagram fa-2x text-danger mb-2"></i><h5 class="fw-bold">Instagram</h5><p data-i18n="ig_time">18h às 21h</p></div></div>
+            </div>
+        </div>
+
+        <!-- 4. Campanhas Promocionais + 9. Botões Ação Rápida (integrados) -->
+        <div class="row mb-5">
+            <div class="col-lg-8">
+                <div class="section-title"><i class="fas fa-tags me-2"></i><span data-i18n="promo_title">Campanhas Promocionais</span></div>
+                <div class="row g-3">
+                    <div class="col-6 col-md-3"><div class="card text-center p-3">
+                        <i class="fas fa-fire fa-2x text-danger mb-2"></i><h6 data-i18n="promo_week">Promoção da Semana</h6><small data-i18n="promo_week_desc">-15% em tomate</small></div></div>
+                    <div class="col-6 col-md-3"><div class="card text-center p-3">
+                        <i class="fas fa-gem fa-2x text-warning mb-2"></i><h6 data-i18n="special_offer">Oferta Especial</h6><small data-i18n="special_desc">Leve 3 pague 2</small></div></div>
+                    <div class="col-6 col-md-3"><div class="card text-center p-3">
+                        <i class="fas fa-star fa-2x text-info mb-2"></i><h6 data-i18n="featured">Produto em Destaque</h6><small data-i18n="featured_desc">Manga orgânica</small></div></div>
+                    <div class="col-6 col-md-3"><div class="card text-center p-3">
+                        <i class="fas fa-bolt fa-2x text-primary mb-2"></i><h6 data-i18n="flash_sale">Venda Rápida</h6><small data-i18n="flash_desc">Estoque limitado</small></div></div>
+                </div>
+            </div>
+            <div class="col-lg-4 mt-4 mt-lg-0">
+                <div class="section-title"><i class="fas fa-bolt me-2"></i><span data-i18n="quick_actions">Ações Rápidas</span></div>
+                <div class="d-flex flex-wrap gap-2">
+                    <button class="btn btn-gradient" id="publishNowBtn"><i class="fas fa-share-alt"></i> <span data-i18n="btn_publish">Publicar Agora</span></button>
+                    <button class="btn btn-outline-accent" id="createPromoBtn"><i class="fas fa-plus-circle"></i> <span data-i18n="btn_create_promo">Criar Promoção</span></button>
+                    <button class="btn btn-outline-accent" id="genAdBtn"><i class="fas fa-ad"></i> <span data-i18n="btn_gen_ad">Gerar Anúncio</span></button>
+                    <button class="btn btn-outline-accent" id="shareWhatsBtn"><i class="fab fa-whatsapp"></i> <span data-i18n="btn_share_wa">Partilhar no WhatsApp</span></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Frases Prontas para Anúncios -->
+        <div class="mb-5">
+            <div class="section-title"><i class="fas fa-quote-right me-2"></i><span data-i18n="phrases_title">Frases Prontas para Anúncios</span></div>
+            <div class="card p-4">
+                <div class="d-flex justify-content-between flex-wrap align-items-center mb-3">
+                    <i class="fas fa-leaf fa-2x text-success"></i>
+                    <div>
+                        <button id="copyPhraseBtn" class="btn-icon-only me-2" title="Copiar"><i class="far fa-copy"></i></button>
+                        <button id="editPhraseBtn" class="btn-icon-only me-2" title="Editar"><i class="fas fa-pen"></i></button>
+                        <button id="newPhraseBtn" class="btn-icon-only" title="Gerar nova"><i class="fas fa-rotate-right"></i></button>
+                    </div>
+                </div>
+                <p id="phraseText" class="fs-5 fw-500"> Produto fresco direto do campo! Preço acessível e qualidade garantida. Entre em contacto agora mesmo.</p>
+                <small class="text-secondary" data-i18n="phrase_helper">Copie, edite ou gere novas frases impactantes</small>
+            </div>
+        </div>
+
+        <!-- 6. Legendas para Redes Sociais -->
+        <div class="mb-5">
+            <div class="section-title"><i class="fas fa-hashtag me-2"></i><span data-i18n="caption_title">Legendas para Redes Sociais</span></div>
+            <div class="card p-4">
+                <div class="d-flex justify-content-between flex-wrap align-items-center mb-3">
+                    <i class="fab fa-instagram fa-2x"></i>
+                    <div>
+                        <button id="copyCaptionBtn" class="btn-icon-only me-2"><i class="far fa-copy"></i></button>
+                        <button id="editCaptionBtn" class="btn-icon-only me-2"><i class="fas fa-pen"></i></button>
+                        <button id="newCaptionBtn" class="btn-icon-only"><i class="fas fa-rotate-right"></i></button>
+                    </div>
+                </div>
+                <p id="captionText" class="fs-5 fw-500">Colheita nova disponível! #Agricultura #VendaAgrícola #AgroBusiness #ProdutoFresco</p>
+                <div class="hashtag-text" id="hashtagArea"></div>
+            </div>
+        </div>
+
+        <!-- 7. Público-Alvo Recomendado + 8. Indicador de Desempenho (mix) -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-6">
+                <div class="section-title"><i class="fas fa-bullseye me-2"></i><span data-i18n="target_audience">Público-Alvo Recomendado</span></div>
+                <div class="card p-4">
+                    <div class="d-flex flex-wrap gap-3">
+                        <span class="badge-smart"><i class="fas fa-utensils me-1"></i> Restaurantes</span>
+                        <span class="badge-smart"><i class="fas fa-hotel me-1"></i> Hotéis</span>
+                        <span class="badge-smart"><i class="fas fa-store me-1"></i> Supermercados</span>
+                        <span class="badge-smart"><i class="fas fa-truck me-1"></i> Revendedores</span>
+                        <span class="badge-smart"><i class="fas fa-users me-1"></i> Compradores locais</span>
+                        <span class="badge-smart"><i class="fas fa-city me-1"></i> Mercados municipais</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="section-title"><i class="fas fa-chart-simple me-2"></i><span data-i18n="performance_title">Indicador de Desempenho</span></div>
+                <div class="card p-4">
+                    <div class="row text-center">
+                        <div class="col-6 mb-3"><i class="fas fa-eye fa-xl text-accent"></i><h5 class="mt-2 fw-bold">1.2k</h5><small data-i18n="metric_views">publicações mais vistas</small></div>
+                        <div class="col-6 mb-3"><i class="fas fa-share-alt fa-xl text-accent"></i><h5 class="mt-2 fw-bold">345</h5><small data-i18n="metric_shares">produtos partilhados</small></div>
+                        <div class="col-6"><i class="fas fa-chart-line fa-xl text-accent"></i><h5 class="mt-2 fw-bold">+32%</h5><small data-i18n="metric_campaigns">campanhas com maior resultado</small></div>
+                        <div class="col-6"><i class="fas fa-boxes fa-xl text-accent"></i><h5 class="mt-2 fw-bold">Tomate / Alface</h5><small data-i18n="metric_demand">produtos com maior procura</small></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 10. Links Inteligentes -->
+        <div class="mb-5">
+            <div class="section-title"><i class="fas fa-link me-2"></i><span data-i18n="smart_links_title">Links Inteligentes</span></div>
+            <div class="row g-3">
+                <div class="col-md-3 col-6">
+                    <a href="market-intelligence.html" class="card p-3 text-center text-decoration-none d-block">
+                        <i class="fas fa-robot fa-2x mb-2"></i>
+                        <span data-i18n="smart_link1">Gerador Inteligente de Publicações</span>
+                    </a>
+                </div>
+                
+                <div class="col-md-3 col-6">
+                    <a href="promotion.html" class="card p-3 text-center text-decoration-none d-block">
+                        <i class="fas fa-champagne-glasses fa-2x mb-2"></i>
+                        <span data-i18n="smart_link2">
+                            Área de Promoções Inteligentes
+                        </span>
+                    </a>
+                </div>
+                
+                <div class="col-md-3 col-6">
+                    <a href="tendencias.html" class="card p-3 text-center text-decoration-none d-block">
+                        <i class="fas fa-chart-line fa-2x mb-2"></i>
+                        <span data-i18n="smart_link3">
+                            Tendências do Mercado
+                        </span>
+                    </a>
+                </div>
+                <div class="col-md-3 col-6">
+                    <a href="map-market.html" class="card p-3 text-center text-decoration-none d-block">
+                        <i class="fas fa-map-marked-alt fa-2x mb-2"></i>
+                        <span data-i18n="smart_link4">Mapa de Oportunidades</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 11. Histórico de Campanhas -->
+        <div class="mb-5">
+            <div class="section-title"><i class="fas fa-history me-2"></i><span data-i18n="history_title">Histórico de Campanhas</span></div>
+            <div class="card p-0 overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table table-borderless align-middle mb-0">
+                        <thead class="border-bottom"><tr><th data-i18n="campaign_name">Campanha</th><th data-i18n="status">Status</th><th data-i18n="result">Resultado</th></tr></thead>
+                        <tbody>
+                            <tr><td><i class="fas fa-seedling text-success me-2"></i> Tomate Orgânico</td><td><span class="badge bg-success">Activa</span></td><td>+210 vendas</td></tr>
+                            <tr><td><i class="fas fa-apple-alt text-danger me-2"></i> Oferta de Morango</td><td><span class="badge bg-secondary">Encerrada</span></td><td>98 compartilhamentos</td></tr>
+                            <tr><td><i class="fas fa-carrot text-warning me-2"></i> Kit Verduras</td><td><span class="badge bg-success">Activa</span></td><td>alcance +3.2k</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 12. Recomendações Inteligentes -->
+        <div class="mb-5">
+            <div class="section-title"><i class="fas fa-microchip me-2"></i><span data-i18n="recommend_title">Recomendações Inteligentes</span></div>
+            <div class="card bg-gradient text-white" style="background: var(--gradient-header); border: none;">
+                <div class="card-body p-4 d-flex align-items-center gap-3 flex-wrap">
+                    <i class="fas fa-bolt fa-3x"></i>
+                    <div>
+                        <h5 class="fw-bold mb-1" data-i18n="recommend_head"> Seu tomate está com alta procura esta semana.</h5>
+                        <p class="mb-0" data-i18n="recommend_text">Recomendamos reforçar a divulgação imediatamente. Utilize as dicas acima e aumente suas vendas.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="py-4 mt-3 text-center text-secondary small">
+        <i class="fas fa-rocket me-1"></i> Centro de Marketing Digital — Estratégias que conectam o campo ao mercado.
+    </footer>
+
+    <script>
+        // ------------------------ TRADUÇÃO BILÍNGUE (PT / EN) -------------------------
+        const translations = {
+            pt: {
+                main_title: "Centro de Marketing Digital",
+                main_sub: "Venda mais com estratégias inteligentes",
+                tip_title: "Dica do Dia",
+                new_tip_btn: "Nova dica",
+                tip_helper: "✔️ Dicas para vender mais, atrair clientes e criar confiança digital.",
+                best_hours_title: "Melhores Horários para Publicar",
+                whats_time: "08h às 10h",
+                fb_time: "12h às 14h",
+                ig_time: "18h às 21h",
+                promo_title: "Campanhas Promocionais",
+                promo_week: "Promoção da Semana",
+                promo_week_desc: "-15% em tomate",
+                special_offer: "Oferta Especial",
+                special_desc: "Leve 3 pague 2",
+                featured: "Produto em Destaque",
+                featured_desc: "Manga orgânica",
+                flash_sale: "Venda Rápida",
+                flash_desc: "Estoque limitado",
+                quick_actions: "Ações Rápidas",
+                btn_publish: "Publicar Agora",
+                btn_create_promo: "Criar Promoção",
+                btn_gen_ad: "Gerar Anúncio",
+                btn_share_wa: "Partilhar no WhatsApp",
+                phrases_title: "Frases Prontas para Anúncios",
+                phrase_helper: "Copie, edite ou gere novas frases impactantes",
+                caption_title: "Legendas para Redes Sociais",
+                target_audience: "Público-Alvo Recomendado",
+                performance_title: "Indicador de Desempenho",
+                metric_views: "publicações mais vistas",
+                metric_shares: "produtos partilhados",
+                metric_campaigns: "campanhas com maior resultado",
+                metric_demand: "produtos com maior procura",
+                smart_links_title: "Links Inteligentes",
+                smart_link1: "Gerador Inteligente de Publicações",
+                smart_link2: "Área de Promoções Inteligentes",
+                smart_link3: "Tendências do Mercado",
+                smart_link4: "Mapa de Oportunidades",
+                history_title: "Histórico de Campanhas",
+                campaign_name: "Campanha",
+                status: "Status",
+                result: "Resultado",
+                recommend_title: "Recomendações Inteligentes",
+                recommend_head: " Seu tomate está com alta procura esta semana.",
+                recommend_text: "Recomendamos reforçar a divulgação imediatamente. Utilize as dicas acima e aumente suas vendas."
+            },
+            en: {
+                main_title: "Digital Marketing Hub",
+                main_sub: "Sell more with smart strategies",
+                tip_title: "Tip of the Day",
+                new_tip_btn: "New tip",
+                tip_helper: "✔️ Tips to sell more, attract customers and build trust.",
+                best_hours_title: "Best Times to Post",
+                whats_time: "8am - 10am",
+                fb_time: "12pm - 2pm",
+                ig_time: "6pm - 9pm",
+                promo_title: "Promotional Campaigns",
+                promo_week: "Week Promotion",
+                promo_week_desc: "-15% on tomatoes",
+                special_offer: "Special Offer",
+                special_desc: "Buy 3 pay 2",
+                featured: "Featured Product",
+                featured_desc: "Organic mango",
+                flash_sale: "Flash Sale",
+                flash_desc: "Limited stock",
+                quick_actions: "Quick Actions",
+                btn_publish: "Publish Now",
+                btn_create_promo: "Create Promo",
+                btn_gen_ad: "Generate Ad",
+                btn_share_wa: "Share on WhatsApp",
+                phrases_title: "Ready-made Ad Phrases",
+                phrase_helper: "Copy, edit or generate new powerful phrases",
+                caption_title: "Social Media Captions",
+                target_audience: "Target Audience",
+                performance_title: "Performance Dashboard",
+                metric_views: "top viewed posts",
+                metric_shares: "shared products",
+                metric_campaigns: "best performing campaigns",
+                metric_demand: "most demanded products",
+                smart_links_title: "Smart Links",
+                smart_link1: "Smart Post Generator",
+                smart_link2: "Smart Promo Area",
+                smart_link3: "Market Trends",
+                smart_link4: "Opportunity Map",
+                history_title: "Campaign History",
+                campaign_name: "Campaign",
+                status: "Status",
+                result: "Result",
+                recommend_title: "Smart Recommendations",
+                recommend_head: "Your tomatoes are in high demand this week.",
+                recommend_text: "We recommend boosting your posts immediately. Use the tips above to increase sales."
+            }
+        };
+
+        let currentLang = 'pt';
+        let currentTip = "";
+        let currentPhrase = "";
+        let currentCaption = "";
+
+        // Arrays de dicas, frases e legendas bilingues
+        const tipsPt = [
+            "Publique seus produtos pela manhã entre 07h e 10h para alcançar mais compradores.",
+            "Responda comentários rápido: aumenta credibilidade e vendas.",
+            "Use fotos de alta qualidade com boa iluminação natural para destacar seus produtos.",
+            "Mostre depoimentos de clientes satisfeitos para construir confiança."
+        ];
+        const tipsEn = [
+            "Post your products in the morning between 7-10 AM to reach more buyers.",
+            "Reply to comments quickly: it boosts credibility and sales.",
+            "Use high-quality photos with natural light to highlight your products.",
+            "Show testimonials from happy customers to build trust."
+        ];
+        
+        const phrasesPt = [
+            " Produto fresco direto do campo! Preço acessível e qualidade garantida. Entre em contacto agora mesmo.",
+            " Colheita do dia! Sabor e saúde na sua mesa. Peça já!",
+            " Tomates suculentos e direto da agricultura familiar. Melhor preço da região!",
+            " Verduras orgânicas com entrega rápida. Transforme sua cozinha hoje."
+        ];
+        const phrasesEn = [
+            " Fresh product straight from the farm! Affordable price and guaranteed quality. Contact us now.",
+            " Today's harvest! Flavor and health on your table. Order now!",
+            " Juicy tomatoes straight from family farming. Best price in the region!",
+            " Organic vegetables with fast delivery. Upgrade your kitchen today."
+        ];
+
+        const captionsPt = [
+            " Colheita nova disponível!  #Agricultura #VendaAgrícola #AgroBusiness #ProdutoFresco",
+            " Direto do campo para você! Sabor e qualidade. #AgroNegócio #ProdutoLocal #Feira",
+            " Alface e hortaliças fresquinhas toda semana. Peça já! #ComidaDeVerdade #AgriculturaFamiliar"
+        ];
+        const captionsEn = [
+            " New harvest available!  #Farming #AgriBusiness #FreshProduce #FarmToTable",
+            " Straight from the farm to you! Flavor and quality. #AgroBusiness #LocalProduct",
+            " Fresh lettuce and greens every week. Order now! #RealFood #FamilyFarming"
+        ];
+
+        function getTipsArray() { return currentLang === 'pt' ? tipsPt : tipsEn; }
+        function getPhrasesArray() { return currentLang === 'pt' ? phrasesPt : phrasesEn; }
+        function getCaptionsArray() { return currentLang === 'pt' ? captionsPt : captionsEn; }
+
+        function updateRandomTip() {
+            const arr = getTipsArray();
+            const newTip = arr[Math.floor(Math.random() * arr.length)];
+            currentTip = newTip;
+            document.getElementById('tipText').innerText = currentTip;
+        }
+        function updateRandomPhrase() {
+            const arr = getPhrasesArray();
+            const newPhrase = arr[Math.floor(Math.random() * arr.length)];
+            currentPhrase = newPhrase;
+            document.getElementById('phraseText').innerHTML = currentPhrase;
+        }
+        function updateRandomCaption() {
+            const arr = getCaptionsArray();
+            const newCaption = arr[Math.floor(Math.random() * arr.length)];
+            currentCaption = newCaption;
+            document.getElementById('captionText').innerHTML = currentCaption;
+        }
+
+        function applyTranslations() {
+            const elements = document.querySelectorAll('[data-i18n]');
+            elements.forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[currentLang][key]) {
+                    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.placeholder = translations[currentLang][key];
+                    else el.innerText = translations[currentLang][key];
+                }
+            });
+            // atualizar textos dinâmicos (dica, frase, legenda) para o novo idioma sem perder coerência
+            updateRandomTip();
+            updateRandomPhrase();
+            updateRandomCaption();
+        }
+
+        // Funções de cópia e edição
+        document.getElementById('copyPhraseBtn')?.addEventListener('click', () => {
+            navigator.clipboard.writeText(currentPhrase);
+            alert(currentLang === 'pt' ? "Frase copiada!" : "Phrase copied!");
+        });
+        document.getElementById('editPhraseBtn')?.addEventListener('click', () => {
+            let newText = prompt(currentLang === 'pt' ? "Editar frase:" : "Edit phrase:", currentPhrase);
+            if (newText) { currentPhrase = newText; document.getElementById('phraseText').innerText = currentPhrase; }
+        });
+        document.getElementById('newPhraseBtn')?.addEventListener('click', updateRandomPhrase);
+        
+        document.getElementById('copyCaptionBtn')?.addEventListener('click', () => {
+            navigator.clipboard.writeText(currentCaption);
+            alert(currentLang === 'pt' ? "Legenda copiada!" : "Caption copied!");
+        });
+        document.getElementById('editCaptionBtn')?.addEventListener('click', () => {
+            let newCap = prompt(currentLang === 'pt' ? "Editar legenda:" : "Edit caption:", currentCaption);
+            if (newCap) { currentCaption = newCap; document.getElementById('captionText').innerText = currentCaption; }
+        });
+        document.getElementById('newCaptionBtn')?.addEventListener('click', updateRandomCaption);
+        document.getElementById('newTipBtn')?.addEventListener('click', updateRandomTip);
+
+        // Ações de botões rápidos
+        document.getElementById('publishNowBtn')?.addEventListener('click', () => alert(currentLang === 'pt' ? " Abrindo editor de publicação... prepare sua melhor oferta!" : " Opening post editor... get your best offer ready!"));
+        document.getElementById('createPromoBtn')?.addEventListener('click', () => alert(currentLang === 'pt' ? " Nova campanha promocional: escolha produtos e desconto!" : " New promo campaign: choose products and discount!"));
+        document.getElementById('genAdBtn')?.addEventListener('click', () => alert(currentLang === 'pt' ? " Anúncio gerado com sucesso! Compartilhe agora." : " Ad generated successfully! Share now."));
+        document.getElementById('shareWhatsBtn')?.addEventListener('click', () => {
+            let msg = encodeURIComponent(currentLang === 'pt' ? " Confira meus produtos frescos! " + currentPhrase : " Check out my fresh products! " + currentPhrase);
+            window.open(`https://wa.me/?text=${msg}`, '_blank');
+        });
+
+        // TEMA (thumbicon)
+        const themeBtn = document.getElementById('themeToggleBtn');
+        const themeIcon = document.getElementById('themeIcon');
+        function setTheme(isDark) {
+            if (isDark) {
+                document.body.classList.add('dark-theme');
+                themeIcon.classList.remove('fa-thumbs-up');
+                themeIcon.classList.add('fa-thumbs-down');
+            } else {
+                document.body.classList.remove('dark-theme');
+                themeIcon.classList.remove('fa-thumbs-down');
+                themeIcon.classList.add('fa-thumbs-up');
+            }
+        }
+        const savedTheme = localStorage.getItem('agro_theme');
+        if (savedTheme === 'dark') setTheme(true);
+        themeBtn?.addEventListener('click', () => {
+            const isDark = document.body.classList.contains('dark-theme');
+            setTheme(!isDark);
+            localStorage.setItem('agro_theme', !isDark ? 'dark' : 'light');
+        });
+
+        // IDIOMA
+        const langBtn = document.getElementById('langToggleBtn');
+        langBtn?.addEventListener('click', () => {
+            currentLang = currentLang === 'pt' ? 'en' : 'pt';
+            applyTranslations();
+        });
+
+        // Inicialização
+        applyTranslations();
+        // Pega dados iniciais
+        currentPhrase = document.getElementById('phraseText').innerText;
+        currentCaption = document.getElementById('captionText').innerText;
+        currentTip = document.getElementById('tipText').innerText;
+        
+        // Ajuste extra nos botões thumb/idioma
+        if(localStorage.getItem('agro_theme') === 'dark') themeIcon.classList.replace('fa-thumbs-up','fa-thumbs-down');
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

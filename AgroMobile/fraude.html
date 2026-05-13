@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>AgroLux - Central de Denúncias</title>
+  <!-- Bootstrap 5.3 + Icons + Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    :root {
+      --transition-speed: 0.2s;
+    }
+    body {
+        background-image: url('images/Bg-entregas.jpg');
+            background-size: cover;
+            background-position: center 30%;
+            background-repeat: no-repeat;
+      transition: background 0.2s ease, color 0.2s ease;
+      font-family: 'Times New Roman', Times, serif;
+    }
+    .card-hover {
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card-hover:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0.75rem 1.5rem rgba(0,0,0,0.1);
+    }
+    .btn-upload {
+      cursor: pointer;
+    }
+    .file-list-item {
+      font-size: 0.85rem;
+      background: rgba(0,0,0,0.03);
+      border-radius: 20px;
+      padding: 4px 12px;
+      margin-right: 8px;
+      margin-bottom: 6px;
+      display: inline-block;
+    }
+    .dark .file-list-item {
+      background: rgba(255,255,255,0.1);
+    }
+    .status-badge {
+      transition: all 0.2s;
+    }
+    .protocol-box {
+      font-family: monospace;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    .theme-toggle-btn {
+      background: none;
+      border: none;
+      font-size: 1.3rem;
+      cursor: pointer;
+      width: 40px;
+      border-radius: 50%;
+      transition: background 0.2s;
+    }
+    .theme-toggle-btn:hover {
+      background: rgba(0,0,0,0.1);
+    }
+    .dropdown-toggle-noarrow::after {
+      display: none;
+    }
+    footer {
+      font-size: 0.8rem;
+      border-top: 1px solid rgba(0,0,0,0.05);
+    }
+    .dark footer {
+      border-top-color: rgba(255,255,255,0.1);
+    }
+    .btn-outline-safety {
+      border-width: 1px;
+    }
+    @media (max-width: 768px) {
+      .immediate-buttons .btn {
+        font-size: 0.75rem;
+        padding: 6px 8px;
+      }
+    }
+    
+         /* Outher CSS */
+    .logo-maker{
+      border-radius: 50px;
+      width: 50px;
+      height: 50px;
+    }
+    
+    .logo-panel{
+      border-radius: 50px;
+      width: 30px;
+      height: 30px;
+    }
+        
+        .logo-panel { 
+            width: 24px;
+            height: 24px; 
+            vertical-align: middle;
+            margin-right: 5px; 
+        }
+        
+        .logo-point {
+            width: 100px; 
+            height: 50px;
+        }
+  </style>
+</head>
+<body class="bg-light">
+
+  <div class="container py-3 py-md-4">
+    <!-- Header com interruptor de tema e dropdown de idioma -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 mb-md-4 pb-2 border-bottom">
+      <div class="d-flex align-items-center gap-2">
+        <img src="images/Lux-logo-bg.png" class="logo-point" onerror="this.style.display='none'" alt="Logo">
+        <h1 class="h3 fw-semibold m-0" id="pageTitle">Central de Segurança</h1>
+        <span class="badge bg-warning text-dark ms-2"><i class="fas fa-shield-alt me-1"></i> <span id="headerBadge">Proteção Agrícola</span></span>
+      </div>
+      <div class="d-flex gap-2 mt-2 mt-sm-0">
+        <!-- Toggle Tema (interruptor) -->
+        <button id="themeSwitcher" class="theme-toggle-btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+          <i id="themeIcon" class="fas fa-moon"></i>
+        </button>
+        <!-- Dropdown Idioma -->
+        <div class="dropdown">
+          <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-globe"></i> <span id="currentLangLabel">PT</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#" data-lang="pt"><i class="fas fa-flag-checkered me-2"></i> Português</a></li>
+            <li><a class="dropdown-item" href="#" data-lang="en"><i class="fas fa-flag-usa me-2"></i> English</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALERTA PRINCIPAL -->
+    <div class="alert alert-warning border-2 border-warning d-flex align-items-center mb-4" role="alert">
+      <i class="fas fa-exclamation-triangle fs-3 me-3"></i>
+      <div>
+        <strong id="alertTitle">⚠ Proteja sua conta e suas vendas</strong><br>
+        <span id="alertDesc">“Se notar atividade suspeita, denuncie imediatamente.”</span>
+      </div>
+    </div>
+
+    <!-- CONTEÚDO PRINCIPAL: 2 colunas -->
+    <div class="row g-4">
+      <!-- COLUDA ESQUERDA: FORMULÁRIO DE DENÚNCIA + AÇÕES -->
+      <div class="col-lg-8">
+        <div class="card shadow-sm border-0 rounded-4 mb-4">
+          <div class="card-body p-4">
+            <h5 class="card-title mb-3"><i class="fas fa-flag-checkered text-danger me-2"></i><span id="formTitle">Detalhes da denúncia</span></h5>
+            
+            <!-- Tipo de Fraude -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold" id="labelFraudType"><i class="fas fa-list me-1"></i> Tipo de Fraude</label>
+              <select id="fraudTypeSelect" class="form-select"></select>
+            </div>
+
+            <!-- Descrição do Problema -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold" id="labelDescription"><i class="fas fa-pen-alt me-1"></i> Descrição do problema</label>
+              <textarea id="complaintDesc" class="form-control" rows="3" placeholder="Descreva com detalhes o ocorrido..."></textarea>
+            </div>
+
+            <!-- Anexar Evidência + upload -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold" id="labelEvidence"><i class="fas fa-paperclip me-1"></i> Anexar provas</label>
+              <div class="border rounded-3 p-3 bg-light">
+                <input type="file" id="evidenceFiles" class="d-none" multiple accept="image/*,application/pdf,.txt,.png,.jpg,.jpeg">
+                <button id="uploadBtn" class="btn btn-outline-primary btn-sm"><i class="fas fa-cloud-upload-alt me-1"></i> <span id="uploadBtnText">ANEXAR EVIDÊNCIA</span></button>
+                <div id="fileListContainer" class="mt-2 d-flex flex-wrap gap-1"></div>
+                <small class="text-muted" id="uploadHint">Formatos: imagens, PDF, até 5 arquivos (simulação)</small>
+              </div>
+            </div>
+
+            <!-- Dados do Suspeito (campos opcionais)-->
+            <div class="mb-3">
+              <label class="form-label fw-semibold" id="suspectSectionTitle"><i class="fas fa-user-secret me-1"></i> Dados do suspeito (opcionais)</label>
+              <div class="row g-2">
+                <div class="col-md-6"><input type="text" class="form-control form-control-sm" id="suspectName" placeholder="Nome do utilizador"></div>
+                <div class="col-md-6"><input type="tel" class="form-control form-control-sm" id="suspectPhone" placeholder="Número de telefone"></div>
+                <div class="col-md-6"><input type="text" class="form-control form-control-sm" id="suspectProfile" placeholder="Link do perfil"></div>
+                <div class="col-md-6"><input type="text" class="form-control form-control-sm" id="suspectCompany" placeholder="Nome da empresa"></div>
+                <div class="col-12"><input type="text" class="form-control form-control-sm" id="suspectLocation" placeholder="Localização aproximada"></div>
+              </div>
+            </div>
+
+            <!-- AÇÃO IMEDIATA (botões rápidos)-->
+            <div class="mb-4">
+              <label class="form-label fw-semibold" id="quickActionsLabel"><i class="fas fa-bolt me-1"></i> Ação imediata</label>
+              <div class="d-flex flex-wrap gap-2 immediate-buttons">
+                <button id="blockAccountBtn" class="btn btn-danger btn-sm"><i class="fas fa-lock me-1"></i> <span>Bloquear minha conta</span></button>
+                <button id="changePwdBtn" class="btn btn-warning btn-sm"><i class="fas fa-key me-1"></i> 
+                    <a href="change-password.html" ><span>Alterar senha</span></a>
+                  </button>
+                <button id="suspendAdsBtn" class="btn btn-secondary btn-sm"><i class="fas fa-ban me-1"></i> <span>Suspender anúncios</span></button>
+                <button id="removePostBtn" class="btn btn-dark btn-sm"><i class="fas fa-trash-alt me-1"></i> <span>Remover publicação</span></button>
+              </div>
+            </div>
+
+            <!-- Botão Enviar Denúncia -->
+            <button id="submitComplaintBtn" class="btn btn-success btn-lg w-100 rounded-pill py-2 fw-bold"><i class="fas fa-paper-plane me-2"></i> <span id="submitBtnText">ENVIAR DENÚNCIA</span></button>
+            <div id="submitFeedback" class="mt-2 small text-center"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COLUNA DIREITA: ACOMPANHAMENTO + CHAT + DICAS -->
+      <div class="col-lg-4">
+        <!-- Acompanhamento da Denúncia -->
+        <div class="card shadow-sm border-0 rounded-4 mb-4">
+          <div class="card-header bg-transparent fw-bold"><i class="fas fa-chart-line me-2 text-primary"></i><span id="trackingTitle">Acompanhamento da denúncia</span></div>
+          <div class="card-body" id="trackingBody">
+            <div id="statusDisplay" class="text-center py-2">
+              <i class="fas fa-inbox fa-2x text-secondary mb-2 d-block"></i>
+              <span id="statusText">Nenhuma denúncia enviada</span>
+            </div>
+            <div id="protocolArea" class="mt-2 text-center fw-bold protocol-box small"></div>
+            <hr>
+            <div class="d-flex justify-content-between mt-2">
+              <span><i class="far fa-circle text-secondary"></i> <span id="step1">📩 Recebida</span></span>
+              <span><i class="far fa-circle text-secondary"></i> <span id="step2">🔍 Em análise</span></span>
+              <span><i class="far fa-circle text-secondary"></i> <span id="step3">⚠ Conta investigada</span></span>
+              <span><i class="far fa-circle text-secondary"></i> <span id="step4">✔ Resolvida</span></span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Chat de Suporte -->
+        <div class="card shadow-sm border-0 rounded-4 mb-4 card-hover">
+          <div class="card-body d-flex align-items-center justify-content-between">
+            <div>
+              <i class="fas fa-headset text-success fs-3 me-2"></i>
+              <strong id="supportTitle">Falar com suporte</strong>
+            </div>
+            <button id="supportChatBtn" class="btn btn-sm btn-outline-success rounded-pill"><i class="fab fa-whatsapp me-1"></i> <span id="supportBtnText">Suporte via WhatsApp</span></button>
+          </div>
+        </div>
+        
+        <!-- Dicas de Segurança + IA diferencial -->
+        <div class="card border-0 rounded-4 bg-success bg-opacity-10">
+          <div class="card-body">
+            <h6 class="fw-bold"><i class="fas fa-lightbulb text-warning me-2"></i><span id="tipsTitle">Dicas de segurança</span></h6>
+            <ul class="list-unstyled small mb-2">
+              <li><i class="fas fa-lock me-2 text-success"></i> <span id="tip1">Nunca partilhe sua senha</span></li>
+              <li><i class="fas fa-hand-holding-usd me-2 text-success"></i> <span id="tip2">Confirme pagamentos antes da entrega</span></li>
+              <li><i class="fas fa-star me-2 text-success"></i> <span id="tip3">Verifique reputação do comprador</span></li>
+              <li><i class="fas fa-check-circle me-2 text-success"></i> <span id="tip4">Use apenas canais oficiais</span></li>
+            </ul>
+            <hr class="my-2">
+            <div class="d-flex align-items-center gap-2 mt-2">
+              <i class="fas fa-microchip fa-lg text-primary"></i>
+              <small class="fw-semibold" id="iaDiferencial">🧠 IA ativa: detecta comportamentos suspeitos e alerta em tempo real</small>
+            </div>
+          </div>
+        </div>
+        <!-- Frase de segurança -->
+        <div class="mt-3 text-center fst-italic text-muted">
+          <i class="fas fa-quote-left me-1"></i> <span id="safetyMotto">“Sua segurança vale mais que qualquer venda.”</span>
+        </div>
+      </div>
+    </div>
+  
+    <footer class="mt-5 pt-3 text-center text-muted small">
+      <span >© AgroLux - Proteção e <a href="rastreio.html" >rastreabilidade</a>para o Agro</span>
+    </footer>
+  </div>
+
+  <!-- Bootstrap JS + Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    // ---------- DICIONÁRIO DE TRADUÇÃO ----------
+    const translations = {
+      pt: {
+        pageTitle: "Central de Segurança - Denunciar Fraude",
+        headerBadge: "Proteção Agrícola",
+        alertTitle: "⚠ Proteja sua conta e suas vendas",
+        alertDesc: "“Se notar atividade suspeita, denuncie imediatamente.”",
+        formTitle: "Detalhes da denúncia",
+        labelFraudType: "Tipo de Fraude",
+        labelDescription: "Descrição do problema",
+        descPlaceholder: "Ex: Alguém entrou na minha conta e publicou produtos sem minha autorização.",
+        labelEvidence: "Anexar provas",
+        uploadBtnText: "ANEXAR EVIDÊNCIA",
+        uploadHint: "Formatos: imagens, PDF, até 5 arquivos (simulação)",
+        suspectSectionTitle: "Dados do suspeito (opcionais)",
+        suspectNamePlaceholder: "Nome do utilizador",
+        suspectPhonePlaceholder: "Número de telefone",
+        suspectProfilePlaceholder: "Link do perfil",
+        suspectCompanyPlaceholder: "Nome da empresa",
+        suspectLocationPlaceholder: "Localização aproximada",
+        quickActionsLabel: "Ação imediata",
+        blockAccount: "Bloquear minha conta",
+        changePwd: "Alterar senha",
+        suspendAds: "Suspender anúncios",
+        removePost: "Remover publicação",
+        submitBtnText: "ENVIAR DENÚNCIA",
+        trackingTitle: "Acompanhamento da denúncia",
+        noComplaint: "Nenhuma denúncia enviada",
+        stepReceived: "📩 Recebida",
+        stepAnalysis: "🔍 Em análise",
+        stepInvestigated: "⚠ Conta investigada",
+        stepResolved: "✔ Resolvida",
+        supportTitle: "Falar com suporte",
+        supportBtnText: "Suporte via WhatsApp",
+        tipsTitle: "Dicas de segurança",
+        tip1: "Nunca partilhe sua senha",
+        tip2: "Confirme pagamentos antes da entrega",
+        tip3: "Verifique reputação do comprador",
+        tip4: "Use apenas canais oficiais",
+        iaDiferencial: "🧠 IA ativa: detecta comportamentos suspeitos e alerta em tempo real",
+        safetyMotto: "“Sua segurança vale mais que qualquer venda.”",
+        footerText: "© AgroLux - Proteção e rastreabilidade para o Agro",
+        // msgs de alerta
+        blockAlert: "⚠️ Sua conta foi bloqueada temporariamente. Entre em contato com o suporte para reativar.",
+        changePwdAlert: "🔐 Redirecionamos você para a página de alteração de senha (simulação).",
+        suspendAdsAlert: "📢 Seus anúncios foram suspensos com sucesso.",
+        removePostAlert: "🗑️ Publicação removida (simulação segura).",
+        supportAlert: "📱 Nosso suporte via WhatsApp está disponível 24/7. Em breve você será redirecionado.",
+        successSubmit: "✅ Denúncia registrada! Nº de protocolo: ",
+        underAnalysisStatus: "📩 Recebida - Em análise preliminar",
+        emptyFieldsWarning: "⚠️ Por favor, informe pelo menos o tipo de fraude e descreva o problema.",
+      },
+      en: {
+        pageTitle: "Security Center - Report Fraud",
+        headerBadge: "Agricultural Protection",
+        alertTitle: "⚠ Protect your account and sales",
+        alertDesc: "“If you notice suspicious activity, report it immediately.”",
+        formTitle: "Complaint details",
+        labelFraudType: "Fraud Type",
+        labelDescription: "Problem description",
+        descPlaceholder: "E.g.: Someone accessed my account and posted products without permission.",
+        labelEvidence: "Attach evidence",
+        uploadBtnText: "ATTACH EVIDENCE",
+        uploadHint: "Formats: images, PDF, up to 5 files (simulation)",
+        suspectSectionTitle: "Suspect details (optional)",
+        suspectNamePlaceholder: "Username",
+        suspectPhonePlaceholder: "Phone number",
+        suspectProfilePlaceholder: "Profile link",
+        suspectCompanyPlaceholder: "Company name",
+        suspectLocationPlaceholder: "Approximate location",
+        quickActionsLabel: "Immediate action",
+        blockAccount: "Block my account",
+        changePwd: "Change password",
+        suspendAds: "Suspend ads",
+        removePost: "Remove post",
+        submitBtnText: "SUBMIT REPORT",
+        trackingTitle: "Complaint tracking",
+        noComplaint: "No complaints submitted",
+        stepReceived: "📩 Received",
+        stepAnalysis: "🔍 Under review",
+        stepInvestigated: "⚠ Account investigated",
+        stepResolved: "✔ Resolved",
+        supportTitle: "Talk to support",
+        supportBtnText: "Support via WhatsApp",
+        tipsTitle: "Security tips",
+        tip1: "Never share your password",
+        tip2: "Confirm payment before delivery",
+        tip3: "Check buyer reputation",
+        tip4: "Use only official channels",
+        iaDiferencial: "🧠 AI active: detects suspicious behavior and real-time alerts",
+        safetyMotto: "“Your safety is worth more than any sale.”",
+        footerText: "© AgroLux - Protection and traceability for Agribusiness",
+        blockAlert: "⚠️ Your account has been temporarily blocked. Contact support to reactivate.",
+        changePwdAlert: "🔐 You will be redirected to change your password (simulation).",
+        suspendAdsAlert: "📢 Your ads have been suspended successfully.",
+        removePostAlert: "🗑️ Post removed (safe simulation).",
+        supportAlert: "📱 Our WhatsApp support is available 24/7. You'll be redirected shortly.",
+        successSubmit: "✅ Report registered! Protocol number: ",
+        underAnalysisStatus: "📩 Received - Under preliminary review",
+        emptyFieldsWarning: "⚠️ Please select fraud type and describe the problem.",
+      }
+    };
+    
+    // Tipos de fraude para os selects
+    const fraudTypes = {
+      pt: [
+        "Uso indevido da minha conta", "Comprador falso", "Pagamento suspeito", "Anúncio falso",
+        "Perfil falso", "Tentativa de golpe", "Produto inexistente", "Roubo de identidade",
+        "Divulgação sem autorização"
+      ],
+      en: [
+        "Unauthorized account use", "Fake buyer", "Suspicious payment", "Fake ad",
+        "Fake profile", "Scam attempt", "Nonexistent product", "Identity theft",
+        "Unauthorized sharing"
+      ]
+    };
+    
+    let currentLang = 'pt';
+    let currentProtocol = null;
+    let attachedFiles = []; // apenas simulação de nomes
+    
+    // Elementos DOM (ids importantes)
+    const elements = {
+      pageTitle: document.getElementById('pageTitle'),
+      headerBadge: document.getElementById('headerBadge'),
+      alertTitle: document.getElementById('alertTitle'),
+      alertDesc: document.getElementById('alertDesc'),
+      formTitle: document.getElementById('formTitle'),
+      labelFraudType: document.getElementById('labelFraudType'),
+      labelDescription: document.getElementById('labelDescription'),
+      complaintDesc: document.getElementById('complaintDesc'),
+      labelEvidence: document.getElementById('labelEvidence'),
+      uploadBtnText: document.getElementById('uploadBtnText'),
+      uploadHint: document.getElementById('uploadHint'),
+      suspectSectionTitle: document.getElementById('suspectSectionTitle'),
+      quickActionsLabel: document.getElementById('quickActionsLabel'),
+      submitBtnText: document.getElementById('submitBtnText'),
+      trackingTitle: document.getElementById('trackingTitle'),
+      statusText: document.getElementById('statusText'),
+      step1: document.getElementById('step1'),
+      step2: document.getElementById('step2'),
+      step3: document.getElementById('step3'),
+      step4: document.getElementById('step4'),
+      supportTitle: document.getElementById('supportTitle'),
+      supportBtnText: document.getElementById('supportBtnText'),
+      tipsTitle: document.getElementById('tipsTitle'),
+      tip1: document.getElementById('tip1'),
+      tip2: document.getElementById('tip2'),
+      tip3: document.getElementById('tip3'),
+      tip4: document.getElementById('tip4'),
+      iaDiferencial: document.getElementById('iaDiferencial'),
+      safetyMotto: document.getElementById('safetyMotto'),
+      footerText: document.getElementById('footerText'),
+      currentLangLabel: document.getElementById('currentLangLabel')
+    };
+    
+    // Atualizar placeholders dos campos dados suspeito
+    function updateSuspectPlaceholders() {
+      document.getElementById('suspectName').placeholder = translations[currentLang].suspectNamePlaceholder;
+      document.getElementById('suspectPhone').placeholder = translations[currentLang].suspectPhonePlaceholder;
+      document.getElementById('suspectProfile').placeholder = translations[currentLang].suspectProfilePlaceholder;
+      document.getElementById('suspectCompany').placeholder = translations[currentLang].suspectCompanyPlaceholder;
+      document.getElementById('suspectLocation').placeholder = translations[currentLang].suspectLocationPlaceholder;
+    }
+    
+    // Atualizar textos dos botões de ação imediata
+    function updateActionButtonsText() {
+      const btnBlock = document.querySelector('#blockAccountBtn span');
+      const btnPwd = document.querySelector('#changePwdBtn span');
+      const btnSuspend = document.querySelector('#suspendAdsBtn span');
+      const btnRemove = document.querySelector('#removePostBtn span');
+      if(btnBlock) btnBlock.innerText = translations[currentLang].blockAccount;
+      if(btnPwd) btnPwd.innerText = translations[currentLang].changePwd;
+      if(btnSuspend) btnSuspend.innerText = translations[currentLang].suspendAds;
+      if(btnRemove) btnRemove.innerText = translations[currentLang].removePost;
+    }
+    
+    // Popular dropdown de fraudes
+    function populateFraudSelect() {
+      const select = document.getElementById('fraudTypeSelect');
+      select.innerHTML = '';
+      fraudTypes[currentLang].forEach(type => {
+        const option = document.createElement('option');
+        option.value = type;
+        option.textContent = type;
+        select.appendChild(option);
+      });
+    }
+    
+    // Atualizar toda a interface de acordo com o idioma
+    function updateLanguageUI() {
+      const t = translations[currentLang];
+      elements.pageTitle.innerText = t.pageTitle;
+      elements.headerBadge.innerText = t.headerBadge;
+      elements.alertTitle.innerText = t.alertTitle;
+      elements.alertDesc.innerText = t.alertDesc;
+      elements.formTitle.innerText = t.formTitle;
+      elements.labelFraudType.innerText = t.labelFraudType;
+      elements.labelDescription.innerText = t.labelDescription;
+      elements.complaintDesc.placeholder = t.descPlaceholder;
+      elements.labelEvidence.innerText = t.labelEvidence;
+      elements.uploadBtnText.innerText = t.uploadBtnText;
+      elements.uploadHint.innerText = t.uploadHint;
+      elements.suspectSectionTitle.innerText = t.suspectSectionTitle;
+      elements.quickActionsLabel.innerText = t.quickActionsLabel;
+      elements.submitBtnText.innerText = t.submitBtnText;
+      elements.trackingTitle.innerText = t.trackingTitle;
+      if(!currentProtocol) elements.statusText.innerText = t.noComplaint;
+      else elements.statusText.innerText = t.underAnalysisStatus;
+      elements.step1.innerText = t.stepReceived;
+      elements.step2.innerText = t.stepAnalysis;
+      elements.step3.innerText = t.stepInvestigated;
+      elements.step4.innerText = t.stepResolved;
+      elements.supportTitle.innerText = t.supportTitle;
+      elements.supportBtnText.innerText = t.supportBtnText;
+      elements.tipsTitle.innerText = t.tipsTitle;
+      elements.tip1.innerText = t.tip1;
+      elements.tip2.innerText = t.tip2;
+      elements.tip3.innerText = t.tip3;
+      elements.tip4.innerText = t.tip4;
+      elements.iaDiferencial.innerText = t.iaDiferencial;
+      elements.safetyMotto.innerText = t.safetyMotto;
+      elements.footerText.innerText = t.footerText;
+      elements.currentLangLabel.innerText = currentLang.toUpperCase();
+      updateSuspectPlaceholders();
+      updateActionButtonsText();
+      populateFraudSelect();
+    }
+    
+    // Função para enviar denúncia (simulação)
+    function submitComplaint() {
+      const fraudType = document.getElementById('fraudTypeSelect').value;
+      const description = document.getElementById('complaintDesc').value.trim();
+      if (!fraudType || !description) {
+        const feedback = document.getElementById('submitFeedback');
+        feedback.innerHTML = `<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${translations[currentLang].emptyFieldsWarning}</span>`;
+        setTimeout(() => feedback.innerHTML = '', 3000);
+        return;
+      }
+      // Gerar protocolo aleatório
+      const protocol = 'AGRO-' + Math.floor(Math.random() * 1000000).toString().padStart(6,'0');
+      currentProtocol = protocol;
+      // Atualizar área de status
+      document.getElementById('statusText').innerHTML = `<i class="fas fa-check-circle text-success"></i> ${translations[currentLang].underAnalysisStatus}`;
+      document.getElementById('protocolArea').innerHTML = `<i class="fas fa-barcode"></i> ${protocol}`;
+      // Atualizar visual de etapas: primeira etapa ativa
+      const steps = ['step1', 'step2', 'step3', 'step4'];
+      steps.forEach(step => {
+        const el = document.getElementById(step);
+        el.innerHTML = el.innerHTML;
+        el.style.opacity = '0.6';
+      });
+      document.getElementById('step1').style.opacity = '1';
+      document.getElementById('step1').innerHTML = `📩 ${translations[currentLang].stepReceived}`;
+      // feedback
+      const feedbackDiv = document.getElementById('submitFeedback');
+      feedbackDiv.innerHTML = `<span class="text-success"><i class="fas fa-check-circle"></i> ${translations[currentLang].successSubmit} ${protocol}</span>`;
+      setTimeout(() => feedbackDiv.innerHTML = '', 5000);
+      // simular suporte notificado
+      console.log("Denúncia enviada", { fraudType, description, files: attachedFiles });
+    }
+    
+    // File upload simulation
+    const fileInput = document.getElementById('evidenceFiles');
+    const uploadButton = document.getElementById('uploadBtn');
+    const fileContainer = document.getElementById('fileListContainer');
+    uploadButton.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => {
+      attachedFiles = Array.from(e.target.files);
+      fileContainer.innerHTML = '';
+      attachedFiles.forEach(file => {
+        const badge = document.createElement('span');
+        badge.className = 'file-list-item';
+        badge.innerHTML = `<i class="fas fa-file-alt me-1"></i> ${file.name.substring(0, 20)}`;
+        fileContainer.appendChild(badge);
+      });
+      if(attachedFiles.length === 0) fileContainer.innerHTML = '<small class="text-muted">Nenhum arquivo anexado</small>';
+    });
+    
+    // Ações imediatas (alertas simulados)
+    document.getElementById('blockAccountBtn').addEventListener('click', () => alert(translations[currentLang].blockAlert));
+    document.getElementById('changePwdBtn').addEventListener('click', () => alert(translations[currentLang].changePwdAlert));
+    document.getElementById('suspendAdsBtn').addEventListener('click', () => alert(translations[currentLang].suspendAdsAlert));
+    document.getElementById('removePostBtn').addEventListener('click', () => alert(translations[currentLang].removePostAlert));
+    document.getElementById('supportChatBtn').addEventListener('click', () => alert(translations[currentLang].supportAlert));
+    document.getElementById('submitComplaintBtn').addEventListener('click', submitComplaint);
+    
+    // ---------- Theme toggler (interruptor dark/light) ----------
+    const themeSwitcher = document.getElementById('themeSwitcher');
+    const themeIcon = document.getElementById('themeIcon');
+    function setTheme(theme) {
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-bs-theme', 'dark');
+        document.body.classList.add('dark');
+        themeIcon.className = 'fas fa-sun';
+        localStorage.setItem('agroTheme', 'dark');
+      } else {
+        document.documentElement.setAttribute('data-bs-theme', 'light');
+        document.body.classList.remove('dark');
+        themeIcon.className = 'fas fa-moon';
+        localStorage.setItem('agroTheme', 'light');
+      }
+    }
+    themeSwitcher.addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+      setTheme(isDark ? 'light' : 'dark');
+    });
+    const savedTheme = localStorage.getItem('agroTheme');
+    if (savedTheme === 'dark') setTheme('dark');
+    else setTheme('light');
+    
+    // ---------- Idioma (dropdown) ----------
+    document.querySelectorAll('[data-lang]').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        const newLang = item.getAttribute('data-lang');
+        if (newLang === currentLang) return;
+        currentLang = newLang;
+        updateLanguageUI();
+        // se já havia protocolo, manter status geral
+        if(currentProtocol) {
+          document.getElementById('statusText').innerHTML = `<i class="fas fa-check-circle text-success"></i> ${translations[currentLang].underAnalysisStatus}`;
+          document.getElementById('protocolArea').innerHTML = `<i class="fas fa-barcode"></i> ${currentProtocol}`;
+          document.getElementById('step1').innerHTML = `📩 ${translations[currentLang].stepReceived}`;
+          document.getElementById('step2').innerHTML = `🔍 ${translations[currentLang].stepAnalysis}`;
+          document.getElementById('step3').innerHTML = `⚠ ${translations[currentLang].stepInvestigated}`;
+          document.getElementById('step4').innerHTML = `✔ ${translations[currentLang].stepResolved}`;
+        } else {
+          document.getElementById('statusText').innerText = translations[currentLang].noComplaint;
+          document.getElementById('protocolArea').innerHTML = '';
+        }
+      });
+    });
+    
+    // Initialize default language (Portuguese)
+    updateLanguageUI();
+    // Inicializar container de arquivos vazio
+    fileContainer.innerHTML = '<small class="text-muted">Nenhum arquivo anexado</small>';
+  </script>
+</body>
+</html>

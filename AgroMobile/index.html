@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>AgroLux</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+            background-image: url('images/Bg-entregas.jpg');
+            background-size: cover;
+            background-position: center 30%;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-color: #2c4a2e;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* SPLASH OVERLAY – totalmente transparente, apenas flex para centralizar a imagem */
+        .splash-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            backdrop-filter: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            cursor: default;
+            transition: opacity 0.45s ease-out;
+        }
+
+        /* Estilo directo para a imagem do logótipo – sem container, sem fundo, sem bordas */
+        #logoClickZone {
+            width: 95%;
+            height: auto;
+            cursor: pointer;
+            animation: gentleRise 0.55s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards;
+            transition: transform 0.25s ease;
+            display: block;
+        }
+
+        #logoClickZone:hover {
+            transform: scale(1.02);
+        }
+
+        @keyframes gentleRise {
+            0% {
+                opacity: 0;
+                transform: translateY(20px) scale(0.96);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Qualquer estilo residual de container antigo foi removido */
+        /* Não há mais .logo-container, .logo-svg, etc. */
+
+        /* Barra de progresso, textos e outros elementos (mantidos mas não usados neste HTML) */
+        .progress-area, .progress-track, .progress-fill, .info-message, .click-hint,
+        .logo-title, .logo-sub {
+            display: none;
+        }
+
+        /* Responsivo */
+        @media (max-width: 480px) {
+            #logoClickZone {
+                width: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ECRÃ SPLASH – sem qualquer container visual, apenas a imagem do logo -->
+    <div id="splashScreen" class="splash-overlay">
+        <img src="images/Lux-logo-bg.png" id="logoClickZone" alt="AgroLux Logo" >
+    </div>
+
+    <script>
+        (function() {
+            // ========== REDIRECIONAMENTO PARA login.html ==========
+            const DESTINATION = 'login.html';
+            const REDIRECT_DELAY_MS = 10000;      // 10 segundos
+            
+            let redirectTimer = null;
+            let isRedirecting = false;
+
+            const splashElement = document.getElementById('splashScreen');
+            const clickZone = document.getElementById('logoClickZone');
+            
+            function performRedirect() {
+                if (isRedirecting) return;
+                isRedirecting = true;
+                
+                if (redirectTimer) {
+                    clearTimeout(redirectTimer);
+                    redirectTimer = null;
+                }
+                
+                if (splashElement) {
+                    splashElement.style.opacity = '0';
+                    setTimeout(() => {
+                        window.location.href = DESTINATION;
+                    }, 180);
+                } else {
+                    window.location.href = DESTINATION;
+                }
+            }
+            
+            function manualRedirectHandler(event) {
+                if (isRedirecting) return;
+                if (redirectTimer) {
+                    clearTimeout(redirectTimer);
+                    redirectTimer = null;
+                }
+                // pequeno feedback visual
+                if (clickZone) {
+                    clickZone.style.transform = 'scale(0.98)';
+                    setTimeout(() => {
+                        if (clickZone) clickZone.style.transform = '';
+                    }, 120);
+                }
+                performRedirect();
+            }
+            
+            function initSplash() {
+                // temporizador automático
+                redirectTimer = setTimeout(() => {
+                    performRedirect();
+                }, REDIRECT_DELAY_MS);
+                
+                // clique na imagem
+                if (clickZone) {
+                    clickZone.addEventListener('click', manualRedirectHandler);
+                    clickZone.setAttribute('aria-label', 'Clique para redirecionar para login.html agora');
+                    clickZone.setAttribute('role', 'button');
+                    clickZone.setAttribute('tabindex', '0');
+                    clickZone.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            manualRedirectHandler(e);
+                        }
+                    });
+                }
+            }
+            
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initSplash);
+            } else {
+                initSplash();
+            }
+        })();
+    </script>
+</body>
+</html>

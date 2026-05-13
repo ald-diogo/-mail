@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>AgroLux Trends | Tendências do Mercado Agrícola</title>
+    <!-- Font Awesome 6 (ícones modernos) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Leaflet CSS (Mapa Interativo) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        * {
+            /*margin: 0;*/
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, color 0.2s ease, border-color 0.2s ease;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        :root {
+            --bg-body: #f4f7fc;
+            --bg-card: #ffffff;
+            --text-primary: #1a2c3e;
+            --text-secondary: #4a627a;
+            --accent: #2b7a4b;
+            --accent-light: #e9f5ef;
+            --border: #e2e8f0;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+            --gradient-header: linear-gradient(135deg, #1f4f2b, #2b7a4b);
+            --rank-bg: #fef9e3;
+            --alert-bg: #fff5e6;
+        }
+
+        body.dark {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --accent: #4ade80;
+            --accent-light: #1e2a3a;
+            --border: #334155;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            --gradient-header: linear-gradient(135deg, #0f2e1f, #14532d);
+            --rank-bg: #2d3a2a;
+            --alert-bg: #2d2a1f;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            line-height: 1.5;
+            padding: 2rem 1.5rem;
+        }
+
+        /* Import Inter font */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700&display=swap');
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            background: var(--gradient-header);
+            padding: 1.8rem 2rem;
+            border-radius: 2rem;
+            color: white;
+            box-shadow: var(--shadow);
+        }
+        .header-text h1 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .header-text p {
+            margin-top: 0.5rem;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        .icon-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            backdrop-filter: blur(4px);
+            padding: 0.75rem 1.2rem;
+            border-radius: 3rem;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        .icon-btn:hover {
+            background: rgba(255,255,255,0.35);
+            transform: scale(1.02);
+        }
+
+        /* Grid layout */
+        .grid-2col {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 1.8rem;
+            margin-bottom: 2rem;
+        }
+        .card {
+            background: var(--bg-card);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.15);
+        }
+        .card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            border-left: 4px solid var(--accent);
+            padding-left: 0.8rem;
+        }
+        .rank-list {
+            list-style: none;
+        }
+        .rank-list li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.7rem 0;
+            border-bottom: 1px solid var(--border);
+            font-weight: 500;
+        }
+        .rank-number {
+            font-weight: 800;
+            background: var(--accent-light);
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 60%;
+            margin-right: 1rem;
+            color: var(--accent);
+        }
+        .badge-hot {
+            background: #ff8c42;
+            padding: 0.2rem 0.7rem;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            color: white;
+        }
+        .opportunity-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .opp-item {
+            background: var(--accent-light);
+            padding: 1rem;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .filter-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        select, button.smart-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 0.6rem 1rem;
+            border-radius: 2rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        .trend-local {
+            background: var(--rank-bg);
+            padding: 1rem;
+            border-radius: 1.2rem;
+            margin-top: 1rem;
+        }
+        .chart-container {
+            height: 240px;
+            margin: 1rem 0;
+        }
+        .price-compare {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .price-card {
+            background: var(--accent-light);
+            border-radius: 1rem;
+            padding: 0.7rem 1rem;
+            text-align: center;
+            flex: 1;
+            margin: 0.3rem;
+        }
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin: 1rem 0;
+        }
+        .btn-primary {
+            background: var(--accent);
+            border: none;
+            padding: 0.7rem 1.2rem;
+            border-radius: 2rem;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: 0.2s;
+        }
+        .btn-primary:hover {
+            filter: brightness(1.08);
+            transform: scale(0.98);
+        }
+        .links-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-top: 0.8rem;
+        }
+        .smart-link {
+            background: transparent;
+            border: 1px solid var(--accent);
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            color: var(--accent);
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .alert-list {
+            list-style: none;
+        }
+        .alert-list li {
+            background: var(--alert-bg);
+            margin-bottom: 0.7rem;
+            padding: 0.8rem;
+            border-radius: 1rem;
+            display: flex;
+            gap: 0.7rem;
+            align-items: center;
+        }
+        .map-container {
+            height: 280px;
+            border-radius: 1.2rem;
+            overflow: hidden;
+            margin-top: 0.5rem;
+            border: 1px solid var(--border);
+        }
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        @media (max-width: 760px) {
+            body { padding: 1rem; }
+            .header { flex-direction: column; align-items: start; gap: 1rem; }
+        }
+      
+      
+      /*=========================== OUTHER CSS ================================*/
+       /* Conteúdo de fundo (apenas decorativo, sem elementos interativos extras) */
+        .background-message {
+            text-align: center;
+            padding: 2rem;
+            color: rgba(255, 255, 220, 0.7);
+            max-width: 600px;
+            z-index: 1;
+            pointer-events: none; /* o overlay do modal cobre tudo, mas por garantia */
+        }
+        .background-message i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #d4c17c;
+        }
+        .background-message h2 {
+            font-weight: 700;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        .background-message p {
+            font-size: 1rem;
+            backdrop-filter: blur(4px);
+            background: rgba(0,0,0,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 60px;
+            display: inline-block;
+        }
+
+        /* ========= MODAL INVASIVO ========= */
+        /* Overlay que cobre TUDO, sem possibilidade de fechar clicando fora */
+        .modal-invasivo-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(14px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0.2s, opacity 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            cursor: default; /* não permite fechar por clique no fundo → invasivo */
+        }
+
+        .modal-invasivo-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Card principal do modal - estilo premium */
+        .modal-card-agro {
+            background: #ffffff;
+            max-width: 1000px;
+            width: 90%;
+            border-radius: 52px;
+            overflow: hidden;
+            box-shadow: 0 40px 70px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 230, 140, 0.3);
+            transform: scale(0.94);
+            transition: transform 0.4s ease-out;
+        }
+
+        .active .modal-card-agro {
+            transform: scale(1);
+        }
+
+        /* Layout flex: imagem esquerda / conteúdo direito */
+        .modal-flex {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        /* lado esquerdo - imagem agrícola animada e partículas */
+        .modal-imagem-lado {
+            flex: 1.2;
+            background: transparent;
+            position: relative;
+            overflow: hidden;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .img-wrapper {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .img-agricola {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            animation: levitarGlow 5s infinite alternate ease-in-out;
+            filter: brightness(1.02) contrast(1.05);
+        }
+
+        @keyframes levitarGlow {
+            0% {
+                transform: scale(1) translateY(0px);
+                filter: drop-shadow(0 6px 10px rgba(0,0,0,0.3));
+            }
+            100% {
+                transform: scale(1.03) translateY(-10px);
+                filter: drop-shadow(0 22px 25px rgba(0,0,0,0.5));
+            }
+        }
+
+        /* partículas flutuantes (estilo mágico) */
+        .campo-particulas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .particula {
+            position: absolute;
+            background: radial-gradient(circle, #ffec9f, #ffc107);
+            border-radius: 50%;
+            opacity: 0.7;
+            animation: flutuar 7s infinite linear;
+        }
+        @keyframes flutuar {
+            0% {
+                transform: translateY(0) translateX(0) scale(0.4);
+                opacity: 0;
+            }
+            20% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-120px) translateX(25px) scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        /* lado direito - conteúdo promocional fiel ao briefing */
+        .modal-conteudo-lado {
+            flex: 1;
+            padding: 2.2rem 2rem 2rem 2rem;
+            background: #FFFDF5;
+            position: relative;
+        }
+
+        /* Botão fechar (X) único meio de fechar - invasivo e claro */
+        .btn-fechar-modal {
+            position: absolute;
+            top: 22px;
+            right: 26px;
+            background: #e7dfcd;
+            width: 38px;
+            height: 38px;
+            border-radius: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #5a3a1a;
+            border: none;
+            font-size: 1.3rem;
+            z-index: 10;
+        }
+        .btn-fechar-modal:hover {
+            background: #c9b16b;
+            color: #2c1a06;
+            transform: rotate(90deg) scale(1.05);
+        }
+
+        /* título principal (exatamente como no texto do desafio) */
+        .titulo-desafio {
+            font-size: 2.2rem;
+            font-weight: 800;
+            line-height: 1.2;
+            background: linear-gradient(135deg, #1f6522, #89c45e);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 1rem;
+            letter-spacing: -0.3px;
+        }
+
+        .descricao-oferta {
+            color: #3d4a2e;
+            font-weight: 500;
+            font-size: 1rem;
+            margin: 1rem 0 1.2rem 0;
+            line-height: 1.5;
+        }
+
+        /* lista com ícones */
+        .lista-vantagens {
+            list-style: none;
+            padding-left: 0;
+            margin: 1.8rem 0;
+        }
+        .lista-vantagens li {
+            margin-bottom: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: #274e13;
+            font-size: 1rem;
+        }
+        .lista-vantagens li i {
+            color: #3ca53c;
+            font-size: 1.4rem;
+            width: 28px;
+        }
+
+        /* Botão principal chamativo e pulsante */
+        .btn-tentar-agora-invasivo {
+            background: linear-gradient(100deg, #2f9e2f, #1a691a);
+            border: none;
+            padding: 15px 20px;
+            font-size: 1.25rem;
+            font-weight: 800;
+            border-radius: 80px;
+            color: white;
+            width: 100%;
+            transition: all 0.25s;
+            box-shadow: 0 12px 18px rgba(40, 100, 20, 0.4);
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .btn-tentar-agora-invasivo:hover {
+            background: linear-gradient(100deg, #218c21, #0f540f);
+            transform: scale(1.02);
+            box-shadow: 0 16px 28px rgba(30, 100, 10, 0.6);
+        }
+
+        .texto-tempo-limitado {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #a0824b;
+            margin-top: 1rem;
+            font-weight: 500;
+        }
+
+        /* responsivo: imagem em cima e botão largo */
+        @media (max-width: 720px) {
+            .modal-flex {
+                flex-direction: column;
+            }
+            .modal-imagem-lado {
+                min-height: 220px;
+            }
+            .modal-conteudo-lado {
+                padding: 1.6rem;
+            }
+            .titulo-desafio {
+                font-size: 1.7rem;
+            }
+            .btn-tentar-agora-invasivo {
+                padding: 12px;
+                font-size: 1.1rem;
+            }
+            .lista-vantagens li {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Pequeno texto discreto no rodapé da página (não interfere no modal) */
+        .info-timer {
+            position: fixed;
+            bottom: 16px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 0.7rem;
+            color: #bdcc9b;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            width: fit-content;
+            margin: 0 auto;
+            padding: 4px 14px;
+            border-radius: 60px;
+            z-index: 100;
+            pointer-events: none;
+            font-weight: 500;
+        }
+      
+       /* ===== ÍCONE FLUTUANTE TIPO OLHO (ADICIONADO SEM ALTERAR NADA DO MODAL) ===== */
+        .floating-eye-icon {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            background: linear-gradient(135deg, #1e315f, #0f3b0f);
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25), 0 0 0 3px rgba(255,215,0,0.6);
+            z-index: 1500;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(2px);
+        }
+
+        .floating-eye-icon i {
+            font-size: 2.2rem;
+            color: #FFE484;
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));
+            transition: transform 0.2s;
+        }
+
+        .floating-eye-icon:hover {
+            transform: scale(1.07);
+            background: linear-gradient(135deg, #2f7a2f, #1c551c);
+            box-shadow: 0 18px 28px rgba(0, 0, 0, 0.3), 0 0 0 4px #ffd966;
+        }
+
+        .floating-eye-icon:hover i {
+            transform: scale(1.02);
+        }
+
+        /* Efeito de pulso discreto */
+        .floating-eye-icon {
+            animation: softPulse 2s infinite;
+        }
+
+        @keyframes softPulse {
+            0% {
+                box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25), 0 0 0 3px rgba(255,215,0,0.5);
+            }
+            50% {
+                box-shadow: 0 14px 28px rgba(0, 0, 0, 0.3), 0 0 0 5px rgba(255, 200, 0, 0.9);
+            }
+            100% {
+                box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25), 0 0 0 3px rgba(255,215,0,0.5);
+            }
+        }
+
+        /* Acessibilidade e tooltip no hover */
+        .floating-eye-icon::after {
+            content: "Ver desafio";
+            position: absolute;
+            bottom: 75px;
+            right: 0;
+            background: #1f2e1b;
+            color: #f9f3cf;
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 40px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.2s;
+            font-family: 'Segoe UI', system-ui;
+            letter-spacing: 0.3px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .floating-eye-icon:hover::after {
+            opacity: 1;
+            bottom: 72px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Cabeçalho com ações de tema e idioma -->
+    <div class="header">
+        <div class="header-text">
+            <h1><i class="fas fa-arrow-trend-up"></i> <span id="main-title">Tendências do Mercado</span></h1>
+            <p id="subtitle">Descubra o que está em alta no mercado agrícola</p>
+        </div>
+        <div class="header-actions">
+            <button id="themeToggleBtn" class="icon-btn"><i class="fas fa-moon"></i> <span id="theme-text">Tema Escuro</span></button>
+            <button id="langToggleBtn" class="icon-btn"><i class="fas fa-globe"></i> <span id="lang-text">EN</span></button>
+        </div>
+    </div>
+
+    <!-- Seção 2 colunas: Produtos Mais Procurados + Culturas em Alta -->
+    <div class="grid-2col">
+        <div class="card">
+            <h3><i class="fas fa-fire" style="color:#ff8c42;"></i> <span id="hot-title">Mais Procurados da Semana</span></h3>
+            <ul id="top-products-list" class="rank-list"></ul>
+        </div>
+        <div class="card">
+            <h3><i class="fas fa-seedling" style="color:#4ade80;"></i> <span id="growing-title"> Culturas em Crescimento</span></h3>
+            <ul id="growing-cultures-list" style="list-style: none;"></ul>
+        </div>
+    </div>
+
+    <!-- Oportunidades de Venda (Cards) -->
+    <div class="card" style="margin-bottom: 2rem;">
+        <h3><i class="fas fa-store"></i> <span id="opportunities-title">Oportunidades de Venda</span></h3>
+        <div id="opportunities-container" class="opportunity-cards"></div>
+    </div>
+
+    <!-- Tendências Agrícolas Locais + Filtros -->
+    <div class="card" style="margin-bottom: 2rem;">
+        <h3><i class="fas fa-map-marker-alt"></i> <span id="local-trends-title">Tendências Agrícolas Locais</span></h3>
+        <div class="filter-group">
+            <select id="provinceSelect"></select>
+            <select id="municipioSelect"></select>
+        </div>
+        <div id="localTrendDisplay" class="trend-local">
+            <p><strong id="location-label">Malanje</strong></p>
+            <p id="local-demand-text">Alta procura por: Tomate, banana e mandioca</p>
+        </div>
+    </div>
+
+    <!-- Gráfico de Crescimento + Comparação de Preços (lado a lado) -->
+    <div class="grid-2col">
+        <div class="card">
+            <h3><i class="fas fa-chart-simple"></i> <span id="growth-chart-title">Crescimento da Procura (Mensal)</span></h3>
+            <div class="chart-container">
+                <canvas id="growthChart"></canvas>
+            </div>
+            <p class="text-secondary" style="font-size: 0.8rem;" id="chart-caption">Evolução semanal/mensal de interesse por produtos agrícolas.</p>
+        </div>
+        <div class="card">
+            <h3><i class="fas fa-coins"></i> <span id="price-comp-title">Comparação de Preços Médios</span></h3>
+            <div class="chart-container">
+                <canvas id="priceChart"></canvas>
+            </div>
+            <div id="price-list" class="price-compare"></div>
+        </div>
+    </div>
+
+    <!-- Recomendações Inteligentes e Botões de Ação -->
+    <div class="grid-2col">
+        <div class="card">
+            <h3><i class="fas fa-lightbulb"></i> <span id="rec-title">Recomendações Inteligentes</span></h3>
+            <div id="recommendation-text" class="trend-local" style="margin-top: 0;">
+                <i class="fas fa-bolt"></i> <span id="rec-desc">Seu produto possui alta procura nesta região. Recomendamos reforçar a divulgação no Facebook e Instagram.</span>
+            </div>
+        </div>
+        <div class="card">
+            <h3><i class="fas fa-bullhorn"></i> <span id="actions-title">Ações Rápidas</span></h3>
+            <div id="action-buttons-container" class="action-buttons"></div>
+        </div>
+    </div>
+
+    <!-- Links Inteligentes + Alertas de Mercado -->
+    <div class="grid-2col">
+        <div class="card">
+            <h3><i class="fas fa-link"></i> <span id="smartlinks-title">Links Inteligentes</span></h3>
+            <div id="smart-links-container" class="links-grid"></div>
+        </div>
+        <div class="card">
+            <h3><i class="fas fa-bell"></i> <span id="alerts-title">Alertas de Mercado</span></h3>
+            <ul id="alerts-list" class="alert-list"></ul>
+        </div>
+    </div>
+
+    <!-- Histórico de Tendências + Mapa Interativo -->
+    <div class="grid-2col">
+        <div class="card">
+            <h3><i class="fas fa-history"></i> <span id="history-title">Histórico de Tendências</span></h3>
+            <div id="history-container"></div>
+        </div>
+        <div class="card">
+            <h3><i class="fas fa-map"></i> <span id="map-title">Mapa de Oportunidades</span></h3>
+            <div id="interactiveMap" class="map-container"></div>
+            <p class="text-secondary" style="font-size: 0.75rem; margin-top: 8px;">
+                <i class="fas fa-info-circle"></i> 
+                <span id="map-note">Clique nos marcadores para ver demanda local</span>
+            </p>
+        </div>
+    </div>
+    <footer>
+        <span id="footer-text">AgroLux - Decisões baseadas em dados reais</span>
+    </footer>
+</div>
+  
+  <!-- MODAL PUBLICITÁRIO INVASIVO (EXATAMENTE CONTEÚDO DA IMAGEM) -->
+  <div id="modalInvasivo" class="modal-invasivo-overlay">
+        <div class="modal-card-agro">
+            <div class="modal-flex">
+                <!-- Lado esquerdo: imagem agrícola com animação e partículas -->
+                <div class="modal-imagem-lado">
+                    <div class="img-wrapper">
+                        <img class="img-agricola" 
+                             src="images/Quiz-BG.jpg"
+                             alt="Agricultor usando tablet na lavoura"
+                             onerror="this.src='https://placehold.co/600x500/3a723a/ffffff?text=🌾+Campo+Digital'">
+                        <div class="campo-particulas" id="particlesField"></div>
+                    </div>
+                </div>
+
+                <!-- Lado direito: conteúdo promocional fiel à imagem fornecida -->
+                <div class="modal-conteudo-lado">
+                    <div class="btn-fechar-modal" id="fecharModalBtn">
+                        <i class="fas fa-times"></i>
+                    </div>
+                    
+                    <!-- título exato: "Desafio do Dia Novo Quiz Agrícola!" conforme descrição -->
+                    <div class="titulo-desafio">
+                        <i class="fas fa-tasks"></i> Desafio do Dia<br>Novo Quiz Agrícola!
+                    </div>
+                    
+                    <p class="descricao-oferta">
+                        Teste seus conhecimentos em técnicas avançadas de cultivo, sustentabilidade e ganhe recompensas exclusivas.
+                    </p>
+                    
+                    <!-- lista com os três itens do modal original -->
+                    <ul class="lista-vantagens">
+                        <li><i class="fas fa-check-circle"></i> <strong>Novas perguntas</strong> – safra e pecuária digital</li>
+                        <li><i class="fas fa-check-circle"></i> <strong>Medalhas especiais</strong> – conquiste selos rurais</li>
+                        <li><i class="fas fa-check-circle"></i> <strong>Ranking semanal</strong> – compare com os melhores agricultores</li>
+                    </ul>
+                    
+                    <button class="btn-tentar-agora-invasivo" id="tentarAgoraBtn">
+                        <a href="quiz.html"><i class="fas fa-brain"></i> Tentar Agora</a>
+                    </button>
+                    <div class="texto-tempo-limitado">
+                        <i class="far fa-hourglass"></i> Desafio disponível por tempo limitado
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  
+  <!-- ÍCONE FLUTUANTE TIPO OLHO (ADICIONADO SEM ALTERAR O MODAL EXISTENTE) -->
+    <div class="floating-eye-icon" 
+         id="floatingEyeBtn" 
+         aria-label="Exibir modal do desafio" 
+         title="Clique para ver o desafio">
+        <i class="fas fa-eye"></i>
+    </div>
+
+<!-- Bootstrap JS (para garantir estrutura responsiva, mas não interfere no modal custom) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  
+<script>
+    // ----------------------------- DADOS DE TRADUÇÃO (PT/EN) ------------------------------------
+    const translations = {
+        pt: {
+            main_title: "Tendências do Mercado",
+            subtitle: "Descubra o que está em alta no mercado agrícola",
+            hot_title: "Mais Procurados da Semana",
+            growing_title: "Culturas em Crescimento",
+            opportunities_title: "Oportunidades de Venda",
+            local_trends_title: "Tendências Agrícolas Locais",
+            growth_chart_title: "Crescimento da Procura (Mensal)",
+            price_comp_title: "Comparação de Preços Médios",
+            rec_title: "Recomendações Inteligentes",
+            actions_title: "Ações Rápidas",
+            smartlinks_title: "Links Inteligentes",
+            alerts_title: "Alertas de Mercado",
+            history_title: "Histórico de Tendências",
+            map_title: "Mapa de Oportunidades",
+            map_note: "Clique nos marcadores para ver demanda local",
+            footer_text: "AgroLux - Decisões baseadas em dados reais",
+            rec_desc: "Seu produto possui alta procura nesta região. Recomendamos reforçar a divulgação no Facebook e Instagram.",
+            location_label: "📍 ",
+            chart_caption: "Evolução semanal/mensal de interesse.",
+            product_list: [
+                { name: "Tomate", badge: "Alta procura" }, { name: "Milho", badge: "Destaque" }, 
+                { name: "Cebola", badge: "Estável" }, { name: "Feijão", badge: "Crescendo" }, { name: "Batata", badge: "Popular" }
+            ],
+            cultures: ["Hortaliças ", "Frutas frescas ", "Milho seco ", "Feijão de produção local"],
+            opportunities: [
+                { icon: "fa-utensils", title: "Restaurantes procuram hortaliças", desc: "Contrato mensal" },
+                { icon: "fa-hotel", title: "Hotéis procuram frutas frescas", desc: "Fornecimento semanal" },
+                { icon: "fa-building", title: "Mercados municipais", desc: "Cebola e batata em alta" }
+            ],
+            alerts: [" Nova procura elevada por milho em Luanda.", " Aumento de 35% na demanda por tomate em Benguela.", " Banana verde valorizada 20% no Huambo."],
+            history_items: [" Março: Tomate +200% buscas", "Fevereiro: Mandioca em alta", " Janeiro: Acelga e alface tendência", " Dezembro: Batata-doce destaque"],
+            actions: ["Criar Promoção", "Gerar Publicação", "Ver Mapa de Oportunidades", "Partilhar Produto"],
+            links: ["Centro de Marketing Digital", "Gerador Inteligente de Publicações", "Área de Promoções Inteligentes", "Mapa de Oportunidades"],
+            provinces: { "Luanda": ["Luanda", "Cacuaco"], "Malanje": ["Malanje", "Cacuso"], "Benguela": ["Benguela", "Lobito"], "Huíla": ["Lubango", "Matala"] },
+            localDemands: { "Luanda_Luanda": "Alta procura por: Tomate, cebola e alface", "Luanda_Cacuaco": "Destaque para batata e repolho",
+                            "Malanje_Malanje": "Alta procura por: Banana, mandioca e tomate", "Malanje_Cacuso": "Milho e feijão em expansão",
+                            "Benguela_Benguela": "Frutas tropicais e cebola", "Benguela_Lobito": "Pimentão e hortaliças",
+                            "Huíla_Lubango": "Cenoura e batata", "Huíla_Matala": "Grão de bico, feijão" }
+        },
+        en: {
+            main_title: " Market Trends",
+            subtitle: "Discover what's trending in the agricultural market",
+            hot_title: " Most Wanted of the Week",
+            growing_title: " Growing Crops",
+            opportunities_title: "Sales Opportunities",
+            local_trends_title: "Local Agricultural Trends",
+            growth_chart_title: "Demand Growth (Monthly)",
+            price_comp_title: "Average Price Comparison",
+            rec_title: "Smart Recommendations",
+            actions_title: "Quick Actions",
+            smartlinks_title: "Smart Links",
+            alerts_title: "Market Alerts",
+            history_title: "Trend History",
+            map_title: "Opportunity Map",
+            map_note: "Click markers to see local demand",
+            footer_text: "AgroLux - Data-driven decisions",
+            rec_desc: " Your product has high demand in this region. We recommend boosting ads on Facebook & Instagram.",
+            location_label: "📍 ",
+            chart_caption: "Weekly/monthly interest evolution.",
+            product_list: [
+                { name: "Tomato", badge: "High demand" }, { name: "Corn", badge: "Trending" },
+                { name: "Onion", badge: "Stable" }, { name: "Beans", badge: "Rising" }, { name: "Potato", badge: "Popular" }
+            ],
+            cultures: ["Leafy Greens ", "Fresh Fruits ", "Dry Corn ", "Locally Grown Beans"],
+            opportunities: [
+                { icon: "fa-utensils", title: "Restaurants need vegetables", desc: "Monthly contract" },
+                { icon: "fa-hotel", title: "Hotels seek fresh fruits", desc: "Weekly supply" },
+                { icon: "fa-building", title: "Municipal markets", desc: "Onion & potato high" }
+            ],
+            alerts: [" New high demand for corn in Luanda.", " 35% increase in tomato demand in Benguela.", "Green banana valued up 20% in Huambo."],
+            history_items: ["March: Tomato +200% searches", " February: Cassava trending", "January: Lettuce & chard trend", "December: Sweet potato highlight"],
+            actions: ["Create Promotion", "Generate Post", "View Opportunity Map", "Share Product"],
+            links: ["Digital Marketing Center", "Smart Post Generator", "Smart Promotions Area", "Opportunity Map"],
+            provinces: { "Luanda": ["Luanda", "Cacuaco"], "Malanje": ["Malanje", "Cacuso"], "Benguela": ["Benguela", "Lobito"], "Huíla": ["Lubango", "Matala"] },
+            localDemands: { "Luanda_Luanda": "High demand for: Tomato, onion and lettuce", "Luanda_Cacuaco": "Potato and cabbage highlight",
+                            "Malanje_Malanje": "High demand: Banana, cassava & tomato", "Malanje_Cacuso": "Corn and beans expanding",
+                            "Benguela_Benguela": "Tropical fruits & onion", "Benguela_Lobito": "Bell pepper and greens",
+                            "Huíla_Lubango": "Carrot & potato", "Huíla_Matala": "Chickpeas, beans" }
+        }
+    };
+    
+    let currentLang = 'pt';
+    let currentTheme = 'light';
+    let growthChart, priceChart;
+    let mapInstance;
+    let currentTileLayer;
+    
+    // Dados constantes dos preços e gráficos
+    const priceData = { "Tomate": 4500, "Milho": 6000, "Batata": 5200, "Cebola": 3800, "Feijão": 7100 };
+    const growthMonths = ["Semana 1", "Semana 2", "Semana 3", "Semana 4", "Mês"];
+    const growthValues = [12, 19, 25, 32, 40];
+    
+    // Helper para atualizar textos estáticos e chamar renderização de conteúdo dinâmico
+    function applyLanguage() {
+        const t = translations[currentLang];
+        document.getElementById("main-title").innerText = t.main_title;
+        document.getElementById("subtitle").innerText = t.subtitle;
+        document.getElementById("hot-title").innerText = t.hot_title;
+        document.getElementById("growing-title").innerText = t.growing_title;
+        document.getElementById("opportunities-title").innerText = t.opportunities_title;
+        document.getElementById("local-trends-title").innerText = t.local_trends_title;
+        document.getElementById("growth-chart-title").innerText = t.growth_chart_title;
+        document.getElementById("price-comp-title").innerText = t.price_comp_title;
+        document.getElementById("rec-title").innerText = t.rec_title;
+        document.getElementById("actions-title").innerText = t.actions_title;
+        document.getElementById("smartlinks-title").innerText = t.smartlinks_title;
+        document.getElementById("alerts-title").innerText = t.alerts_title;
+        document.getElementById("history-title").innerText = t.history_title;
+        document.getElementById("map-title").innerText = t.map_title;
+        document.getElementById("map-note").innerText = t.map_note;
+        document.getElementById("footer-text").innerText = t.footer_text;
+        document.getElementById("rec-desc").innerText = t.rec_desc;
+        document.getElementById("chart-caption").innerText = t.chart_caption;
+        document.getElementById("lang-text").innerText = currentLang === 'pt' ? 'EN' : 'PT';
+        
+        // Renderizar listas dinâmicas
+        renderTopProducts(t.product_list);
+        renderGrowingCultures(t.cultures);
+        renderOpportunities(t.opportunities);
+        renderActionButtons(t.actions);
+        renderSmartLinks(t.links);
+        renderAlerts(t.alerts);
+        renderHistory(t.history_items);
+        
+        // Atualizar filtros e tendência local
+        populateProvinceFilter();
+        updateLocalTrendBySelection();
+        
+        // Atualizar gráficos (labels)
+        updateChartsLabels();
+        renderPriceList();
+    }
+    
+    function renderTopProducts(products) {
+        const container = document.getElementById("top-products-list");
+        container.innerHTML = products.map((p, idx) => `<li><span><span class="rank-number">${idx+1}</span> ${p.name}</span> <span class="badge-hot">${p.badge}</span></li>`).join('');
+    }
+    function renderGrowingCultures(cultures) {
+        const container = document.getElementById("growing-cultures-list");
+        container.innerHTML = cultures.map(c => `<li><i class="fas fa-leaf" style="color:var(--accent); margin-right:10px;"></i> ${c}</li>`).join('');
+    }
+    function renderOpportunities(opps) {
+        const container = document.getElementById("opportunities-container");
+        container.innerHTML = opps.map(o => `<div class="opp-item"><i class="fas ${o.icon} fa-lg"></i><div><strong>${o.title}</strong><br><small>${o.desc}</small></div></div>`).join('');
+    }
+    function renderActionButtons(actions) {
+        const container = document.getElementById("action-buttons-container");
+        container.innerHTML = actions.map(a => `<button class="btn-primary" onclick="alert(' Funcionalidade: ${a}')"><i class="fas fa-bolt"></i> ${a}</button>`).join('');
+    }
+    function renderSmartLinks(links) {
+        const container = document.getElementById("smart-links-container");
+        container.innerHTML = links.map(l => `<button class="smart-link" onclick="alert(' Acessando ${l}')">${l}</button>`).join('');
+    }
+    function renderAlerts(alerts) {
+        const container = document.getElementById("alerts-list");
+        container.innerHTML = alerts.map(a => `<li><i class="fas fa-exclamation-triangle" style="color:#ff9f4a;"></i> ${a}</li>`).join('');
+    }
+    function renderHistory(items) {
+        const container = document.getElementById("history-container");
+        container.innerHTML = `<ul style="list-style:none;">${items.map(i => `<li style="margin-bottom:0.7rem;"> ${i}</li>`).join('')}</ul>`;
+    }
+    function renderPriceList() {
+        const container = document.getElementById("price-list");
+        container.innerHTML = Object.entries(priceData).map(([prod, price]) => `<div class="price-card"><strong>${prod}</strong><br>${price.toLocaleString()} Kz</div>`).join('');
+    }
+    
+    function populateProvinceFilter() {
+        const t = translations[currentLang];
+        const provinceSelect = document.getElementById("provinceSelect");
+        const provinces = Object.keys(t.provinces);
+        provinceSelect.innerHTML = provinces.map(p => `<option value="${p}">${p}</option>`).join('');
+        provinceSelect.value = "Malanje";
+        updateMunicipios();
+        provinceSelect.addEventListener('change', () => { updateMunicipios(); updateLocalTrendBySelection(); });
+        document.getElementById("municipioSelect").addEventListener('change', updateLocalTrendBySelection);
+    }
+    function updateMunicipios() {
+        const t = translations[currentLang];
+        const province = document.getElementById("provinceSelect").value;
+        const municipios = t.provinces[province] || [];
+        const munSelect = document.getElementById("municipioSelect");
+        munSelect.innerHTML = municipios.map(m => `<option value="${m}">${m}</option>`).join('');
+        if(municipios.length) munSelect.value = municipios[0];
+    }
+    function updateLocalTrendBySelection() {
+        const t = translations[currentLang];
+        const province = document.getElementById("provinceSelect").value;
+        const municipio = document.getElementById("municipioSelect").value;
+        const key = `${province}_${municipio}`;
+        let demand = t.localDemands[key] || "Informação local em crescimento.";
+        document.getElementById("local-demand-text").innerText = demand;
+        document.getElementById("location-label").innerHTML = `<i class="fas fa-map-pin"></i> ${province}, ${municipio}`;
+    }
+    
+    // Gráficos com dados fixos
+    function initCharts() {
+        const ctxGrowth = document.getElementById('growthChart').getContext('2d');
+        const ctxPrice = document.getElementById('priceChart').getContext('2d');
+        if(growthChart) growthChart.destroy();
+        if(priceChart) priceChart.destroy();
+        const textColor = getComputedStyle(document.body).getPropertyValue('--text-primary');
+        growthChart = new Chart(ctxGrowth, {
+            type: 'line', data: { labels: growthMonths, datasets: [{ label: currentLang === 'pt' ? 'Aumento de Interesse (%)' : 'Interest Growth (%)', data: growthValues, borderColor: '#2b7a4b', tension: 0.3, fill: true, backgroundColor: 'rgba(43,122,75,0.1)' }] },
+            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { labels: { color: textColor } } } }
+        });
+        priceChart = new Chart(ctxPrice, {
+            type: 'bar', data: { labels: Object.keys(priceData), datasets: [{ label: currentLang === 'pt' ? 'Preço Médio (Kz)' : 'Avg Price (Kz)', data: Object.values(priceData), backgroundColor: '#4f8a6b' }] },
+            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { labels: { color: textColor } } } }
+        });
+    }
+    function updateChartsLabels() {
+        if(growthChart) { growthChart.data.datasets[0].label = currentLang === 'pt' ? 'Aumento de Interesse (%)' : 'Interest Growth (%)'; growthChart.update(); }
+        if(priceChart) { priceChart.data.datasets[0].label = currentLang === 'pt' ? 'Preço Médio (Kz)' : 'Avg Price (Kz)'; priceChart.update(); }
+    }
+    
+    // Mapa Interativo com Leaflet e troca de tiles conforme tema
+    function initMap() {
+        if(mapInstance) mapInstance.remove();
+        const isDark = document.body.classList.contains('dark');
+        const tileUrl = isDark ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png' : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        const attribution = isDark ? '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> & CartoDB' : '&copy; OpenStreetMap';
+        mapInstance = L.map('interactiveMap').setView([-9.3, 16.0], 6);
+        currentTileLayer = L.tileLayer(tileUrl, { attribution }).addTo(mapInstance);
+        // Adicionar pontos de oportunidade
+        const markers = [
+            { coords: [-8.839, 13.289], city: "Luanda", demand: "Alta procura: milho, tomate" },
+            { coords: [-9.537, 16.346], city: "Malanje", demand: "Banana, mandioca em crescimento" },
+            { coords: [-12.576, 13.405], city: "Benguela", demand: "Frutas tropicais, cebola" },
+            { coords: [-14.916, 13.492], city: "Huíla", demand: "Batata e cenoura" }
+        ];
+        markers.forEach(m => {
+            L.marker(m.coords).addTo(mapInstance).bindPopup(`<b>${m.city}</b><br>${m.demand}`);
+        });
+    }
+    function updateMapTheme() {
+        if(mapInstance && currentTileLayer) {
+            const isDark = document.body.classList.contains('dark');
+            const newTileUrl = isDark ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png' : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+            currentTileLayer.setUrl(newTileUrl);
+        } else { initMap(); }
+    }
+    
+    // Tema claro/escuro
+    function toggleTheme() {
+        document.body.classList.toggle('dark');
+        const isDark = document.body.classList.contains('dark');
+        const themeBtn = document.getElementById("themeToggleBtn");
+        themeBtn.innerHTML = isDark ? '<i class="fas fa-sun"></i> Tema Claro' : '<i class="fas fa-moon"></i> Tema Escuro';
+        initCharts();  // recria gráficos com cores novas do tema
+        updateMapTheme();
+    }
+    
+    // Inicialização completa
+    function init() {
+        applyLanguage();
+        initCharts();
+        initMap();
+        renderPriceList();
+        const themeBtn = document.getElementById("themeToggleBtn");
+        const langBtn = document.getElementById("langToggleBtn");
+        themeBtn.addEventListener('click', toggleTheme);
+        langBtn.addEventListener('click', () => { currentLang = currentLang === 'pt' ? 'en' : 'pt'; applyLanguage(); initCharts(); updateLocalTrendBySelection(); });
+        document.getElementById("provinceSelect").addEventListener('change', () => { updateLocalTrendBySelection(); });
+        document.getElementById("municipioSelect").addEventListener('change', () => { updateLocalTrendBySelection(); });
+        // Ajustes iniciais tema
+        if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.body.classList.add('dark'); toggleTheme(); }
+    }
+    init();
+  
+  
+  //========================================================================ADD JS=====================================================================================//
+ // ========== MODAL INVASIVO COM TIMER A CADA 10 MINUTOS + PRIMEIRA APARIÇÃO AGRESSIVA ==========
+        const modalElement = document.getElementById('modalInvasivo');
+        const closeModalBtn = document.getElementById('fecharModalBtn');
+        const tryNowBtn = document.getElementById('tentarAgoraBtn');
+        
+        // Tempo entre exibições: 10 minutos (600000 ms)
+        const INTERVALO_MODAL_MS = 10 * 60 * 1000;   // exatamente 10 minutos
+        
+        let ultimaExibicao = null;      // timestamp da última vez que o modal foi aberto
+        let modalAtivo = false;
+        
+        // Função para gerar partículas flutuantes no lado esquerdo
+        function gerarParticulas() {
+            const container = document.getElementById('particlesField');
+            if (!container) return;
+            container.innerHTML = '';
+            const numeroParticulas = 18;
+            for (let i = 0; i < numeroParticulas; i++) {
+                const part = document.createElement('div');
+                part.classList.add('particula');
+                const size = Math.random() * 8 + 3;
+                part.style.width = size + 'px';
+                part.style.height = size + 'px';
+                part.style.left = Math.random() * 100 + '%';
+                part.style.bottom = '-15px';
+                part.style.animationDuration = Math.random() * 6 + 4 + 's';
+                part.style.animationDelay = Math.random() * 5 + 's';
+                part.style.background = `radial-gradient(circle, #ffe6a3, #e2b13b)`;
+                container.appendChild(part);
+            }
+        }
+        
+        // Mostrar modal (invasivo)
+        function mostrarModal() {
+            if (modalAtivo) return;
+            modalElement.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            modalAtivo = true;
+            ultimaExibicao = Date.now();
+            gerarParticulas();
+        }
+        
+        // Fechar modal (apenas via X ou botão Tentar Agora)
+        function fecharModal() {
+            if (!modalAtivo) return;
+            modalElement.classList.remove('active');
+            document.body.style.overflow = '';
+            modalAtivo = false;
+        }
+        
+        // Verifica periodicamente se deve abrir o modal (baseado no intervalo)
+        function verificarEAbrirModal() {
+            if (modalAtivo) return;
+            if (ultimaExibicao === null) return;
+            const agora = Date.now();
+            const tempoDesdeUltima = agora - ultimaExibicao;
+            if (tempoDesdeUltima >= INTERVALO_MODAL_MS) {
+                mostrarModal();
+            }
+        }
+        
+        // Evento do botão Tentar Agora (redireciona e fecha modal)
+        if (tryNowBtn) {
+            tryNowBtn.addEventListener('click', () => {
+                // O link dentro do botão já redireciona para quiz.html, mas fechamos o modal
+                fecharModal();
+            });
+        }
+        
+        // Botão X para fechar
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                fecharModal();
+            });
+        }
+        
+        // Impede fechar com ESC (para manter carácter invasivo)
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modalAtivo) {
+                e.preventDefault();
+                // Pequeno feedback visual opcional
+                const modalCard = document.querySelector('.modal-card-agro');
+                if (modalCard) {
+                    modalCard.style.transform = 'scale(0.99)';
+                    setTimeout(() => { if(modalCard) modalCard.style.transform = ''; }, 150);
+                }
+            }
+        });
+        
+        // PRIMEIRA EXIBIÇÃO: após 1.8 segundos
+        setTimeout(() => {
+            if (!modalAtivo) {
+                ultimaExibicao = Date.now();
+                mostrarModal();
+            }
+        }, 1800);
+        
+        // Configurar checagem automática a cada 2 segundos para reexibir após 10 min
+        setInterval(() => {
+            verificarEAbrirModal();
+        }, 2000);
+        
+        // ---------- ÍCONE FLUTUANTE DO OLHO (abre o modal a qualquer momento) ----------
+        const floatingEye = document.getElementById('floatingEyeBtn');
+        if (floatingEye) {
+            floatingEye.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                // Abre o modal independentemente do timer
+                mostrarModal();
+            });
+        }
+        
+        // (Opcional) Fechar modal se clicar fora do conteúdo? Por política invasiva NÃO faremos isso.
+        // O overlay não terá evento de clique para fechar.
+        
+        console.log("🔥 Modal INVASIVO ativo: surge a cada 10 minutos, apenas fecha com X ou 'Tentar Agora'. Ícone do olho também abre o modal.");
+</script>
+</body>
+</html>

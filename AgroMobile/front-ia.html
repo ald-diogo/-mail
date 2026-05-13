@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Splash · Redirecionamento para inde1</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* SPLASH OVERLAY – agora com imagem de fundo centralizada */
+        .splash-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Imagem de fundo: caminho, centralizada, cobre todo o ecrã, sem repetição */
+            background-image: url('images/map1-bg.jpg');
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            /* fallback sólido (caso a imagem não carregue) */
+            background-color: #1a2634;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            cursor: default;
+            transition: opacity 0.45s ease-out;
+        }
+
+        /* Container do logótipo com fundo semi-transparente para garantir legibilidade */
+        .logo-container {
+            text-align: center;
+            animation: gentleRise 0.55s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards;
+            max-width: 340px;
+            width: 85%;
+            padding: 1.8rem 1.5rem;
+            background-color: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(4px);
+            border-radius: 48px;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.2s ease, background 0.2s;
+        }
+
+        .logo-container:hover {
+            background-color: rgba(0, 0, 0, 0.55);
+            transform: scale(1.01);
+        }
+
+        @keyframes gentleRise {
+            0% {
+                opacity: 0;
+                transform: translateY(20px) scale(0.96);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Logótipo SVG principal — cores claras para contraste sobre a imagem */
+        .logo-svg {
+            width: 120px;
+            height: 120px;
+            display: block;
+            margin: 0 auto;
+            filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.2));
+            transition: transform 0.25s ease;
+            cursor: pointer;
+        }
+
+        .logo-svg:hover {
+            transform: scale(1.02);
+        }
+
+        /* Texto do logótipo / assinatura — cores brancas com leve sombra */
+        .logo-title {
+            margin-top: 1rem;
+            font-size: 1.7rem;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            color: #ffffff;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+        }
+
+        .logo-sub {
+            font-size: 0.8rem;
+            font-weight: 400;
+            color: #f0f2f5;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            margin-top: 0.2rem;
+            letter-spacing: 0.3px;
+            opacity: 0.9;
+        }
+
+        /* Barra de progresso minimal (indica o redirecionamento) */
+        .progress-area {
+            margin-top: 2rem;
+            width: 200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 3px;
+            background-color: rgba(255, 255, 255, 0.35);
+            border-radius: 10px;
+            overflow: hidden;
+            backdrop-filter: blur(2px);
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #ffd89b, #c7e9fb);
+            border-radius: 10px;
+            transition: width 3s linear;
+            box-shadow: 0 0 3px rgba(255,245,200,0.6);
+        }
+
+        .info-message {
+            font-size: 0.7rem;
+            color: #eef2ff;
+            margin-top: 0.6rem;
+            text-align: center;
+            font-weight: 450;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            letter-spacing: 0.3px;
+        }
+
+        .click-hint {
+            margin-top: 1.2rem;
+            font-size: 0.7rem;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(6px);
+            display: inline-block;
+            padding: 0.3rem 1rem;
+            border-radius: 40px;
+            color: #ffffff;
+            letter-spacing: 0.3px;
+            cursor: default;
+            border: 0.5px solid rgba(255,255,255,0.3);
+            transition: background 0.2s;
+        }
+
+        .click-hint:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Responsivo: ajustes para ecrãs pequenos */
+        @media (max-width: 480px) {
+            .logo-container {
+                width: 90%;
+                padding: 1.4rem 1rem;
+                border-radius: 36px;
+            }
+            .logo-svg {
+                width: 90px;
+                height: 90px;
+            }
+            .logo-title {
+                font-size: 1.4rem;
+            }
+            .progress-area {
+                width: 160px;
+            }
+            .click-hint {
+                font-size: 0.65rem;
+                padding: 0.2rem 0.8rem;
+            }
+        }
+
+        /* Acessibilidade */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ECRÃ SPLASH – fundo com imagem centralizada + conteúdo clicável -->
+    <div id="splashScreen" class="splash-overlay">
+        <div  id="logoClickZone">
+             <!--
+             Logótipo vetorial (mantido para identidade visual) 
+            <svg class="logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Logótipo âmbar">
+                <circle cx="50" cy="50" r="42" stroke="white" stroke-width="1.2" stroke-dasharray="4 3" fill="rgba(255,255,240,0.08)"/>
+                <path d="M50 20 L65 45 L58 45 L58 65 L42 65 L42 45 L35 45 L50 20Z" fill="#FFE5B4" stroke="#FFD966" stroke-width="0.8" opacity="0.95"/>
+                <circle cx="50" cy="50" r="8" fill="#FFD966" stroke="#FFF2CC" stroke-width="1"/>
+                <path d="M30 72 L70 72 L65 80 L35 80 L30 72Z" fill="#FFE0A3" opacity="0.9"/>
+            </svg>
+            -->
+
+            <!--<div class="logo-title" id="logoTitle">estúdio·âmbar</div>-->
+            <!--<div class="logo-sub">identidade visual & interface</div>-->
+
+            
+
+            <!--
+            <div class="click-hint">
+                ✦ clicar no logótipo para avançar agora ✦
+            </div>
+            -->
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ========== REDIRECIONAMENTO PARA index1.html ==========
+            const DESTINATION = 'ia.html';
+            const REDIRECT_DELAY_MS = 3000;      // 3 segundos
+            
+            let redirectTimer = null;
+            let isRedirecting = false;
+
+            const splashElement = document.getElementById('splashScreen');
+            const progressFillEl = document.getElementById('progressFill');
+            const clickZone = document.getElementById('logoClickZone');
+            
+            // Função de redirecionamento segura com fade out
+            function performRedirect() {
+                if (isRedirecting) return;
+                isRedirecting = true;
+                
+                if (redirectTimer) {
+                    clearTimeout(redirectTimer);
+                    redirectTimer = null;
+                }
+                
+                if (splashElement) {
+                    splashElement.style.opacity = '0';
+                    setTimeout(() => {
+                        window.location.href = DESTINATION;
+                    }, 200);
+                } else {
+                    window.location.href = DESTINATION;
+                }
+            }
+            
+            // Iniciar animação da barra de progresso (0% → 100% no tempo definido)
+            function startProgressAnimation() {
+                if (!progressFillEl) return;
+                void progressFillEl.offsetWidth; // reflow forçado
+                progressFillEl.style.transition = `width ${REDIRECT_DELAY_MS}ms linear`;
+                progressFillEl.style.width = '100%';
+            }
+            
+            // Clique manual: redirecionamento imediato
+            function manualRedirectHandler(event) {
+                if (isRedirecting) return;
+                
+                if (redirectTimer) {
+                    clearTimeout(redirectTimer);
+                    redirectTimer = null;
+                }
+                
+                // Pequeno feedback visual no logótipo
+                const logoSvg = document.querySelector('.logo-svg');
+                if (logoSvg) {
+                    logoSvg.style.transform = 'scale(0.96)';
+                    setTimeout(() => {
+                        if (logoSvg) logoSvg.style.transform = '';
+                    }, 120);
+                }
+                
+                performRedirect();
+            }
+            
+            // Inicializar o splash
+            function initSplash() {
+                startProgressAnimation();
+                
+                // Timer automático
+                redirectTimer = setTimeout(() => {
+                    performRedirect();
+                }, REDIRECT_DELAY_MS);
+                
+                // Clique na área do logótipo (container inteiro)
+                if (clickZone) {
+                    clickZone.addEventListener('click', manualRedirectHandler);
+                    clickZone.style.cursor = 'pointer';
+                }
+                
+                // Fallback: se a transição da barra terminar antes do timer, garante redirecionamento
+                if (progressFillEl) {
+                    progressFillEl.addEventListener('transitionend', function onTransitionEnd(e) {
+                        if (e.propertyName === 'width' && progressFillEl.style.width === '100%') {
+                            if (!isRedirecting && redirectTimer) {
+                                clearTimeout(redirectTimer);
+                                redirectTimer = null;
+                                performRedirect();
+                            }
+                        }
+                    });
+                }
+                
+                // Acessibilidade: tornar o container clicável via teclado
+                if (clickZone) {
+                    clickZone.setAttribute('aria-label', 'Clique para redirecionar para ia.html agora');
+                    clickZone.setAttribute('role', 'button');
+                    clickZone.setAttribute('tabindex', '0');
+                    clickZone.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            manualRedirectHandler(e);
+                        }
+                    });
+                }
+            }
+            
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initSplash);
+            } else {
+                initSplash();
+            }
+        })();
+    </script>
+</body>
+</html>

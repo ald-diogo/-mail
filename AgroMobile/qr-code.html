@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <!-- QRCode JS Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        body {
+             background-image: url('images/Bg-entregas.jpg');
+            background-size: cover;
+            background-position: center 30%;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-color: #2c4a2e;
+            height: 100vh;
+            overflow: hidden;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-family: Arial, sans-serif;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .card-custom {
+            background: rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 450px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #c084fc;
+        }
+
+        .form-control {
+            border-radius: 12px;
+            padding: 12px;
+            border: none;
+        }
+
+        .btn-generate {
+            background: #9333ea;
+            border: none;
+            border-radius: 12px;
+            padding: 12px;
+            color: white;
+            font-weight: bold;
+            width: 100%;
+            transition: 0.3s;
+        }
+
+        .btn-generate:hover {
+            background: #7e22ce;
+        }
+
+        #qrcode {
+            margin-top: 25px;
+            display: flex;
+            justify-content: center;
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card-custom">
+    <h2><i class="fas fa-qrcode"></i> Gerador de QR Code</h2>
+
+    <input 
+        type="text" 
+        id="linkInput" 
+        class="form-control mb-3" 
+        placeholder="Digite o link da sua loja (https://exemplo.com/produto)"
+    >
+
+    <button class="btn-generate" onclick="gerarQRCode()">
+        Gerar QR Code
+    </button>
+
+   <div id="qrcode"></div>
+</div>
+
+<script>
+    function gerarQRCode() {
+        let link = document.getElementById("linkInput").value;
+        let qrContainer = document.getElementById("qrcode");
+
+        qrContainer.innerHTML = "";
+
+        if (link.trim() === "") {
+            alert("Digite um link primeiro!");
+            return;
+        }
+
+        new QRCode(qrContainer, {
+            text: link,
+            width: 220,
+            height: 220
+        });
+    }
+</script>
+
+</body>
+</html>

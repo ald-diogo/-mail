@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>AgroLux - Área de Promoções Inteligentes</title>
+    <!-- Font Awesome 6 (ícones puros, sem emojis) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts: tipografia moderna -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <!-- Chart.js para gráficos de desempenho -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- QRCode.js para geração de QR Code (simples) -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, color 0.2s ease, border-color 0.2s;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-body);
+            color: var(--text-primary);
+            padding: 2rem 1.5rem;
+            line-height: 1.4;
+        }
+
+        /* Tema Light (padrão) */
+        :root {
+            --bg-body: #f5f9ff;
+            --bg-card: #ffffff;
+            --bg-glass: rgba(255,255,255,0.7);
+            --text-primary: #1a2c3e;
+            --text-secondary: #2c4c6e;
+            --border-light: #e2edf7;
+            --shadow-sm: 0 12px 28px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 20px 30px -12px rgba(0, 32, 64, 0.12);
+            --accent: #2b7e3a;
+            --accent-light: #e0f2e4;
+            --accent-grad: linear-gradient(135deg, #2b7e3a, #1e5a2c);
+            --danger: #d9534f;
+            --info: #3996db;
+            --warning: #f0ad4e;
+        }
+
+        body.dark {
+            --bg-body: #0f1724;
+            --bg-card: #1e293b;
+            --bg-glass: #1e293bc9;
+            --text-primary: #eef2ff;
+            --text-secondary: #b9d0f0;
+            --border-light: #2d3a4e;
+            --shadow-sm: 0 12px 24px rgba(0, 0, 0, 0.4);
+            --shadow-hover: 0 20px 30px -12px #00000055;
+            --accent: #3bac4a;
+            --accent-light: #1e3a2a;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header + controles */
+        .header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .title-section h1 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            background: var(--accent-grad);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .title-section p {
+            color: var(--text-secondary);
+            margin-top: 0.3rem;
+            font-weight: 500;
+        }
+        .theme-lang {
+            display: flex;
+            gap: 12px;
+        }
+        .icon-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 60px;
+            padding: 10px 18px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: var(--text-primary);
+            backdrop-filter: blur(2px);
+            transition: all 0.2s;
+            box-shadow: var(--shadow-sm);
+        }
+        .icon-btn i {
+            font-size: 1.2rem;
+        }
+        .icon-btn:hover {
+            transform: translateY(-2px);
+            background: var(--accent-light);
+            border-color: var(--accent);
+        }
+
+        /* Grid principal */
+        .grid-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 1.8rem;
+            margin-bottom: 2rem;
+        }
+        .card {
+            background: var(--bg-card);
+            border-radius: 1.8rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+            transition: all 0.25s ease;
+            backdrop-filter: blur(2px);
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+        }
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 4px solid var(--accent);
+            padding-left: 12px;
+        }
+        .badge-sm {
+            background: var(--accent-light);
+            border-radius: 40px;
+            padding: 4px 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .campaign-suggestion {
+            background: var(--accent-light);
+            border-radius: 1.2rem;
+            padding: 1rem;
+            margin-top: 0.5rem;
+        }
+        .promo-types-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+            margin-top: 8px;
+        }
+        .type-card {
+            background: var(--bg-body);
+            border-radius: 1.2rem;
+            padding: 12px 8px;
+            text-align: center;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid var(--border-light);
+        }
+        .type-card i {
+            font-size: 1.6rem;
+            margin-bottom: 6px;
+            color: var(--accent);
+            display: block;
+        }
+        .type-card:hover {
+            background: var(--accent);
+            color: white;
+            transform: scale(0.97);
+        }
+        .type-card:hover i {
+            color: white;
+        }
+        .discount-row {
+            background: var(--bg-body);
+            padding: 12px;
+            border-radius: 1rem;
+            margin: 12px 0;
+        }
+        .btn-action {
+            background: var(--accent-grad);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-outline-light {
+            background: transparent;
+            border: 1px solid var(--border-light);
+            color: var(--text-primary);
+        }
+        .btn-outline-light:hover {
+            background: var(--accent-light);
+        }
+        .flex-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 16px 0 8px;
+        }
+        .historic-table {
+            width: 100%;
+            font-size: 0.85rem;
+            border-collapse: collapse;
+        }
+        .historic-table td, .historic-table th {
+            padding: 8px 4px;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .status-active { color: #2b7e3a; font-weight: bold; }
+        .status-expired { color: #b86b2c; }
+        .link-inteligente {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .link-item {
+            background: var(--bg-body);
+            border-radius: 32px;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .result-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--accent);
+        }
+        canvas { max-height: 180px; width: 100%; margin-top: 10px; }
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.75rem;
+            opacity: 0.7;
+        }
+        @media (max-width: 680px) {
+            body { padding: 1rem; }
+            .grid-dashboard { grid-template-columns: 1fr; }
+        }
+        textarea {
+            width: 100%;
+            background: var(--bg-body);
+            border: 1px solid var(--border-light);
+            border-radius: 1rem;
+            padding: 12px;
+            color: var(--text-primary);
+            resize: vertical;
+            font-family: monospace;
+        }
+        .qr-modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.2s;
+        }
+        .qr-modal.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        .qr-content {
+            background: var(--bg-card);
+            padding: 24px;
+            border-radius: 2rem;
+            text-align: center;
+            max-width: 280px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Header com botões tema/idioma -->
+    <div class="header-flex">
+        <div class="title-section">
+            <h1><i class="fas fa-chart-line"></i> Área de Promoções Inteligentes</h1>
+            <p><i class="fas fa-rocket"></i> Crie campanhas que aumentam suas vendas</p>
+        </div>
+        <div class="theme-lang">
+            <button id="themeToggleBtn" class="icon-btn"><i class="fas fa-thumbs-up"></i> 
+                <span id="themeText">Tema Claro</span></button>
+            <button id="langToggleBtn" class="icon-btn">
+                <i class="fas fa-language"></i> <span id="langText">PT</span></button>
+        </div>
+    </div>
+
+    <!-- Grid principal dinamico -->
+    <div class="grid-dashboard">
+        <!-- 1. Painel Campanhas Automáticas -->
+        <div class="card">
+            <div class="card-title"><i class="fas fa-bolt"></i> <span data-i18n="autoCampaign">Campanha Automática</span></div>
+            <div id="autoCampaignText" class="campaign-suggestion"><i class="fas fa-chart-simple"></i> Seu tomate está com alta procura esta semana. Recomendamos uma promoção imediata.</div>
+        </div>
+
+        <!-- 2. Tipos de promoções (cards clicáveis) -->
+        <div class="card">
+            <div class="card-title"><i class="fas fa-tags"></i> <span data-i18n="promoTypes">Tipos de Promoções</span></div>
+            <div class="promo-types-grid" id="promoTypesGrid">
+                <!-- gerado dinamicamente via js para manter dados -->
+            </div>
+        </div>
+
+        <!-- 3. Descontos Estratégicos -->
+        <div class="card">
+            <div class="card-title"><i class="fas fa-corn"></i> <span data-i18n="strategicDiscount">Descontos Estratégicos</span></div>
+            <div class="discount-row">
+                <i class="fas fa-seedling"></i> <strong id="discountProductName">Milho</strong><br>
+                <span id="discountDesc">Compre 2 sacos e ganhe 10% de desconto</span>
+                <div class="flex-buttons" style="margin-top: 12px;">
+                    <button id="applyDiscountBtn" class="icon-btn" style="background:var(--accent-light);"><i class="fas fa-percent"></i> Aplicar oferta</button>
+                </div>
+            </div>
+            <div><small><i class="fas fa-clock"></i> <span data-i18n="limitedTime">Promoção por tempo limitado</span></small></div>
+        </div>
+
+        <!-- 4. Promoções Sazonais -->
+        <div class="card">
+            <div class="card-title"><i class="fas fa-sun"></i> <span data-i18n="seasonal">Promoções Sazonais</span></div>
+            <div id="seasonalBox" class="campaign-suggestion"><i class="fas fa-temperature-high"></i> Promoção de Verão: Tomate fresco com preço especial (10% OFF)</div>
+        </div>
+
+        <!-- 5. Gerador de Texto Promocional -->
+        <div class="card">
+            <div class="card-title"><i class="fas fa-magic"></i> <span data-i18n="textGenerator">Gerador de Texto Promocional</span></div>
+            <textarea id="promoTextArea" rows="3" readonly>Oferta Especial! Tomate fresco disponível com preço promocional por tempo limitado. Fale comigo agora mesmo </textarea>
+            <div class="flex-buttons">
+                <button id="refreshTextBtn" class="icon-btn"><i class="fas fa-sync-alt"></i> Regenerar</button>
+                <button id="copyTextBtn" class="icon-btn"><i class="fas fa-copy"></i> Copiar</button>
+            </div>
+        </div>
+
+        <!-- 6. Melhor Horário -->
+        <div class="card">
+            <div class="card-title"><i class="fas fa-clock"></i> <span data-i18n="bestTime">Melhor Horário para Divulgação</span></div>
+            <div id="bestHourBox" style="font-size:1.4rem; font-weight:bold;"><i class="fas fa-hourglass-half"></i> 18h às 20h</div>
+            <p><i class="fas fa-chart-line"></i> <span data-i18n="reachAdvice">Maior engajamento no fim do dia</span></p>
+        </div>
+
+        <!-- 7. Indicador de Resultados + Gráfico -->
+        <div class="card">
+            <div class="card-title"><i class="fas fa-chart-simple"></i> <span data-i18n="results">Indicador de Resultados</span></div>
+            <div class="result-stats">
+                <div><i class="fas fa-eye"></i> <span data-i18n="mostViewed">Mais vistas</span><br><span class="stat-number" id="viewCount">2.4k</span></div>
+                <div><i class="fas fa-phone-alt"></i> <span data-i18n="contacts">Contactos</span><br><span class="stat-number" id="contactCount">189</span></div>
+                <div><i class="fas fa-chart-line"></i> <span data-i18n="topProducts">Produto top</span><br><span>Tomate</span></div>
+                <div><i class="fas fa-trophy"></i> <span data-i18n="performance">Desempenho</span><br><span>+32%</span></div>
+            </div>
+            <canvas id="performanceChart" width="300" height="150"></canvas>
+        </div>
+
+        <!-- 8. Botões de Ação + Links Inteligentes (dois cards?) Unir -->
+        <div class="card">
+            <div class="card-title"><i class="fas fa-bullhorn"></i> <span data-i18n="actions">Ações Rápidas</span></div>
+            <div class="flex-buttons" id="actionButtons">
+                <button class="btn-action" id="createPromoBtn">
+                    <i class="fas fa-plus-circle"></i> 
+                    Criar Promoção
+                </button>
+                <button class="btn-action" id="publishNowBtn"><i class="fas fa-share-alt"></i>
+                    <a href="campanhas.html" >Publicar Agora</a></button>
+                <button class="btn-action" id="whatsappShareBtn"><i class="fab fa-whatsapp"></i> Partilhar WhatsApp</button>
+                <button class="btn-action" id="qrCodeBtn"><i class="fas fa-qrcode"></i> Gerar QR Code</button>
+            </div>
+            <div class="card-title mt-3" style="margin-top:1rem;"><i class="fas fa-link"></i> <span data-i18n="smartLinks">Links Inteligentes</span></div>
+            <div class="link-inteligente" id="smartLinks">
+                <div class="link-item" data-link="marketing">
+                    <a href="market-center.html">
+                        <i class="fas fa-chalkboard-user"></i> 
+                        Centro de Marketing
+                    </a>  
+                </div>
+                
+                <div class="link-item" data-link="generator">
+                    <a href="market-intelligence.html">
+                        <i class="fas fa-robot"></i> 
+                        Gerador de Publicações
+                    </a>
+                </div>
+                
+                <div class="link-item" data-link="trends">
+                    <a href="tendencias.html">
+                        <i class="fas fa-chart-line"></i> 
+                        Tendências do Mercado
+                    </a>
+                </div>
+                
+                <div class="link-item" data-link="map">
+                    <a href="map-market.html">
+                        <i class="fas fa-map"></i>
+                        Mapa de Oportunidades
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 9. Histórico de Promoções + Recomendações inteligentes (combinar) -->
+        <div class="card">
+            <div class="card-title"><i class="fas fa-history"></i> <span data-i18n="history">Histórico de Promoções</span></div>
+            <table class="historic-table" id="historyTable">
+                <thead><tr><th>Campanha</th><th>Status</th><th>Resultado</th></tr></thead>
+                <tbody id="historyBody"></tbody>
+            </table>
+        </div>
+        <div class="card">
+            <div class="card-title"><i class="fas fa-microchip"></i> <span data-i18n="recommendations">Recomendações Inteligentes</span></div>
+            <div id="intelRecommend" class="campaign-suggestion"><i class="fas fa-leaf"></i>Seu feijão está entre os produtos mais procurados. Recomendamos uma campanha promocional urgente.</div>
+        </div>
+    </div>
+    <footer>AgroLux - Inteligência que impulsiona suas vendas</footer>
+</div>
+
+<!-- Modal QR Code -->
+<div id="qrModal" class="qr-modal">
+    <div class="qr-content">
+        <i class="fas fa-qrcode" style="font-size: 2rem;"></i>
+        <div id="qrcode" style="display: flex; justify-content: center; margin: 15px 0;"></div>
+        <button id="closeQrModal" class="icon-btn"><i class="fas fa-times"></i> Fechar</button>
+    </div>
+</div>
+
+<script>
+    // ---------- DADOS GLOBAIS ----------
+    let currentLanguage = 'pt'; // pt ou en
+    let currentTheme = 'light';
+    let activePromotionType = "oferta_especial";
+    let activeDiscount = { product: "Milho", offer: "Compre 2 sacos e ganhe 10% de desconto" };
+    let historyPromotions = [
+        { name: "Desconto Tomate (Verão)", status: "expirada", result: "42 contatos" },
+        { name: "Feijão especial", status: "activa", result: "89 visualizações" },
+        { name: "Milho 2x10%", status: "expirada", result: "vendas +23%" },
+        { name: "Oferta relâmpago", status: "activa", result: "em andamento" },
+    ];
+    let chartInstance = null;
+
+    // Textos de tradução (estáticos)
+    const translations = {
+        pt: {
+            autoCampaign: "Campanha Automática", promoTypes: "Tipos de Promoções", strategicDiscount: "Descontos Estratégicos",
+            seasonal: "Promoções Sazonais", textGenerator: "Gerador de Texto Promocional", bestTime: "Melhor Horário",
+            results: "Indicador de Resultados", actions: "Botões de Ação", smartLinks: "Links Inteligentes", history: "Histórico de Promoções",
+            recommendations: "Recomendações Inteligentes", limitedTime: "Oferta por tempo limitado", reachAdvice: "Maior engajamento no fim do dia",
+            mostViewed: "Mais vistas", contacts: "Contactos", topProducts: "Produto top", performance: "Desempenho"
+        },
+        en: {
+            autoCampaign: "Auto Campaign", promoTypes: "Promo Types", strategicDiscount: "Strategic Discounts",
+            seasonal: "Seasonal Promos", textGenerator: "Promo Text Generator", bestTime: "Best Posting Time",
+            results: "Performance Metrics", actions: "Action Buttons", smartLinks: "Smart Links", history: "Promotion History",
+            recommendations: "Smart Recommendations", limitedTime: "Limited time offer", reachAdvice: "Higher engagement at evening",
+            mostViewed: "Most viewed", contacts: "Contacts", topProducts: "Top product", performance: "Performance"
+        }
+    };
+
+    // Lista tipos promoção (ícones e nomes)
+    const promoTypesList = [
+        { id: "semana", name_pt: "Promoção da Semana", name_en: "Week Promo", icon: "fas fa-calendar-week" },
+        { id: "especial", name_pt: "Oferta Especial", name_en: "Special Offer", icon: "fas fa-gem" },
+        { id: "quantidade", name_pt: "Desconto por Quantidade", name_en: "Quantity Discount", icon: "fas fa-boxes" },
+        { id: "destaque", name_pt: "Produto em Destaque", name_en: "Featured Product", icon: "fas fa-star" },
+        { id: "rapida", name_pt: "Venda Rápida", name_en: "Flash Sale", icon: "fas fa-bolt" },
+        { id: "colheita", name_pt: "Campanha de Colheita Nova", name_en: "New Harvest", icon: "fas fa-tractor" }
+    ];
+
+    // Funções de idioma e tema
+    function updateLanguage() {
+        const lang = currentLanguage;
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (translations[lang][key]) el.innerText = translations[lang][key];
+        });
+        document.getElementById("langText").innerText = lang === 'pt' ? 'PT' : 'EN';
+        // atualizar tipos promoção textos
+        const promoGrid = document.getElementById("promoTypesGrid");
+        if(promoGrid) {
+            const items = promoGrid.querySelectorAll('.type-card');
+            items.forEach((card, idx) => {
+                const type = promoTypesList[idx];
+                const nameSpan = card.querySelector('.type-name');
+                if(nameSpan) nameSpan.innerText = lang === 'pt' ? type.name_pt : type.name_en;
+            });
+        }
+        // atualizar texto sazonal
+        const seasonalDiv = document.getElementById("seasonalBox");
+        if(seasonalDiv) seasonalDiv.innerHTML = lang === 'pt' ? '<i class="fas fa-temperature-high"></i> Promoção de Verão: Tomate fresco com preço especial (10% OFF)' : '<i class="fas fa-temperature-high"></i> Summer Promo:  Fresh Tomato with special price (10% OFF)';
+        const recomDiv = document.getElementById("intelRecommend");
+        if(recomDiv) recomDiv.innerHTML = lang === 'pt' ? '<i class="fas fa-leaf"></i>  Seu feijão está entre os produtos mais procurados. Recomendamos uma campanha promocional urgente.' : '<i class="fas fa-leaf"></i>  Your beans are trending. Urgent campaign recommended.';
+        const discountDesc = document.getElementById("discountDesc");
+        if(discountDesc) discountDesc.innerText = activeDiscount.offer;
+    }
+
+    function toggleTheme() {
+        document.body.classList.toggle('dark');
+        const isDark = document.body.classList.contains('dark');
+        currentTheme = isDark ? 'dark' : 'light';
+        const themeBtn = document.getElementById("themeToggleBtn");
+        themeBtn.innerHTML = isDark ? '<i class="fas fa-thumbs-up"></i> Tema Escuro' : '<i class="fas fa-thumbs-up"></i> Tema Claro';
+        document.getElementById("themeText").innerText = isDark ? "Tema Escuro" : "Tema Claro";
+    }
+
+    // Gerar texto promocional baseado no tipo ativo e desconto
+    function generatePromoText() {
+        let product = "Tomate";
+        let discountStr = "preço promocional";
+        if(activeDiscount.product) product = activeDiscount.product;
+        if(activeDiscount.offer) discountStr = activeDiscount.offer.toLowerCase();
+        let type = activePromotionType;
+        let base = "";
+        if(type === "semana") base = `Promoção da Semana: ${product} com ${discountStr}. Aproveite!`;
+        else if(type === "especial") base = ` Oferta Especial! ${product} com ${discountStr} por tempo limitado.`;
+        else if(type === "quantidade") base = ` Compre mais, pague menos! ${product} - ${discountStr}. Estoque limitado!`;
+        else if(type === "destaque") base = ` Produto em Destaque: ${product} incrível com ${discountStr}. Não perca!`;
+        else if(type === "rapida") base = ` Venda Rápida: ${product} com ${discountStr}. Garanta já!`;
+        else base = ` Campanha de Colheita Nova: ${product} fresco com ${discountStr}. Contate-nos!`;
+        return base + "  Fale comigo agora mesmo pelo WhatsApp!";
+    }
+
+    function updatePromoTextarea() {
+        const textarea = document.getElementById("promoTextArea");
+        if(textarea) textarea.value = generatePromoText();
+    }
+
+    // Atualizar campanha automática simulada
+    function updateAutoCampaign() {
+        const texts = [" Campanha Sugerida: Seu tomate está com alta procura esta semana. Recomendamos uma promoção imediata.",
+            " Milho em alta! A demanda aumentou 40% - Oferte desconto progressivo.",
+            " Morango com pico sazonal: crie uma campanha de colheita nova!",
+            " Batata doce: tendência de consumo saudável. Ação relâmpago ideal."];
+        const randomIdx = Math.floor(Math.random() * texts.length);
+        document.getElementById("autoCampaignText").innerHTML = `<i class="fas fa-chart-simple"></i> ${texts[randomIdx]}`;
+    }
+
+    // Render histórico
+    function renderHistory() {
+        const tbody = document.getElementById("historyBody");
+        if(!tbody) return;
+        tbody.innerHTML = "";
+        historyPromotions.forEach(p => {
+            let statusClass = p.status === "activa" ? "status-active" : "status-expired";
+            let statusIcon = p.status === "activa" ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-hourglass-end"></i>';
+            tbody.innerHTML += `<tr><td><i class="fas fa-tag"></i> ${p.name}</td><td class="${statusClass}">${statusIcon} ${p.status}</td><td>${p.result}</td></tr>`;
+        });
+    }
+
+    function addPromotionToHistory(promoName) {
+        historyPromotions.unshift({ name: promoName, status: "activa", result: "nova campanha" });
+        if(historyPromotions.length > 6) historyPromotions.pop();
+        renderHistory();
+    }
+
+    // Atualizar gráfico (simples)
+    function initChart() {
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        if(chartInstance) chartInstance.destroy();
+        chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: { labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'], datasets: [{ label: 'Visualizações', data: [120, 190, 300, 500, 780, 950], borderColor: '#2b7e3a', tension: 0.3, fill: true, backgroundColor: '#2b7e3a20' }] },
+            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'top', labels: { color: getComputedStyle(document.body).getPropertyValue('--text-primary') } } } }
+        });
+    }
+
+    // Simular QR Code (modal)
+    function showQRCode() {
+        const modal = document.getElementById("qrModal");
+        const qrDiv = document.getElementById("qrcode");
+        qrDiv.innerHTML = "";
+        let url = window.location.href + "?promo=" + encodeURIComponent(generatePromoText());
+        new QRCode(qrDiv, { text: url, width: 180, height: 180 });
+        modal.classList.add("active");
+    }
+
+    // Eventos
+    document.addEventListener("DOMContentLoaded", function() {
+        // Montar tipos promo grid
+        const grid = document.getElementById("promoTypesGrid");
+        promoTypesList.forEach((type, idx) => {
+            const btn = document.createElement("div");
+            btn.className = "type-card";
+            btn.innerHTML = `<i class="${type.icon}"></i><span class="type-name">${currentLanguage === 'pt' ? type.name_pt : type.name_en}</span>`;
+            btn.addEventListener("click", () => {
+                activePromotionType = type.id;
+                updatePromoTextarea();
+                showToast(`Promoção: ${type.name_pt} ativada!`);
+            });
+            grid.appendChild(btn);
+        });
+        
+        updateLanguage();
+        renderHistory();
+        initChart();
+        updatePromoTextarea();
+        updateAutoCampaign();
+        setInterval(updateAutoCampaign, 30000); // muda sugestão a cada 30s
+
+        // melhor horário dinâmico
+        const now = new Date();
+        const hour = now.getHours();
+        let bestHour = (hour >= 6 && hour < 12) ? "09h às 11h" : (hour >=12 && hour <18) ? "18h às 20h" : "19h às 21h";
+        document.getElementById("bestHourBox").innerHTML = `<i class="fas fa-hourglass-half"></i> ${bestHour}`;
+
+        // eventos botões
+        document.getElementById("themeToggleBtn").addEventListener("click", toggleTheme);
+        document.getElementById("langToggleBtn").addEventListener("click", () => {
+            currentLanguage = currentLanguage === 'pt' ? 'en' : 'pt';
+            updateLanguage();
+            updatePromoTextarea();
+        });
+        document.getElementById("refreshTextBtn").addEventListener("click", () => {
+            updatePromoTextarea();
+            showToast("Texto promocional regenerado!");
+        });
+        document.getElementById("copyTextBtn").addEventListener("click", () => {
+            const textarea = document.getElementById("promoTextArea");
+            navigator.clipboard.writeText(textarea.value);
+            showToast("Texto copiado!");
+        });
+        document.getElementById("createPromoBtn").addEventListener("click", () => {
+            let newName = `Promo ${activeDiscount.product} - ${new Date().toLocaleTimeString()}`;
+            addPromotionToHistory(newName);
+            showToast("Promoção criada e salva no histórico!");
+        });
+        document.getElementById("publishNowBtn").addEventListener("click", () => {
+            showToast("Publicação simulada nas redes sociais! Alcance estimado +450 pessoas.");
+        });
+        document.getElementById("whatsappShareBtn").addEventListener("click", () => {
+            let text = generatePromoText();
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+        });
+        document.getElementById("qrCodeBtn").addEventListener("click", showQRCode);
+        document.getElementById("closeQrModal").addEventListener("click", () => {
+            document.getElementById("qrModal").classList.remove("active");
+        });
+        document.getElementById("applyDiscountBtn").addEventListener("click", () => {
+            activeDiscount.offer = "Compre 3 unidades e ganhe 15% OFF + brinde";
+            document.getElementById("discountDesc").innerText = activeDiscount.offer;
+            updatePromoTextarea();
+            showToast("Novo desconto aplicado! Oferta por quantidade atualizada.");
+        });
+        // links inteligentes com alertas
+        document.querySelectorAll(".link-item").forEach(link => {
+            link.addEventListener("click", (e) => {
+                showToast(`🔗 Redirecionamento para ${link.innerText} (simulação)`);
+            });
+        });
+        function showToast(msg) {
+            let toast = document.createElement("div");
+            toast.innerText = msg;
+            toast.style.position = "fixed"; toast.style.bottom = "20px"; toast.style.left = "20px";
+            toast.style.background = "var(--accent)"; toast.style.color = "white"; toast.style.padding = "10px 18px";
+            toast.style.borderRadius = "40px"; toast.style.zIndex = "999"; toast.style.fontWeight = "500";
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2500);
+        }
+        // ajustar cores do gráfico ao tema (simples)
+        const observer = new MutationObserver(() => { if(chartInstance) chartInstance.destroy(); initChart(); });
+        observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    });
+</script>
+</body>
+</html>

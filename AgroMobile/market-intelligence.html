@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>AgroLux | Gerador Inteligente de Publicações</title>
+    <!-- Font Awesome 6 + Google Fonts + QRCode lib -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        :root {
+            --bg-gradient: radial-gradient(circle at 10% 20%, rgba(235, 245, 225, 0.7), rgba(248, 250, 240, 0.95));
+            --card-bg: rgba(255, 255, 255, 0.92);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.6);
+            --text-primary: #1a2e1a;
+            --text-secondary: #2c4a2c;
+            --accent-leaf: #2d6a4f;
+            --accent-gold: #f4a261;
+            --accent-sun: #e9c46a;
+            --shadow-modern: 0 20px 35px -12px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.02);
+            --shadow-hover: 0 30px 45px -15px rgba(0, 0, 0, 0.2);
+            --border-radius-card: 2rem;
+            --border-radius-input: 1.25rem;
+            --transition-base: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        body.dark {
+            --bg-gradient: radial-gradient(circle at 10% 20%, #0f1a0f, #0c140c);
+            --card-bg: rgba(25, 35, 20, 0.92);
+            --glass-border: 1px solid rgba(80, 100, 70, 0.5);
+            --text-primary: #e2efda;
+            --text-secondary: #c0ddb0;
+            --accent-leaf: #52b788;
+            --accent-gold: #f4a261;
+            --accent-sun: #e9c46a;
+            --shadow-modern: 0 20px 35px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+        }
+
+        /* ========== SCROLLBAR SÓ APARECE APÓS MODAL ========== */
+        /* Inicialmente sem barra de rolagem (overflow hidden) */
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-primary);
+            padding: 2rem 1.8rem;
+            line-height: 1.5;
+            min-height: 100vh;
+            backdrop-filter: blur(2px);
+            overflow-y: hidden;  /* SEM BARRA DE ROLAGEM INICIALMENTE */
+            transition: overflow-y 0.1s;
+        }
+        /* Classe ativada após o aparecimento do modal (barra de rolagem liberada) */
+        body.scroll-enabled {
+            overflow-y: auto !important;
+        }
+
+        .container {
+            max-width: 1500px;
+            margin: 0 auto;
+        }
+
+        .header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 2.5rem;
+            gap: 1rem;
+            backdrop-filter: blur(8px);
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1.8rem;
+            border-radius: 4rem;
+            border: var(--glass-border);
+        }
+        body.dark .header-flex {
+            background: rgba(20, 30, 18, 0.4);
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .brand i {
+            font-size: 2.4rem;
+            background: linear-gradient(135deg, var(--accent-leaf), var(--accent-gold));
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.1));
+        }
+        .brand h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(125deg, var(--accent-leaf), #efb87e);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.02em;
+        }
+        .brand p {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            background: rgba(255,255,240,0.3);
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+        }
+        .theme-lang {
+            display: flex;
+            gap: 12px;
+        }
+        .icon-btn {
+            background: var(--card-bg);
+            border: var(--glass-border);
+            font-size: 1.2rem;
+            padding: 8px 18px;
+            border-radius: 60px;
+            cursor: pointer;
+            color: var(--accent-leaf);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition-base);
+            box-shadow: var(--shadow-modern);
+            backdrop-filter: blur(4px);
+        }
+        .icon-btn:hover {
+            background: var(--accent-leaf);
+            color: white;
+            transform: translateY(-2px);
+            border-color: transparent;
+        }
+
+        .two-cols {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        @media (max-width: 980px) {
+            .two-cols { grid-template-columns: 1fr; }
+            body { padding: 1.2rem; }
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border-radius: var(--border-radius-card);
+            padding: 1.8rem;
+            box-shadow: var(--shadow-modern);
+            border: var(--glass-border);
+            transition: var(--transition-base);
+            margin-bottom: 1.8rem;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .form-group {
+            margin-bottom: 1.4rem;
+        }
+        label {
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            color: var(--accent-leaf);
+            font-size: 0.9rem;
+            letter-spacing: -0.2px;
+        }
+        select, input, textarea {
+            width: 100%;
+            padding: 12px 18px;
+            border-radius: var(--border-radius-input);
+            border: 1.5px solid rgba(109, 138, 85, 0.3);
+            background: rgba(255, 255, 255, 0.7);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-weight: 500;
+            outline: none;
+            transition: 0.2s;
+        }
+        body.dark select, body.dark input {
+            background: rgba(30, 40, 25, 0.7);
+            border-color: #3b5532;
+        }
+        select:focus, input:focus {
+            border-color: var(--accent-leaf);
+            box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.2);
+            transform: scale(1.01);
+        }
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.2rem;
+            margin-top: 0.5rem;
+        }
+        .radio-group label {
+            font-weight: 600;
+            background: rgba(255,255,235,0.5);
+            padding: 6px 16px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .radio-group input {
+            width: auto;
+            margin-right: 6px;
+            accent-color: var(--accent-leaf);
+        }
+        .radio-group label:hover {
+            background: var(--accent-leaf);
+            color: white;
+        }
+
+        .btn-primary {
+            background: linear-gradient(105deg, var(--accent-leaf), #40916c);
+            border: none;
+            padding: 15px 24px;
+            border-radius: 60px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: white;
+            width: 100%;
+            cursor: pointer;
+            transition: var(--transition-base);
+            box-shadow: 0 10px 20px -8px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            letter-spacing: 0.5px;
+        }
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            filter: brightness(1.05);
+            box-shadow: 0 20px 30px -12px rgba(0,0,0,0.4);
+        }
+        .btn-primary:active {
+            transform: translateY(2px);
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 20px 0 18px;
+        }
+        .btn-action {
+            background: rgba(243, 247, 234, 0.8);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(150, 180, 120, 0.4);
+            padding: 10px 20px;
+            border-radius: 60px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+            color: var(--text-primary);
+        }
+        .btn-action i { font-size: 1.05rem; }
+        .btn-action:hover { background: var(--accent-leaf); color: white; border-color: transparent; transform: scale(0.97); }
+
+        .result-box {
+            background: rgba(45, 106, 79, 0.08);
+            border-radius: 1.8rem;
+            padding: 1.5rem;
+            border-left: 7px solid var(--accent-gold);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            font-weight: 500;
+            white-space: pre-wrap;
+            transition: 0.2s;
+        }
+
+        .suggestions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px,1fr));
+            gap: 14px;
+            margin-top: 12px;
+        }
+        .sugg-card {
+            background: rgba(233, 196, 106, 0.15);
+            border-radius: 1.5rem;
+            padding: 14px;
+            font-weight: 600;
+            border: 1px solid rgba(244, 162, 97, 0.3);
+            transition: all 0.2s;
+        }
+        .sugg-card:hover {
+            background: var(--accent-sun);
+            color: #1e2a1e;
+            transform: translateY(-3px);
+        }
+
+        .history-list {
+            max-height: 250px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        .history-item {
+            background: rgba(200, 220, 180, 0.2);
+            border-radius: 1.5rem;
+            padding: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: 0.15s;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(100,130,80,0.3);
+        }
+        .history-item:hover {
+            background: var(--accent-leaf);
+            color: white;
+            transform: translateX(4px);
+        }
+
+        .qr-modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.2s;
+        }
+        .qr-modal.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        .qr-content {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 2.5rem;
+            text-align: center;
+            box-shadow: var(--shadow-hover);
+        }
+
+        .quick-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .quick-link {
+            background: rgba(210, 225, 185, 0.5);
+            padding: 8px 18px;
+            border-radius: 60px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-decoration: none;
+            color: var(--accent-leaf);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+        .quick-link:hover {
+            background: var(--accent-leaf);
+            color: white;
+            transform: scale(1.02);
+        }
+
+        .multi-result {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        hr {
+            margin: 0.8rem 0;
+            border-color: rgba(128, 128, 100, 0.3);
+        }
+        i {
+            margin-right: 5px;
+        }
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(20px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        .card {
+            animation: fadeSlideUp 0.4s ease-out forwards;
+        }
+        .btn-primary i {
+            transition: transform 0.2s;
+        }
+        .btn-primary:hover i {
+            transform: rotate(5deg) scale(1.1);
+        }
+        
+        .logo-maker{
+            border-radius: 50px;
+            width: 50px;
+            height: 50px;
+        }
+        .logo-panel{
+            border-radius: 50px;
+            width: 30px;
+            height: 30px;
+        }
+        .logo-panel { 
+            width: 24px;
+            height: 24px; 
+            vertical-align: middle;
+            margin-right: 5px; 
+        }
+        .logo-point {
+            width: 100px; 
+            height: 50px;
+        }
+        
+        .whatsapp-radio-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-family: sans-serif;
+        }
+        .icon-whatsapp-bubble {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #25D366;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            position: relative;
+            font-size: 18px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        }
+        .icon-whatsapp-bubble .fa-comment-dots {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            background-color: white;
+            color: #25D366;
+            font-size: 10px;
+            padding: 2px;
+            border-radius: 50%;
+            box-shadow: 0 0 0 1px white;
+        }
+        .icon-whatsapp-bubble .fa-whatsapp {
+            font-size: 18px;
+        }
+        
+        .facebook-radio-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-family: sans-serif;
+        }
+        .icon-facebook-bubble {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #1877F2;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            position: relative;
+            font-size: 18px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        }
+        .icon-facebook-bubble .fa-thumbs-up {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            background-color: white;
+            color: #1877F2;
+            font-size: 10px;
+            padding: 2px;
+            border-radius: 50%;
+            box-shadow: 0 0 0 1px white;
+        }
+        .icon-facebook-bubble .fa-facebook-f {
+            font-size: 18px;
+        }
+        
+        .instagram-radio-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-family: sans-serif;
+        }
+        .icon-instagram-bubble {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #E4405F;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            position: relative;
+            font-size: 18px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        }
+        .icon-instagram-bubble .fa-heart {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            background-color: white;
+            color: #E4405F;
+            font-size: 10px;
+            padding: 2px;
+            border-radius: 50%;
+            box-shadow: 0 0 0 1px white;
+        }
+        .icon-instagram-bubble .fa-instagram {
+            font-size: 18px;
+        }
+        
+        .all-networks-radio-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-family: sans-serif;
+        }
+        .icon-all-networks {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            position: relative;
+            font-size: 18px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        }
+        .icon-all-networks .fa-star {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            background-color: white;
+            color: #6c5ce7;
+            font-size: 10px;
+            padding: 2px;
+            border-radius: 50%;
+            box-shadow: 0 0 0 1px white;
+        }
+        .icon-all-networks .fa-globe {
+            font-size: 18px;
+        }
+        
+        /* ============ MODAL PUBLICITÁRIO COM SUPORTE A SCROLL (POINTER-EVENTS NONE NO OVERLAY) ============ */
+        .modal-invasivo-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.86);
+            backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 1rem;
+            pointer-events: none;  /* Permite scroll e clique no conteúdo de fundo */
+        }
+        
+        .modal-card-agro {
+            max-width: 960px;
+            width: 100%;
+            max-height: 90vh;
+            background: #ffffff;
+            border-radius: 40px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.5);
+            animation: modalFadeUp 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            pointer-events: auto;   /* O card continua interativo (botões, links) */
+        }
+        
+        .modal-card-agro::-webkit-scrollbar {
+            width: 6px;
+        }
+        .modal-card-agro::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .modal-card-agro::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+        }
+        
+        @keyframes modalFadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .modal-flex {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        
+        .modal-imagem-lado {
+            flex: 0.85;
+            background-color: #2b5e2b;
+            position: relative;
+            overflow: hidden;
+            min-height: 260px;
+            display: flex;
+            align-items: stretch;
+        }
+        
+        .img-wrapper {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .img-agricola {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            flex: 1;
+        }
+        
+        .campo-particulas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: radial-gradient(circle at 20% 40%, rgba(255,215,0,0.2) 1px, transparent 1px);
+            background-size: 26px 26px;
+        }
+        
+        .modal-conteudo-lado {
+            flex: 1.2;
+            padding: 2rem 2rem 2rem 2rem;
+            background: #fffef7;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+        }
+        
+        .btn-fechar-modal {
+            position: absolute;
+            top: 18px;
+            right: 20px;
+            background: #f0f0f0;
+            width: 36px;
+            height: 36px;
+            border-radius: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #2c3e2c;
+            font-size: 1.2rem;
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .btn-fechar-modal:hover {
+            background: #e2e2e2;
+            transform: scale(1.03);
+            color: #c0392b;
+        }
+        
+        .titulo-desafio {
+            font-size: 1.7rem;
+            font-weight: 800;
+            color: #2c6e2c;
+            margin-bottom: 0.9rem;
+            line-height: 1.3;
+            text-align: center;
+            border-left: none;
+            padding-left: 0;
+        }
+        
+        .titulo-desafio i {
+            color: #f9b81b;
+            margin-right: 8px;
+            font-size: 1.6rem;
+        }
+        
+        .descricao-oferta {
+            font-size: 0.95rem;
+            color: #2d3e2b;
+            margin: 0.6rem 0 1rem 0;
+            line-height: 1.5;
+            text-align: center;
+        }
+        
+        .lista-vantagens {
+            list-style: none;
+            margin: 1rem auto 1.2rem auto;
+            display: inline-block;
+            text-align: left;
+            padding: 0;
+        }
+        
+        .lista-vantagens li {
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #1f3b1a;
+        }
+        
+        .lista-vantagens i {
+            color: #3ba53b;
+            font-size: 1.2rem;
+            width: 24px;
+        }
+        
+        .btn-tentar-agora-invasivo {
+            display: block;
+            background: linear-gradient(95deg, #f5a623, #f57c00);
+            border: none;
+            width: 100%;
+            border-radius: 60px;
+            text-align: center;
+            transition: all 0.2s;
+            box-shadow: 0 5px 14px rgba(245, 124, 0, 0.3);
+            cursor: pointer;
+            text-decoration: none;
+            padding: 14px 12px;
+            font-weight: bold;
+            font-size: 1rem;
+            color: white;
+            letter-spacing: 0.5px;
+            max-width: 280px;
+            margin: 0 auto;
+        }
+        
+        .btn-tentar-agora-invasivo i {
+            margin-right: 10px;
+        }
+        
+        .btn-tentar-agora-invasivo:hover {
+            transform: scale(1.01);
+            background: linear-gradient(95deg, #ffb347, #ff8c1a);
+            box-shadow: 0 10px 22px rgba(245, 124, 0, 0.45);
+            text-decoration: none;
+            color: white;
+        }
+        
+        .texto-tempo-limitado {
+            font-size: 0.7rem;
+            text-align: center;
+            color: #a16207;
+            background: #fff1cf;
+            display: inline-block;
+            width: auto;
+            padding: 6px 14px;
+            border-radius: 40px;
+            margin: 16px auto 0;
+        }
+        
+        @media (max-width: 780px) {
+            body { padding: 1rem; }
+            .modal-flex { flex-direction: column; }
+            .modal-imagem-lado { min-height: 180px; flex: auto; }
+            .modal-conteudo-lado { padding: 1.5rem; }
+            .titulo-desafio { font-size: 1.4rem; }
+        }
+        
+        @media (max-width: 480px) {
+            .modal-conteudo-lado { padding: 1.2rem; }
+            .titulo-desafio { font-size: 1.25rem; }
+            .btn-fechar-modal { top: 12px; right: 12px; width: 32px; height: 32px; }
+        }
+        
+        /* ============ ÍCONE DO OLHO - FLUTUANTE ============ */
+        .floating-eye-icon {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            background: linear-gradient(135deg, #1e5f1e, #0f3b0f);
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 10px 22px rgba(0, 0, 0, 0.3), 0 0 0 3px rgba(255, 215, 0, 0.6);
+            z-index: 1500;
+            transition: all 0.2s ease;
+        }
+        
+        .floating-eye-icon i {
+            font-size: 2rem;
+            color: #FFE484;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        }
+        
+        .floating-eye-icon:hover {
+            transform: scale(1.06);
+            background: linear-gradient(135deg, #2f7a2f, #1c551c);
+            box-shadow: 0 14px 26px rgba(0, 0, 0, 0.35), 0 0 0 4px #ffd966;
+        }
+        
+        .floating-eye-icon::after {
+            content: "Abrir AgroPedia";
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            background: #1f2e1b;
+            color: #f9f3cf;
+            font-size: 0.7rem;
+            font-weight: bold;
+            padding: 5px 12px;
+            border-radius: 40px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.2s;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        
+        .floating-eye-icon:hover::after {
+            opacity: 1;
+            bottom: 66px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header-flex">
+        <div class="brand">
+            <div>
+                <h1><a href="index.html"><img src="images/Lux-logo-bg.png" class="logo-point" onerror="this.style.display='none'" alt="Logo"></a></h1>
+                <p data-i18n="subtitle">Crie anúncios profissionais em segundos</p>
+            </div>
+        </div>
+        <div class="theme-lang">
+            <button id="themeToggle" class="icon-btn"><i class="fas fa-moon"></i> <span data-i18n="theme">Tema</span></button>
+            <button id="langToggle" class="icon-btn"><i class="fas fa-globe"></i> <span data-i18n="lang">PT</span></button>
+        </div>
+    </div>
+
+    <div class="two-cols">
+        <!-- Coluna esquerda -->
+        <div>
+            <div class="card">
+                <div class="form-group">
+                    <label><i class="fas fa-seedling"></i><span data-i18n="product_label">Produto</span></label>
+                    <select id="productSelect">
+                        <option value="tomate">Tomate</option>
+                        <option value="milho">Milho</option>
+                        <option value="feijão">Feijão</option>
+                        <option value="cebola">Cebola</option>
+                        <option value="batata">Batata</option>
+                        <option value="banana">Banana</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-share-alt"></i> <span data-i18n="type_label">Tipo de Publicação</span></label>
+                    <div class="radio-group" id="platformRadios">
+                        <label class="whatsapp-radio-label">
+                            <input type="radio" name="platform" value="whatsapp" checked>
+                            <span class="icon-whatsapp-bubble"><i class="fab fa-whatsapp"></i><i class="fas fa-comment-dots"></i></span>
+                            WhatsApp
+                        </label>
+                        <label class="facebook-radio-label">
+                            <input type="radio" name="platform" value="facebook">
+                            <span class="icon-facebook-bubble"><i class="fab fa-facebook-f"></i><i class="fas fa-thumbs-up"></i></span>
+                            Facebook
+                        </label>
+                        <label class="instagram-radio-label">
+                            <input type="radio" name="platform" value="instagram">
+                            <span class="icon-instagram-bubble"><i class="fab fa-instagram"></i><i class="fas fa-heart"></i></span>
+                            Instagram
+                        </label>
+                        <label class="all-networks-radio-label">
+                            <input type="radio" name="platform" value="all">
+                            <span class="icon-all-networks"><i class="fas fa-globe"></i><i class="fas fa-star"></i></span>
+                            Todas as Redes
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-bullhorn"></i> <span data-i18n="objective_label">Objetivo</span></label>
+                    <select id="objectiveSelect">
+                        <option value="Promoção">Promoção</option>
+                        <option value="Venda Rápida">Venda Rápida</option>
+                        <option value="Produto em Destaque">Destaque</option>
+                        <option value="Nova Colheita">Nova Colheita</option>
+                        <option value="Oferta Especial">Oferta Especial</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-info-circle"></i> <span data-i18n="info_label">Informações do produto</span></label>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
+                        <input type="text" id="price" placeholder="Preço (ex: 5.000 kz)" value="5.000 kz">
+                        <input type="text" id="quantity" placeholder="Quantidade" value="50 sacos">
+                        <input type="text" id="location" placeholder="Localização" value="Malanje">
+                        <input type="tel" id="phone" placeholder="Telefone / WhatsApp" value="923 456 789">
+                        <input type="date" id="dateAvailable" value="2026-05-10">
+                        <select id="deliveryOption">
+                            <option value="Entrega">Entrega</option>
+                            <option value="Retirada">Retirada</option>
+                            <option value="Ambos">🚛 + 🚶 Ambos</option>
+                        </select>
+                    </div>
+                </div>
+                <button id="generateBtn" class="btn-primary"><i class="fas fa-magic"></i> <span data-i18n="generate_btn">GERAR PUBLICAÇÃO</span></button>
+            </div>
+            <div class="card">
+                <h3><i class="fas fa-lightbulb"></i> <span data-i18n="smart_title">Sugestões Inteligentes</span></h3>
+                <div id="suggestionsPanel" class="suggestions-grid">
+                    <div class="sugg-card"><span data-i18n="best_time">Melhor horário:</span> 18h-20h</div>
+                    <div class="sugg-card"><span data-i18n="best_day">Melhor dia:</span> Quinta-feira</div>
+                    <div class="sugg-card"><span data-i18n="hashtags">Hashtags:</span> #AgroNegócio</div>
+                    <div class="sugg-card"><span data-i18n="phrase">Frase persuasiva:</span> Direto do campo!</div>
+                </div>
+            </div>
+            <div class="card">
+                <h3><i class="fas fa-bolt"></i> <span data-i18n="quicklinks_title">Links Rápidos</span></h3>
+                <div class="quick-links">
+                    <a href="market-center.html" class="quick-link"><i class="fas fa-chalkboard-user"></i> Centro Marketing Digital</a>
+                    <a href="tendencias.html" class="quick-link"><i class="fas fa-chart-line"></i> Tendências do Mercado</a>
+                    <a href="promotion.html" class="quick-link"><i class="fas fa-tags"></i> Promoções Inteligentes</a>
+                    <a href="map-market.html" class="quick-link"><i class="fas fa-map-marked-alt"></i> Mapa de Oportunidades</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Coluna direita -->
+        <div>
+            <div class="card">
+                <h3><i class="fas fa-file-alt"></i> <span data-i18n="result_title">Publicação Gerada</span></h3>
+                <div id="resultArea" class="result-box">
+                    Milho fresco disponível! Preço acessível, entrega rápida. Fale comigo agora.
+                </div>
+                <div class="action-buttons" id="actionButtons">
+                    <button id="copyBtn" class="btn-action"><i class="fas fa-copy"></i> Copiar Texto</button>
+                    <button id="shareWABtn" class="btn-action"><i class="fab fa-whatsapp"></i> Partilhar WhatsApp</button>
+                    <button id="shareFBBtn" class="btn-action"><i class="fab fa-facebook"></i> Publicar Facebook</button>
+                    <button id="shareIGBtn" class="btn-action"><i class="fab fa-instagram"></i> Enviar Instagram</button>
+                </div>
+                <button id="qrCodeBtn" class="btn-action" style="width:100%; justify-content:center; background: var(--accent-gold); color:#2d2b1f;"><i class="fas fa-qrcode"></i> Gerar QR Code da Publicação</button>
+            </div>
+            <div class="card">
+                <h3><i class="fas fa-history"></i> <span data-i18n="history_title">Histórico de Publicações</span></h3>
+                <div id="historyList" class="history-list">
+                    <div class="history-item" style="opacity:0.7;">Nenhuma publicação gerada ainda</div>
+                </div>
+            </div>
+            <div id="qrModal" class="qr-modal">
+                <div class="qr-content">
+                    <i class="fas fa-qrcode" style="font-size: 2rem; color:var(--accent-leaf)"></i>
+                    <div id="qrCodeContainer"></div>
+                    <button id="closeQrModal" class="btn-action" style="margin-top:1rem;">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Publicitário AgroPedia -->
+<div id="modalInvasivo" class="modal-invasivo-overlay">
+    <div class="modal-card-agro">
+        <div class="modal-flex">
+            <div class="modal-imagem-lado">
+                <div class="img-wrapper">
+                    <img class="img-agricola" src="images/library.jpg" alt="Acervo AgroPedia" onerror="this.src='https://placehold.co/600x480/3a7a3a/ffffff?text=🌾+AgroPedia+Enciclopédia&font=roboto'">
+                    <div class="campo-particulas"></div>
+                </div>
+            </div>
+            <div class="modal-conteudo-lado">
+                <div class="btn-fechar-modal" id="fecharModalBtn"><i class="fas fa-times"></i></div>
+                <div class="titulo-desafio"><i class="fas fa-database"></i> AgroPedia<br>Enciclopédia Digital do AgroLux</div>
+                <p class="descricao-oferta">Tenha acesso imediato a um acervo completo de conhecimentos para o campo. Pesquise, aprenda e aplique técnicas modernas com credibilidade.</p>
+                <ul class="lista-vantagens">
+                    <li><i class="fas fa-check-circle"></i> <strong>+5.000 artigos técnicos</strong> – culturas, solos, pecuária, gestão rural</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Vídeos e infográficos exclusivos</strong> – aprendizado dinâmico</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Comunidade AgroPedia</strong> – troca de experiências com especialistas</li>
+                </ul>
+                <a href="library.html" class="btn-tentar-agora-invasivo" id="tentarAgoraBtn"><i class="fas fa-graduation-cap"></i> Explorar AgroPedia</a>
+                <div class="texto-tempo-limitado"><i class="far fa-clock"></i> Conhecimento que evolui com você</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Ícone do olho - fixo -->
+<div class="floating-eye-icon" id="floatingEyeBtn" aria-label="Abrir modal AgroPedia" title="Acessar enciclopédia">
+    <i class="fas fa-eye"></i>
+</div>
+
+<script>
+    // ------------------ TRADUÇÕES E TEMAS (mantido original) ------------------
+    const translations = {
+        pt: { subtitle: "Crie anúncios profissionais em segundos", theme: "Tema", lang: "PT", product_label: "Produto", type_label: "Tipo de Publicação", objective_label: "Objetivo", info_label: "Informações do produto", generate_btn: "GERAR PUBLICAÇÃO", smart_title: "Sugestões Inteligentes", best_time: "Melhor horário:", best_day: "Melhor dia:", hashtags:"Hashtags:", phrase:"Frase persuasiva:", quicklinks_title:"Links Rápidos", result_title:"Publicação Gerada", history_title:"Histórico de Publicações", copy_success:"✅ Texto copiado!", copied:"Copiado!" },
+        en: { subtitle: "Create pro ads in seconds", theme: "Theme", lang: "EN", product_label: "Product", type_label: "Post Type", objective_label: "Objective", info_label: "Product details", generate_btn: "GENERATE POST", smart_title: "Smart Suggestions", best_time: "Best time:", best_day: "Best day:", hashtags:"Hashtags:", phrase:"Persuasive phrase:", quicklinks_title:"Quick Links", result_title:"Generated Post", history_title:"Post History", copy_success:"✅ Text copied!", copied:"Copied!" }
+    };
+    let currentLang = 'pt';
+    function updateLanguage() { document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (translations[currentLang][key]) el.innerText = translations[currentLang][key]; }); }
+    const themeBtn = document.getElementById('themeToggle');
+    themeBtn.addEventListener('click', () => { document.body.classList.toggle('dark'); localStorage.setItem('agroTheme', document.body.classList.contains('dark') ? 'dark' : 'light'); });
+    if(localStorage.getItem('agroTheme') === 'dark') document.body.classList.add('dark');
+    const langBtn = document.getElementById('langToggle');
+    langBtn.addEventListener('click', () => { currentLang = currentLang === 'pt' ? 'en' : 'pt'; updateLanguage(); localStorage.setItem('agroLang', currentLang); });
+    if(localStorage.getItem('agroLang')) { currentLang = localStorage.getItem('agroLang'); updateLanguage(); }
+    
+    // Geração de texto (mesmas funções originais)
+    function getFormData() { const productMap = {tomate:"Tomate", milho:"Milho", feijão:"Feijão", cebola:"Cebola", batata:"Batata", banana:"Banana"}; const product = document.getElementById('productSelect').value; const productName = productMap[product]; const price = document.getElementById('price').value || "preço sob consulta"; const qty = document.getElementById('quantity').value; const locationTxt = document.getElementById('location').value; const phone = document.getElementById('phone').value; const dateAvail = document.getElementById('dateAvailable').value; const delivery = document.getElementById('deliveryOption').value; const objective = document.getElementById('objectiveSelect').value; return { product, productName, price, qty, locationTxt, phone, dateAvail, delivery, objective }; }
+    function generateTextForPlatform(platform, data) { const { productName, price, qty, locationTxt, phone, dateAvail, delivery, objective } = data; if(platform === 'whatsapp') { return ` *${productName} FRESCO!*\n ${objective} · ${qty} | ${locationTxt}\n Preço: ${price}\n ${delivery} ·  Disponível: ${dateAvail}\n ${locationTxt}\n Fale comigo: ${phone}\n Garanta já!`; } else if(platform === 'facebook') { return ` ${productName} de qualidade excepcional!\n ${objective}: Preço ${price}, ${qty} à pronta entrega.\n ${locationTxt} | ${delivery} |  ${dateAvail}\n Contato: ${phone}\n Comente ou chame no Direct! #AgriculturaFamiliar`; } else if(platform === 'instagram') { const hashtags = `#${productName.replace(/[^a-zA-ZÀ-ÿ]/g,'')} #ColheitaFresca #AgroMarket #${locationTxt}`; return ` ${productName} • ${objective}\n ${price} | ${qty}\n ${locationTxt} • ${delivery}\n Link na bio ou WhatsApp: ${phone}\n\n${hashtags}`; } return ""; }
+    let currentGenerated = { type: 'single', text: '', multiTexts: null, platformUsed: 'whatsapp' };
+    function generateAndDisplay() { const platformRad = document.querySelector('input[name="platform"]:checked').value; const formData = getFormData(); const resultDiv = document.getElementById('resultArea'); if(platformRad === 'all') { const wa = generateTextForPlatform('whatsapp', formData); const fb = generateTextForPlatform('facebook', formData); const ig = generateTextForPlatform('instagram', formData); resultDiv.innerHTML = `<div class="multi-result"><div><i class="fab fa-whatsapp"></i> <strong>WhatsApp</strong><br>${wa.replace(/\n/g,'<br>')}</div><hr><div><i class="fab fa-facebook"></i> <strong>Facebook</strong><br>${fb.replace(/\n/g,'<br>')}</div><hr><div><i class="fab fa-instagram"></i> <strong>Instagram</strong><br>${ig.replace(/\n/g,'<br>')}</div></div>`; currentGenerated = { type: 'multi', texts: { whatsapp: wa, facebook: fb, instagram: ig }, platformUsed: 'all' }; } else { let text = generateTextForPlatform(platformRad, formData); resultDiv.innerHTML = text.replace(/\n/g,'<br>'); currentGenerated = { type: 'single', text: text, platformUsed: platformRad }; } updateSmartSuggestions(formData); saveToHistory(formData, platformRad, currentGenerated); renderHistory(); }
+    function updateSmartSuggestions(data) { let bestHour="18h-20h", bestDay="Quinta-feira", hashtags="#AgroNegócio #ProdutoFresco", phrase=`Adquira já ${data.productName} com qualidade!`; if(data.objective === "Venda Rápida") { bestHour="12h-14h"; bestDay="Sexta-feira"; phrase=`Oferta imperdível! ${data.productName} em conta!`; hashtags+=" #OfertaRápida"; } if(data.objective === "Nova Colheita") { bestHour="09h-11h"; bestDay="Sábado"; phrase=`Novidade! ${data.productName} recém-colhido!`; hashtags+=" #NovaColheita"; } if(data.locationTxt) hashtags+=` #${data.locationTxt.replace(/\s/g,'')}`; document.getElementById('suggestionsPanel').innerHTML = `<div class="sugg-card"><span data-i18n="best_time">Melhor horário:</span> ${bestHour}</div><div class="sugg-card"><span data-i18n="best_day">Melhor dia:</span> ${bestDay}</div><div class="sugg-card"><span data-i18n="hashtags">Hashtags:</span> ${hashtags}</div><div class="sugg-card"><span data-i18n="phrase">Frase persuasiva:</span> ${phrase}</div>`; }
+    let history = []; function loadHistory() { const stored = localStorage.getItem('agroPostHistory'); history = stored ? JSON.parse(stored) : []; } function saveToHistory(formData, platform, generated) { let previewText = generated.type === 'single' ? generated.text.substring(0, 80) : `${generated.texts.whatsapp.substring(0, 60)}...`; const entry = { id: Date.now(), date: new Date().toLocaleString(), product: formData.productName, platform: platform, preview: previewText, fullData: { formData, platform, generated } }; history.unshift(entry); if(history.length > 10) history.pop(); localStorage.setItem('agroPostHistory', JSON.stringify(history)); } function renderHistory() { const historyDiv = document.getElementById('historyList'); if(!history.length) { historyDiv.innerHTML = `<div class="history-item">Nenhuma publicação ainda</div>`; return; } historyDiv.innerHTML = history.map(item => `<div class="history-item" data-id="${item.id}"><strong>${item.product}</strong> • ${item.platform} <br><small>${item.date}</small><br>“${item.preview}”</div>`).join(''); document.querySelectorAll('.history-item').forEach(el => { el.addEventListener('click', () => { const id = parseInt(el.getAttribute('data-id')); const found = history.find(h => h.id === id); if(found) { if(found.fullData.generated.type === 'single') { document.getElementById('resultArea').innerHTML = found.fullData.generated.text.replace(/\n/g,'<br>'); currentGenerated = { type: 'single', text: found.fullData.generated.text, platformUsed: found.fullData.platform }; } else { const multi = found.fullData.generated.texts; document.getElementById('resultArea').innerHTML = `<div class="multi-result"><div><i class="fab fa-whatsapp"></i> <strong>WhatsApp</strong><br>${multi.whatsapp.replace(/\n/g,'<br>')}</div><hr><div><i class="fab fa-facebook"></i> <strong>Facebook</strong><br>${multi.facebook.replace(/\n/g,'<br>')}</div><hr><div><i class="fab fa-instagram"></i> <strong>Instagram</strong><br>${multi.instagram.replace(/\n/g,'<br>')}</div></div>`; currentGenerated = { type: 'multi', texts: multi, platformUsed: 'all' }; } } }); }); }
+    function getCurrentTextForAction() { if(currentGenerated.type === 'single') return currentGenerated.text; else { const platformRad = document.querySelector('input[name="platform"]:checked').value; if(platformRad === 'all') return currentGenerated.texts.whatsapp + "\n\n---\n" + currentGenerated.texts.facebook; if(platformRad === 'whatsapp') return currentGenerated.texts.whatsapp; if(platformRad === 'facebook') return currentGenerated.texts.facebook; if(platformRad === 'instagram') return currentGenerated.texts.instagram; return currentGenerated.texts.whatsapp; } }
+    function getWAShareText() { if(currentGenerated.type === 'single') return currentGenerated.text; else return currentGenerated.texts.whatsapp; }
+    document.getElementById('copyBtn').addEventListener('click', () => { navigator.clipboard.writeText(getCurrentTextForAction()); alert(translations[currentLang].copy_success); });
+    document.getElementById('shareWABtn').addEventListener('click', () => { window.open(`https://wa.me/?text=${encodeURIComponent(getWAShareText())}`, '_blank'); });
+    document.getElementById('shareFBBtn').addEventListener('click', () => { let txt = getCurrentTextForAction(); window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent('https://agropost.com')}&quote=${encodeURIComponent(txt)}`, '_blank'); });
+    document.getElementById('shareIGBtn').addEventListener('click', () => { navigator.clipboard.writeText(getCurrentTextForAction()); alert("Texto copiado! Cole no Instagram (legenda ou stories)."); });
+    const qrModal = document.getElementById('qrModal'); const qrContainer = document.getElementById('qrCodeContainer'); document.getElementById('qrCodeBtn').addEventListener('click', () => { let qrText = getCurrentTextForAction(); if(qrText.length > 500) qrText = qrText.substring(0, 480) + "…"; qrContainer.innerHTML = ""; new QRCode(qrContainer, { text: qrText, width: 220, height: 220 }); qrModal.classList.add('active'); }); document.getElementById('closeQrModal').addEventListener('click', () => qrModal.classList.remove('active')); qrModal.addEventListener('click', (e) => { if(e.target === qrModal) qrModal.classList.remove('active'); });
+    document.getElementById('generateBtn').addEventListener('click', generateAndDisplay);
+    window.addEventListener('load', () => { loadHistory(); renderHistory(); generateAndDisplay(); });
+    
+    // ======================= MODAL PUBLICITÁRIO + SCROLLBAR APÓS MODAL =======================
+    (function() {
+        const modalOverlay = document.getElementById('modalInvasivo');
+        const closeModalBtn = document.getElementById('fecharModalBtn');
+        const floatingEye = document.getElementById('floatingEyeBtn');
+        let reopenTimer = null;
+        
+        // Função para ATIVAR A BARRA DE ROLAGEM (liberar scroll)
+        function enableScrollbar() {
+            if (!document.body.classList.contains('scroll-enabled')) {
+                document.body.classList.add('scroll-enabled');
+            }
+        }
+        
+        function abrirModal() {
+            if (!modalOverlay) return;
+            if (modalOverlay.style.display === 'flex') return;
+            modalOverlay.style.display = 'flex';
+            // Não alteramos overflow do body, pois a rolagem já é liberada posteriormente.
+            // Mas garantimos que quando o modal for exibido, a barra seja ativada (se ainda não)
+            enableScrollbar();
+        }
+        
+        function fecharModal() {
+            if (!modalOverlay) return;
+            modalOverlay.style.display = 'none';
+            // NÃO desativamos a barra de rolagem ao fechar, o scroll permanece.
+            if (reopenTimer) clearTimeout(reopenTimer);
+            reopenTimer = setTimeout(() => {
+                if (modalOverlay.style.display !== 'flex') {
+                    abrirModal();
+                }
+            }, 600000); // 10 minutos
+        }
+        
+        if (closeModalBtn) closeModalBtn.addEventListener('click', fecharModal);
+        if (modalOverlay) modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) fecharModal();
+        });
+        if (floatingEye) {
+            floatingEye.addEventListener('click', (e) => {
+                e.stopPropagation();
+                abrirModal();
+            });
+        }
+        const modalCard = document.querySelector('.modal-card-agro');
+        if (modalCard) modalCard.addEventListener('click', (e) => e.stopPropagation());
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modalOverlay && modalOverlay.style.display === 'flex') fecharModal();
+        });
+        
+        // INÍCIO: abrir o modal imediatamente E SOMENTE APÓS O MODAL APARECER, LIBERAR SCROLLBAR
+        abrirModal();
+        // Pequeno delay para garantir que o modal já esteja visível e então a barra de rolagem aparece
+        setTimeout(() => {
+            enableScrollbar();
+        }, 80);
+    })();
+</script>
+</body>
+</html>

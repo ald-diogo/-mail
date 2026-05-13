@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>🌍 Enciclopédia Agrícola Global | AgroLux</title>
+  <!-- Bootstrap 5 (grelha e componentes) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  
+  <!-- Leaflet (mapa interactivo, open source, sem chave) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    /* VARIÁVEIS E TEMA CLARO / ESCURO (moderno) */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s;
+      font-family: 'Times New Roman', Times, serif;
+    }
+    body {
+      background: var(--bg-body);
+      color: var(--text-primary);
+      font-family: 'Segoe UI', 'Roboto', 'Georgia', serif;
+      line-height: 1.5;
+    }
+    /* Fundo subtil plantação – imagem visível e ajustada ligeiramente + transparência para destaque */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('images/library.jpg');
+      background-size: cover;
+      background-position: center;
+      opacity: 0.18;  /* leve aumento para realçar imagem sem ofuscar texto */
+      pointer-events: none;
+      z-index: -2;
+    }
+    :root {
+      --bg-body: #f4f7f2;
+      --bg-surface-trans: rgba(248, 250, 240, 0.88);
+      --border-light: #ced4da;
+      --text-primary: #1f2e1c;
+      --text-secondary: #2d4a22;
+      --accent: #2b6e2e;
+      --accent-bg: #e8f0e6;
+      --link: #1a5d1a;
+      --map-filter: none;
+      --card-blur: blur(2px);
+    }
+    body.dark-mode {
+      --bg-body: #121212;
+      --bg-surface-trans: rgba(28, 35, 28, 0.88);
+      --border-light: #3a4a3a;
+      --text-primary: #eef5e8;
+      --text-secondary: #c0d6b3;
+      --accent: #7cb342;
+      --accent-bg: #2e3b2e;
+      --link: #9ccc65;
+      --map-filter: brightness(0.9) contrast(1.1);
+      --card-blur: blur(2px);
+    }
+    /* Layout wiki global */
+    .wiki-container {
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 1rem 1.5rem;
+    }
+    /* Cabeçalho moderno */
+    .wiki-header {
+      border-bottom: 2px solid var(--accent);
+      padding: 0.5rem 0 1rem;
+      margin-bottom: 1.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      background: transparent;
+    }
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo-icon {
+      font-size: 2.8rem;
+      filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.1));
+    }
+    .logo-text {
+      font-size: 1.9rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), #4c9e2e);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      letter-spacing: -0.5px;
+    }
+    .wiki-title {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      font-style: italic;
+    }
+    /* Barra de pesquisa */
+    .search-box {
+      background: var(--bg-surface-trans);
+      backdrop-filter: blur(4px);
+      border: 1px solid var(--border-light);
+      border-radius: 40px;
+      padding: 0.3rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .search-box input {
+      border: none;
+      background: transparent;
+      outline: none;
+      width: 220px;
+      font-family: inherit;
+      color: var(--text-primary);
+    }
+    /* Toggle theme moderno (slider) */
+    .theme-switch-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .theme-switch {
+      position: relative;
+      display: inline-block;
+      width: 56px;
+      height: 28px;
+    }
+    .theme-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.3s;
+      border-radius: 34px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "☀️";
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 24px;
+      width: 24px;
+      left: 2px;
+      bottom: 2px;
+      background-color: white;
+      border-radius: 50%;
+      transition: 0.3s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    input:checked + .slider:before {
+      content: "🌙";
+      transform: translateX(28px);
+    }
+    input:checked + .slider {
+      background-color: #4c6a3b;
+    }
+    /* CARDS laterais e conteúdo — fundo semi-transparente que deixa a imagem de fundo aparecer */
+    .wiki-sidebar, .wiki-right, .main-content {
+      background: var(--bg-surface-trans);
+      backdrop-filter: blur(4px);
+      border: 1px solid var(--border-light);
+      border-radius: 20px;
+      padding: 1.2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      transition: background 0.2s;
+    }
+    /* conteúdo principal e laterais legíveis */
+    .main-content {
+      background: var(--bg-surface-trans);
+    }
+    .sidebar-title {
+      font-weight: 700;
+      font-size: 1.2rem;
+      border-left: 5px solid var(--accent);
+      padding-left: 0.7rem;
+      margin-bottom: 1rem;
+    }
+    .category-list {
+      list-style: none;
+      padding-left: 0;
+    }
+    .category-list li {
+      margin-bottom: 0.6rem;
+    }
+    .category-link {
+      cursor: pointer;
+      color: var(--link);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0.3rem 0.5rem;
+      border-radius: 30px;
+      transition: 0.1s;
+    }
+    .category-link:hover {
+      background: var(--accent-bg);
+      text-decoration: none;
+      padding-left: 0.8rem;
+    }
+    /* artigos */
+    .article-item {
+      border-bottom: 1px solid var(--border-light);
+      padding: 1.2rem 0;
+    }
+    .article-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+    .article-title a {
+      color: var(--link);
+      text-decoration: none;
+    }
+    .badge-category {
+      background: var(--accent-bg);
+      color: var(--accent);
+      font-size: 0.7rem;
+      font-weight: bold;
+      padding: 0.2rem 0.7rem;
+      border-radius: 30px;
+      display: inline-block;
+      margin-bottom: 0.5rem;
+    }
+    /* glossário */
+    .glossary-term {
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .faq-question {
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      padding: 0.4rem 0;
+    }
+    .faq-answer {
+      display: none;
+      padding: 0.5rem 0 0.8rem 1rem;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      border-left: 2px solid var(--accent);
+    }
+    .map-wrapper {
+      border-radius: 20px;
+      overflow: hidden;
+      margin-top: 10px;
+      border: 1px solid var(--border-light);
+    }
+    #worldMap {
+      height: 280px;
+      width: 100%;
+      z-index: 1;
+      filter: var(--map-filter);
+    }
+    .video-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    .video-card {
+      background: rgba(0,0,0,0.1);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border-light);
+    }
+    .video-card iframe {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+    }
+    footer {
+      margin-top: 2.5rem;
+      text-align: center;
+      border-top: 1px solid var(--border-light);
+      padding: 1.5rem;
+      font-size: 0.85rem;
+      background: transparent;
+    }
+    .control-buttons {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .btn-icon {
+      background: var(--bg-surface-trans);
+      border: 1px solid var(--border-light);
+      border-radius: 40px;
+      padding: 0.3rem 1rem;
+      cursor: pointer;
+      color: var(--text-primary);
+      transition: 0.1s;
+    }
+    .btn-icon:hover {
+      background: var(--accent-bg);
+    }
+    /* ESTILO DO NOVO CARD DE QUIZ COM IMAGEM E TEXTO + LINK */
+    .quiz-panel {
+      margin-top: 1rem;
+      padding: 0 !important;
+      overflow: hidden;
+    }
+    .quiz-card-body {
+      padding: 1rem;
+    }
+    .quiz-img {
+      width: 100%;
+      height: 500px;
+      max-height: 150px;
+      object-fit: cover;
+      border-bottom: 1px solid var(--border-light);
+      transition: transform 0.2s ease;
+    }
+    .quiz-card-body h5 {
+      font-weight: 700;
+      margin: 0.7rem 0 0.4rem;
+    }
+    .quiz-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent);
+      color: white;
+      padding: 0.5rem 1.2rem;
+      border-radius: 40px;
+      text-decoration: none;
+      font-weight: bold;
+      margin-top: 0.8rem;
+      transition: 0.2s;
+      border: none;
+    }
+    .quiz-btn:hover {
+      background: #1e5a1e;
+      color: white;
+      transform: scale(1.02);
+    }
+    body.dark-mode .quiz-btn:hover {
+      background: #5f9e2e;
+    }
+    @media (max-width: 992px) {
+      .wiki-container { padding: 0.8rem; }
+    }
+    
+      /* Estilos do botão (apenas adição, sem alterar o existente) */
+  .full-img-btn {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 6px 14px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 30px;
+    font-size: 0.85rem;
+    color: #2c5e2e;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+    text-align: center;
+  }
+  .full-img-btn:hover {
+    background-color: #e0e0e0;
+    border-color: #2c5e2e;
+    color: #1b3b1c;
+  }
+
+  /* Modal (lightbox) */
+  .image-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.9);
+    justify-content: center;
+    align-items: center;
+  }
+  .modal-content {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    animation: zoomIn 0.3s;
+  }
+  .modal-close {
+    position: absolute;
+    top: 20px;
+    right: 35px;
+    color: #fff;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  .modal-close:hover {
+    color: #bbb;
+  }
+  .modal-caption {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    color: #ccc;
+    font-size: 0.9rem;
+    background: rgba(0,0,0,0.6);
+    padding: 6px;
+  }
+  @keyframes zoomIn {
+    from {transform: scale(0.8); opacity: 0;}
+    to {transform: scale(1); opacity: 1;}
+  }
+  </style>
+</head>
+<body>
+<div class="wiki-container">
+  <div class="wiki-header">
+    <div class="logo-area">
+      <div>
+        <div class="logo-text">AgroLux Global</div>
+        <div class="wiki-title">Enciclopédia Agrícola Universal · Saber sem fronteiras</div>
+      </div>
+    </div>
+    <div class="control-buttons">
+      <div class="search-box">
+        <i class="bi bi-search"></i>
+        <input type="text" id="searchInput" placeholder="Pesquisar artigo...">
+        <button id="searchBtn" class="btn-icon" style="border: none; background: none;"></button>
+      </div>
+      <div class="theme-switch-wrapper">
+        <span><i class="bi bi-sun"></i></span>
+        <label class="theme-switch">
+          <input type="checkbox" id="darkModeCheckbox">
+          <span class="slider"></span>
+        </label>
+        <span><i class="bi bi-moon"></i></span>
+      </div>
+      <button id="langSwitch" class="btn-icon">EN</button>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- SIDEBAR ESQUERDA: CATEGORIAS + GLOSSÁRIO -->
+    <div class="col-lg-3">
+      <div class="wiki-sidebar">
+        <div class="sidebar-title"><i class="bi bi-tags-fill"></i> Categorias globais</div>
+        <ul class="category-list" id="categoriesList"></ul>
+        <div class="mt-2 small text-secondary"><i class="bi bi-check-circle-fill text-success"></i> Conteúdo revisto por especialistas mundiais</div>
+      </div>
+      <div class="wiki-right">
+        <div class="sidebar-title"><i class="bi bi-book-half"></i> Glossário técnico</div>
+        <div id="glossaryMini"></div>
+      </div>
+      
+      <!-- NOVO CARD: QUIZ INTERATIVO COM IMAGEM + TEXTO + LINK (ÂNCORA) -->
+<div class="wiki-right quiz-panel">
+  <img class="quiz-img" src="images/library.jpg" alt="Quiz agrícola interativo" loading="lazy">
+  <div class="quiz-card-body">
+    <h5><i class="bi bi-question-diamond-fill"></i> <span data-i18n-quiz-title="Desafio AgroQuiz">Desafio AgroQuiz</span></h5>
+    <p class="small" data-i18n-quiz-desc="Teste seus conhecimentos em agricultura sustentável, cultivos tropicais, inovação e muito mais. Vença o desafio!">Teste seus conhecimentos em agricultura sustentável, cultivos tropicais, inovação e muito mais. Vença o desafio!</p>
+    <a href="quiz.html" id="quizOpenLink" class="quiz-btn" data-i18n-quiz-btn="🌾 Jogar Quiz Agrícola →">
+      <i class="fas fa-brain" aria-hidden="true"></i>Jogar Quiz Agrícola →</a>
+    <!-- BOTÃO ADICIONADO: VER IMAGEM COMPLETA -->
+    <button 
+            id="fullImageBtn" 
+            class="full-img-btn" 
+            aria-label="Ver imagem completa">
+      <i class="fas fa-up-right-and-down-left-from-center" aria-hidden="true"></i>
+      Ver imagem completa
+    </button>
+  </div>
+</div>
+    </div>
+
+    <!-- CONTEÚDO PRINCIPAL: ARTIGOS / PESQUISA -->
+    <div class="col-lg-6">
+      <div class="main-content" id="mainContent">
+        <div id="articlesContainer"></div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR DIREITA: MAPA + FAQ + VÍDEOS + NOVO CARD QUIZ -->
+    <div class="col-lg-3">
+      <!-- MAPA INTERACTIVO (global) -->
+      <div class="wiki-right">
+        <div class="sidebar-title"><i class="bi bi-map-fill"></i> Mapa de regiões agrícolas</div>
+        <div class="map-wrapper" id="mapWrapper">
+          <div id="worldMap"></div>
+        </div>
+        <div class="small text-secondary mt-2"><i class="bi bi-geo-alt-fill"></i> Clique nos marcadores → detalhes de culturas globais</div>
+      </div>
+
+      <!-- FAQ INTERNACIONAL -->
+      <div class="wiki-right">
+        <div class="sidebar-title"><i class="bi bi-question-circle-fill"></i> FAQ Global</div>
+        <div id="faqMini"></div>
+      </div>
+
+      <!-- VÍDEOS EDUCATIVOS MUNDIAIS -->
+      <div class="wiki-right">
+        <div class="sidebar-title"><i class="bi bi-camera-reels-fill"></i> Vídeos internacionais</div>
+        <div id="videosMini" class="video-grid"></div>
+      </div>
+
+      
+    </div>
+  </div>
+
+  <footer>
+    <div>🌱 AgroLux Global – Conhecimento agrícola livre para todo o mundo 🌾</div>
+    <div class="mt-1 small">© 2025 – Dados de agricultura sustentável, tropical, temperada e técnicas regenerativas.</div>
+  </footer>
+</div>
+
+<!-- MODAL PARA ARTIGOS COMPLETOS -->
+<div class="modal fade" id="articleModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content" style="background: var(--bg-surface-trans); backdrop-filter: blur(8px); color: var(--text-primary);">
+      <div class="modal-header border-bottom">
+        <h5 class="modal-title" id="modalTitle"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="modalContent"></div>
+      <div class="modal-footer">
+        <small class="text-muted"><i class="bi bi-journal-bookmark"></i> Enciclopédia AgroLux · Livre e universal</small>
+      </div>
+    </div>
+  </div>
+</div>
+  
+<!-- MODAL PARA EXIBIR A IMAGEM COMPLETA (NOVO) -->
+<div id="imageModal" class="image-modal">
+  <span class="modal-close">&times;</span>
+  <img class="modal-content" id="modalImage">
+  <div class="modal-caption">Imagem completa</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // ======================= BASE DE DADOS GLOBAL AGRÍCOLA =======================
+  const articles = {
+    pt: [
+      { id: 1, title: "🌽 Milho (Zea mays) – Cultivo tropical e temperado", category: "Culturas", summary: "Guia completo para alta produtividade: preparo do solo, variedades, manejo integrado e rotação de culturas.", content: "<p>O milho é um dos cereais mais importantes do mundo. Para alcançar produtividades >6 t/ha:<ul><li>Análise de solo e calagem (pH 5.8–6.5)</li><li>Espaçamento 0,75-0,9 m entre linhas</li><li>Adubação: 300 kg/ha NPK 12-24-12 + ureia em cobertura</li><li>Controle de lagarta-do-cartucho com Bt e vespas trichogramma</li><li>Colheita: 110–140 dias (depende da variedade)</li></ul><p>No Brasil, África e EUA, o manejo regenerativo aumenta a matéria orgânica.</p>", verified: true },
+      { id: 2, title: "🌾 Arroz irrigado e sistemas SRI", category: "Culturas", summary: "Aumento da produtividade com menos água, ideal para Ásia e América Latina.", content: "<p>O Sistema de Intensificação do Arroz (SRI) reduz uso de água em 40% e aumenta produtividade até 80%. Plantio de mudas jovens (8-12 dias), espaçamento amplo e manejo de solo úmido. Destaque para cultivo em Madagascar, Índia e Vale do Paraíba.</p>", verified: true },
+      { id: 3, title: "🌿 Macronutrientes (NPK) + Micronutrientes", category: "Fertilizantes", summary: "Funções, deficiências e fontes sustentáveis.", content: "<p><strong>Nitrogénio</strong>: crescimento foliar. Fontes: ureia, esterco.<br><strong>Fósforo</strong>: florescimento e raízes. Fontes: superfosfato, farinha de ossos.<br><strong>Potássio</strong>: resistência a stresses. Fontes: cinzas, cloreto de potássio.<br>Micronutrientes como zinco e boro são essenciais em solos tropicais.</p>", verified: true },
+      { id: 4, title: "💧 Irrigação por Gotejamento + Captação de água", category: "Irrigação", summary: "Economia de água e eficiência para regiões áridas e semiáridas.", content: "<p>O gotejamento reduz perdas por evaporação (economia de 50-70% de água). Componentes fáceis: filtro, mangueiras, gotejadores. Em regiões como Sahel, Nordeste brasileiro e Austrália, a técnica aliada a cisternas garante produção no seco.</p>", verified: true },
+      { id: 5, title: "🐞 Controle biológico e agroecologia", category: "Pragas", summary: "Joaninhas, crisopas, Beauveria bassiana – alternativas ecológicas.", content: "<p>Substituição de agrotóxicos: utilização de inimigos naturais. Joaninha (pulgões), Trichogramma (ovos de lagartas) e fungos entomopatogénicos como <i>Beauveria bassiana</i>. Exemplos na Europa e na América Latina: redução de resíduos químicos.</p>", verified: true },
+      { id: 6, title: "♻️ Compostagem e Agricultura Regenerativa", category: "Sustentabilidade", summary: "Transforme resíduos em húmus e recupere solos degradados.", content: "<p>Compostagem termofílica: materiais ricos em carbono + nitrogênio. Reviragem a cada 10 dias. O composto maduro aumenta a vida microbiana e sequestra carbono. Técnica adotada globalmente em vinhas, pomares e hortas.</p>", verified: true },
+      { id: 7, title: "🌡️ Mudanças Climáticas e Agricultura", category: "Clima", summary: "Adaptação: agroflorestas, culturas resilientes, irrigação.", content: "<p>Eventos extremos exigem sistemas diversificados. Agroflorestas (consórcio árvores-culturas) melhoram a retenção de água. Culturas C4 como sorgo e milheto são mais tolerantes a altas temperaturas. Recomendações para zonas temperadas e tropicais.</p>", verified: true },
+      { id: 8, title: "🌱 Hidroponia e Agricultura Vertical", category: "Inovação", summary: "Cultivo sem solo em áreas urbanas, poupando água e espaço.", content: "<p>Sistemas NFT (nutrient film technique) e substratos como fibra de coco. Produtividade 10x maior por metro quadrado. Exemplos: Singapura, Nova York e São Paulo. Ideal para alfaces, ervas e tomates.</p>", verified: true },
+      { id: 9, title: "🌻 Trigo e cereais de inverno", category: "Culturas", summary: "Manejo para zonas temperadas: Europa, Argentina, Canadá.", content: "<p>Trigo requer temperaturas amenas, rotação com leguminosas e adubação fosfatada. Variedades de ciclo curto ajudam a evitar geadas tardias. Mercado global e importância na panificação.</p>", verified: true }
+    ],
+    en: [
+      { id: 1, title: "🌽 Maize (Zea mays) – Tropical & temperate cultivation", category: "Crops", summary: "Complete guide: soil prep, spacing, integrated pest management.", content: "<p>Soil pH 5.8-6.5, NPK 12-24-12, urea topdressing. Use Bt for fall armyworm. Global yields up to 6 t/ha.</p>", verified: true },
+      { id: 2, title: "🌾 Rice & SRI system", category: "Crops", summary: "Less water, more yield. Sustainable method for Asia/Africa.", content: "<p>SRI (System of Rice Intensification) saves 40% water. Transplant young seedlings, wider spacing.</p>", verified: true },
+      { id: 3, title: "🌿 NPK & Micronutrients", category: "Fertilizers", summary: "Deficiency symptoms and organic sources.", content: "<p>Nitrogen for leaves, phosphorus for roots, potassium for stress tolerance. Micronutrients like zinc essential.</p>", verified: true },
+      { id: 4, title: "💧 Drip Irrigation & Rainwater Harvesting", category: "Irrigation", summary: "Water efficiency for arid regions.", content: "<p>Drip reduces evaporation by 50-70%. Combined with cisterns for dry spells.</p>", verified: true },
+      { id: 5, title: "🐞 Biological Control & Agroecology", category: "Pests", summary: "Ladybugs, Trichogramma, Beauveria bassiana.", content: "<p>Reduce chemical pesticides. Use natural enemies – successful in Europe and Latin America.</p>", verified: true },
+      { id: 6, title: "♻️ Composting & Regenerative Agriculture", category: "Sustainability", summary: "Build soil organic matter globally.", content: "<p>Thermophilic composting, turn every 10 days. Restores degraded lands.</p>", verified: true },
+      { id: 7, title: "🌡️ Climate Change & Agriculture", category: "Climate", summary: "Agroforestry, resilient crops, adaptation.", content: "<p>Agroforestry buffers extremes. Sorghum and pearl millet for heat stress.</p>", verified: true },
+      { id: 8, title: "🌱 Hydroponics & Vertical Farming", category: "Innovation", summary: "Soilless urban agriculture.", content: "<p>NFT systems, coconut coir. 10x higher yield per area. Examples: Singapore, NYC.</p>", verified: true },
+      { id: 9, title: "🌻 Winter Wheat & Grains", category: "Crops", summary: "Temperate zone management.", content: "<p>Wheat requires cool season, crop rotation, phosphate fertilization.</p>", verified: true }
+    ]
+  };
+
+  const categories = { pt: ["Culturas", "Fertilizantes", "Irrigação", "Pragas", "Sustentabilidade", "Clima", "Inovação"], en: ["Crops", "Fertilizers", "Irrigation", "Pests", "Sustainability", "Climate", "Innovation"] };
+  const glossaryData = { pt: [{ term: "Bioma", def: "Conjunto de ecossistemas com fauna e flora características." },{ term: "Fotossíntese C4", def: "Plantas como milho e cana, eficientes em altas temperaturas." },{ term: "Micorriza", def: "Fungo benéfico que auxilia absorção de fósforo." },{ term: "Permacultura", def: "Desenho de sistemas agrícolas sustentáveis inspirados na natureza." }], en: [{ term: "Biome", def: "Major ecosystem type (tropical, temperate)." },{ term: "C4 Photosynthesis", def: "Efficient in hot climates: maize, sugarcane." },{ term: "Mycorrhiza", def: "Beneficial fungi for phosphorus uptake." },{ term: "Permaculture", def: "Sustainable agricultural system design." }] };
+  const faqData = { pt: [{ q: "Como melhorar solos arenosos?", a: "Adicione matéria orgânica (composto, biochar) e prática cobertura verde." },{ q: "Qual a melhor rotação de culturas?", a: "Cereais → leguminosas → brássicas → descanso, quebra de pragas." },{ q: "Como iniciar uma horta orgânica?", a: "Escolha local ensolarado, prepare canteiros, use composto e evite químicos." },{ q: "O que é agricultura sintrópica?", a: "Sistema que imita sucessão florestal, produzindo alimentos e regenerando solos." }], en: [{ q: "How to improve sandy soils?", a: "Add organic matter (compost, biochar) and green manure." },{ q: "Best crop rotation?", a: "Cereals → legumes → brassicas → fallow." },{ q: "Start an organic garden?", a: "Sunny spot, raised beds, compost, no chemicals." },{ q: "What is syntropic agriculture?", a: "Forest-like succession that produces food and restores soil." }] };
+  const videos = { 
+    pt: [
+      { 
+        title: "🌍 Sistemas Agroflorestais no Mundo",
+        url: "video/agroflorestais.mp4" },
+      { 
+        title: "💧 Irrigação Sustentável",
+        url: "video/irrigacao.mp4"
+      },
+      {
+        title: "🐞 Controle Biológico na Prática",
+        url: "video/praga.mp4" 
+      }
+    ], 
+    en: [
+      { 
+        title: "🌍 Agroforestry Systems Worldwide",
+        url: "video/agroflorestais.mp4" 
+      },
+      {
+        title: "💧 Sustainable Irrigation", 
+        url: "video/irrigacao.mp4" 
+      },
+      { 
+        title: "🐞 Biological Control in Action",
+        url: "video/praga.mp4" 
+      }
+    ] 
+  };
+
+  let currentLang = "pt";
+  let currentCategory = null;
+  let globalMap = null;
+
+  function initMap(lang) { if(globalMap) globalMap.remove(); globalMap = L.map('worldMap').setView([20, 10], 2); L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{ attribution:'&copy; OSM & CartoDB', subdomains:'abcd', maxZoom:6}).addTo(globalMap); const markersData = [{ lat: -14.235, lng: -51.925, name:{pt:"Brasil - Soja, milho, café",en:"Brazil - Soy, corn, coffee"}},{ lat: 40.0, lng: -98.0, name:{pt:"EUA - Milho e trigo (Corn Belt)",en:"USA - Corn & Wheat Belt"}},{ lat: 51.0, lng: 10.0, name:{pt:"Europa - Trigo, cevada, colza",en:"Europe - Wheat, barley, rapeseed"}},{ lat: 30.0, lng: 78.0, name:{pt:"Índia - Arroz, algodão, especiarias",en:"India - Rice, cotton, spices"}},{ lat: 35.0, lng: 105.0, name:{pt:"China - Arroz, batata, hortaliças",en:"China - Rice, potato, vegetables"}},{ lat: -8.783, lng: 34.5, name:{pt:"África Austral - Milho, mandioca, sorgo",en:"Southern Africa - Maize, cassava, sorghum"}},{ lat: -25.0, lng: 135.0, name:{pt:"Austrália - Trigo, cevada, cana",en:"Australia - Wheat, barley, sugarcane"}}]; markersData.forEach(m => { let marker = L.marker([m.lat, m.lng]).addTo(globalMap); marker.bindPopup(`<b>${lang === 'pt' ? m.name.pt : m.name.en}</b><br>🌾 Região agrícola chave`); }); }
+  function renderCategories() { const container = document.getElementById("categoriesList"); const cats = categories[currentLang]; container.innerHTML = cats.map(cat => `<li><a class="category-link" data-cat="${cat}"><i class="bi bi-folder2-open"></i> ${cat}</a></li>`).join(''); document.querySelectorAll('.category-link').forEach(el => { el.addEventListener('click', (e) => { const cat = el.getAttribute('data-cat'); currentCategory = (currentCategory === cat) ? null : cat; renderArticles(); }); }); }
+  function renderArticles() { let arts = articles[currentLang]; if(currentCategory) arts = arts.filter(a => a.category === currentCategory); const container = document.getElementById("articlesContainer"); if(!arts.length) { container.innerHTML = `<div class="alert alert-secondary">Nenhum artigo.</div>`; return; } container.innerHTML = arts.map(art => `<div class="article-item"><div class="badge-category">${art.category}</div><div class="article-title"><a href="#" class="article-link" data-id="${art.id}">${art.title}</a></div><div class="article-summary">${art.summary.substring(0, 140)}...</div></div>`).join(''); document.querySelectorAll('.article-link').forEach(link => { link.addEventListener('click', (e) => { e.preventDefault(); const id = parseInt(link.getAttribute('data-id')); const article = articles[currentLang].find(a => a.id === id); document.getElementById("modalTitle").innerHTML = article.title; document.getElementById("modalContent").innerHTML = article.content; new bootstrap.Modal(document.getElementById('articleModal')).show(); }); }); }
+  function renderGlossaryMini() { const glos = glossaryData[currentLang]; document.getElementById("glossaryMini").innerHTML = glos.map(g => `<div><span class="glossary-term">📖 ${g.term}</span><br><span class="small">${g.def}</span></div>`).join(''); }
+  function renderFaqMini() { const faqs = faqData[currentLang]; const container = document.getElementById("faqMini"); container.innerHTML = faqs.map((f, idx) => `<div class="faq-item" data-idx="${idx}"><div class="faq-question">❓ ${f.q} <i class="bi bi-chevron-down"></i></div><div class="faq-answer">${f.a}</div></div>`).join(''); document.querySelectorAll('.faq-item').forEach(el => { el.addEventListener('click', () => { const ans = el.querySelector('.faq-answer'); ans.style.display = ans.style.display === 'block' ? 'none' : 'block'; }); }); }
+  function renderVideosMini() { const vids = videos[currentLang]; document.getElementById("videosMini").innerHTML = vids.map(v => `<div class="video-card"><iframe src="${v.url}?rel=0" title="${v.title}" allowfullscreen loading="lazy"></iframe><div class="p-2"><strong>${v.title}</strong></div></div>`).join(''); }
+  function searchArticles() { const query = document.getElementById("searchInput").value.trim().toLowerCase(); if(!query) { renderArticles(); return; } const arts = articles[currentLang].filter(a => a.title.toLowerCase().includes(query) || a.summary.toLowerCase().includes(query)); const container = document.getElementById("articlesContainer"); if(!arts.length) { container.innerHTML = `<div class="alert alert-warning">🔍 Nenhum resultado.</div>`; return; } container.innerHTML = arts.map(art => `<div class="article-item"><div class="badge-category">${art.category}</div><div class="article-title"><a href="#" class="article-link" data-id="${art.id}">${art.title}</a></div><div class="article-summary">${art.summary.substring(0,140)}...</div></div>`).join(''); document.querySelectorAll('.article-link').forEach(link => { link.addEventListener('click', (e) => { e.preventDefault(); const id = parseInt(link.getAttribute('data-id')); const article = articles[currentLang].find(a => a.id === id); document.getElementById("modalTitle").innerHTML = article.title; document.getElementById("modalContent").innerHTML = article.content; new bootstrap.Modal(document.getElementById('articleModal')).show(); }); }); }
+  function applyTranslationsAndUI() { renderCategories(); renderArticles(); renderGlossaryMini(); renderFaqMini(); renderVideosMini(); document.querySelector(".logo-text").innerHTML = currentLang === 'pt' ? "AgroLux Global" : "AgroLux Global"; document.querySelector(".wiki-title").innerHTML = currentLang === 'pt' ? "Enciclopédia Agrícola Universal · Saber sem fronteiras" : "Universal Agricultural Encyclopedia · Knowledge without borders"; document.getElementById("searchInput").placeholder = currentLang === 'pt' ? "Pesquisar artigo..." : "Search articles..."; document.getElementById("langSwitch").innerHTML = currentLang === 'pt' ? "🇬🇧 EN" : "🇵🇹 PT"; initMap(currentLang); }
+
+  document.getElementById("searchBtn").addEventListener("click", searchArticles);
+  document.getElementById("searchInput").addEventListener("keyup", (e) => e.key === "Enter" && searchArticles());
+  const darkToggle = document.getElementById("darkModeCheckbox"); if(localStorage.getItem("darkMode") === "true") { document.body.classList.add("dark-mode"); darkToggle.checked = true; }
+  darkToggle.addEventListener("change", (e) => { if(e.target.checked) { document.body.classList.add("dark-mode"); localStorage.setItem("darkMode","true"); } else { document.body.classList.remove("dark-mode"); localStorage.setItem("darkMode","false"); } });
+  if(localStorage.getItem("agrolang") === "en") currentLang = "en";
+  applyTranslationsAndUI();
+  document.getElementById("langSwitch").addEventListener("click", () => { currentLang = currentLang === "pt" ? "en" : "pt"; localStorage.setItem("agrolang", currentLang); currentCategory = null; applyTranslationsAndUI(); });
+  window.addEventListener('load',()=>{ if(globalMap) globalMap.invalidateSize(); });
+
+  // REDIRECIONAMENTO: substitui o quiz interativo por um link externo
+  document.getElementById("quizOpenLink").addEventListener("click", (e) => {
+    e.preventDefault();
+    // Altere o URL abaixo para onde deseja redirecionar (página externa de quiz, formulário, etc.)
+    window.location.href = "quiz.html";
+  });
+  
+  
+  //==============================================JS ADD=======================================//
+  (function() {
+    // Captura os elementos
+    const btn = document.getElementById('fullImageBtn');
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    const closeSpan = document.querySelector('.modal-close');
+    const quizImg = document.querySelector('.quiz-img');
+
+    // Ao clicar no botão, exibe a imagem completa
+    if (btn && modal && modalImg && quizImg) {
+      btn.addEventListener('click', function() {
+        modal.style.display = 'flex';
+        modalImg.src = quizImg.src;
+        modalImg.alt = quizImg.alt;
+      });
+
+      // Fechar modal ao clicar no X
+      closeSpan.addEventListener('click', function() {
+        modal.style.display = 'none';
+      });
+
+      // Fechar modal ao clicar fora da imagem
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+          modal.style.display = 'none';
+        }
+      });
+    }
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>AgroLux | Portal de Gestão Agrícola</title>
+    <!-- Bootstrap 5 + Icons + Google Fonts -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Tema claro (padrão) */
+        :root {
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-primary: #1e2f2a;
+            --text-secondary: #4a6a5e;
+            --border-light: #e0e7e5;
+            --input-bg: #ffffff;
+            --shadow-sm: 0 20px 35px -12px rgba(0, 0, 0, 0.08);
+            --accent-green: #2b7a4b;
+            --accent-hover: #1e5a3a;
+            --progress-weak: #e53e3e;
+            --progress-medium: #ed8936;
+            --progress-strong: #2b7a4b;
+            --error-bg: #fee2e2;
+            --error-text: #b91c1c;
+        }
+
+        body.dark {
+            --card-bg: #1e2a28;
+            --text-primary: #eef4f0;
+            --text-secondary: #b8d0c2;
+            --border-light: #3a4f48;
+            --input-bg: #2a3c36;
+            --shadow-sm: 0 20px 35px -12px rgba(0, 0, 0, 0.4);
+            --accent-green: #4c9f70;
+            --accent-hover: #6bb886;
+            --error-bg: #3b1e1e;
+            --error-text: #fca5a5;
+        }
+
+        .login-wrapper {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+            background: #f4f9f5;
+        }
+        body.dark .login-wrapper {
+            background: #0f1815;
+        }
+
+        /* Painel esquerdo - apenas imagem, sem gradiente */
+        .hero-panel {
+            flex: 1;
+            background: url('images/log-2.png') center 30% / cover no-repeat;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .hero-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 1;
+        }
+
+        .hero-panel > div {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-panel p {
+            font-size: 1.1rem;
+            max-width: 80%;
+            opacity: 0.95;
+            font-weight: 400;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+        }
+
+        .agro-badge {
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            border-radius: 100px;
+            padding: 0.5rem 1.2rem;
+            display: inline-block;
+            font-weight: 500;
+            margin-top: 2rem;
+            font-size: 0.9rem;
+        }
+
+        /* Painel direito - formulário */
+        .form-panel {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--card-bg);
+            overflow-y: auto;
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 480px;
+            padding: 1rem 0.5rem;
+        }
+
+        .brand-icon {
+            font-size: 2.5rem;
+            color: var(--accent-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.4rem;
+        }
+
+        .input-group-custom {
+            background: var(--input-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 14px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-group-custom:focus-within {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 0 3px rgba(43, 122, 75, 0.2);
+        }
+
+        .form-control, .form-select {
+            background: var(--input-bg);
+            border: none;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            border-radius: 14px;
+            flex: 1;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: var(--input-bg);
+            box-shadow: none;
+            border-color: transparent;
+            color: var(--text-primary);
+        }
+
+        .password-toggle-icon {
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            padding: 0 1rem;
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            transition: color 0.2s;
+        }
+        .password-toggle-icon:hover {
+            color: var(--accent-green);
+        }
+
+        .btn-login {
+            background: var(--accent-green);
+            border: none;
+            padding: 0.85rem;
+            font-weight: 600;
+            border-radius: 40px;
+            font-size: 1rem;
+            transition: 0.2s;
+            color: white;
+            box-shadow: 0 5px 12px rgba(0,0,0,0.1);
+        }
+
+        .btn-login:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .strength-text {
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            font-weight: 500;
+        }
+
+        .progress {
+            height: 6px;
+            border-radius: 12px;
+            background-color: var(--border-light);
+        }
+
+        .btn-outline-send {
+            border-radius: 40px;
+            padding: 0.4rem 1rem;
+            font-size: 0.8rem;
+            border: 1px solid var(--accent-green);
+            background: transparent;
+            color: var(--accent-green);
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+        .btn-outline-send:hover {
+            background: var(--accent-green);
+            color: white;
+        }
+
+        /* Ícones de tema e idioma - sempre visíveis */
+        .theme-icon, .lang-icon {
+            cursor: pointer;
+            background: white;
+            border: 1px solid var(--border-light);
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            transition: 0.2s;
+            padding: 0.3rem 0.5rem;
+            border-radius: 50%;
+            z-index: 10;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        body.dark .theme-icon, body.dark .lang-icon {
+            background: var(--input-bg);
+            border-color: var(--border-light);
+        }
+        .theme-icon:hover, .lang-icon:hover {
+            color: var(--accent-green);
+            transform: scale(1.05);
+            background: var(--border-light);
+        }
+
+        .link-underline {
+            color: var(--accent-green);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .link-underline:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .hero-panel {
+                display: none;
+            }
+            .form-panel {
+                flex: 1;
+                background: var(--card-bg);
+            }
+            .login-card {
+                padding: 0 1rem;
+            }
+        }
+
+        .invalid-feedback-custom {
+            font-size: 0.7rem;
+            color: #e53e3e;
+            margin-top: 4px;
+        }
+        .spinner-border-sm {
+            width: 1.2rem;
+            height: 1.2rem;
+        }
+        
+        .logo-lux {
+            max-height: 120px;
+            width: auto;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
+        }
+
+        /* Mensagem de erro global no formulário */
+        .global-error {
+            background: var(--error-bg);
+            color: var(--error-text);
+            border-radius: 12px;
+            padding: 0.6rem 1rem;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            text-align: center;
+            border-left: 4px solid var(--error-text);
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-wrapper">
+    <div class="hero-panel">
+        <div>
+            <img class="logo-lux" src="images/Lux-logo-bg.png" alt="AgroLux Logo" style="display: block; margin: 0 auto;">
+            <p>Gestão inteligente do campo à colheita. Análise de safra, clima e produtividade em tempo real.</p>
+            <div class="agro-badge">
+                <i class="bi bi-droplet"></i> +42% eficiência hídrica
+            </div>
+        </div>
+    </div>
+
+    <div class="form-panel">
+        <div class="login-card">
+            <!-- Ícones de tema e idioma - sempre visíveis -->
+            <div class="d-flex justify-content-end gap-3 mb-4">
+                <button id="themeToggleBtn" class="theme-icon" aria-label="Alternar tema">
+                    <i class="bi bi-moon-stars"></i>
+                </button>
+                <div class="dropdown">
+                    <button class="lang-icon dropdown-toggle" type="button" id="langDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-globe2"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="langDropdown" style="background: var(--card-bg); border-color: var(--border-light);">
+                        <li><a class="dropdown-item lang-option" data-lang="pt" href="#">🇵🇹 Português</a></li>
+                        <li><a class="dropdown-item lang-option" data-lang="en" href="#">🇬🇧 English</a></li>
+                        <li><a class="dropdown-item lang-option" data-lang="es" href="#">🇪🇸 Español</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="text-center mb-4">
+                <div class="brand-icon"><i class="bi bi-shield-lock-fill"></i></div>
+                <h2 class="fw-semibold" id="loginTitle" style="color: var(--text-primary);">Acesso seguro</h2>
+                <p class="text-muted" id="loginSubtitle" style="color: var(--text-secondary) !important;">Aceda à sua conta agrícola</p>
+            </div>
+
+            <form id="loginForm" novalidate>
+                <div class="mb-3">
+                    <label class="form-label" id="emailLabel">E-mail</label>
+                    <div class="input-group-custom">
+                        <input type="email" class="form-control" id="emailInput" placeholder="exemplo@dominio.com" required>
+                    </div>
+                    <div class="invalid-feedback-custom" id="emailError"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" id="passwordLabel">Senha</label>
+                    <div class="input-group-custom">
+                        <input type="password" class="form-control" id="passwordInput" placeholder="••••••••" required>
+                        <button type="button" class="password-toggle-icon" id="togglePasswordBtn" tabindex="-1">
+                            <i class="bi bi-eye-slash"></i>
+                        </button>
+                    </div>
+                    <div class="progress mt-2">
+                        <div id="strengthBar" class="progress-bar" style="width: 0%; background-color: #e53e3e;"></div>
+                    </div>
+                    <div class="strength-text" id="strengthText">Força: —</div>
+                </div>
+                
+                <!-- NOVO CAMPO DE PERFIL (NÃO MODAL) -->
+                <div class="mb-3">
+                    <label class="form-label" id="profileLabel">Perfil de acesso</label>
+                    <div class="input-group-custom">
+                        <span class="input-group-text bg-transparent border-0 pe-0"><i class="bi bi-person-badge" style="color: var(--accent-green);"></i></span>
+                        <select id="profileSelect" class="form-select" required>
+                            <option value="" disabled selected>Selecione o seu perfil</option>
+                            <option value="vendedor">Vendedor</option>
+                            <option value="comprador">Comprador</option>
+                        </select>
+                    </div>
+                    <div class="invalid-feedback-custom" id="profileError"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" id="tokenLabel">Código de verificação (2FA)</label>
+                    <div class="d-flex gap-2">
+                        <div class="input-group-custom flex-grow-1">
+                            <span class="input-group-text bg-transparent border-0 pe-0"><i class="bi bi-key-fill" style="color: var(--accent-green);"></i></span>
+                            <input type="text" class="form-control" id="tokenInput" placeholder="000000" maxlength="6" inputmode="numeric">
+                        </div>
+                        <button type="button" id="sendCodeBtn" class="btn-outline-send"> Enviar código  <i class="fas fa-paper-plane"></i></button>
+                    </div>
+                    <div class="invalid-feedback-custom" id="tokenError"></div>
+                    <small class="text-muted" id="tokenHint" style="font-size: 0.7rem;">Clique em "Enviar código" para receber (simulação) um token de 6 dígitos.</small>
+                </div>
+
+                
+
+                <button type="submit" class="btn btn-login w-100 mt-2" id="loginBtn">
+                    <span id="btnText">Entrar na plataforma</span>
+                    <span id="btnSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
+                </button>
+
+                <div id="globalErrorMessage" class="global-error" style="display: none;"></div>
+
+                <div class="d-flex justify-content-between mt-3">
+                    <a href="ForgotPassword.html" id="forgotLink" class="link-underline">🔐 Esqueci-me da senha</a>
+                    <a href="Register.html" id="signupLink" class="link-underline">📝 Não tenho uma conta</a>
+                </div>
+                
+                <!-- Texto com cor verde conforme solicitado -->
+                <div class="text-center mt-4">
+                    <small class="text-muted" id="demoNote" style="color: green;">🔐 Credencial de teste: demo@agro.com | Senha: Demo@123 | (após enviar código, use o token gerado)</small>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // ----------------------------- I18N TEXTS ---------------------------------
+    const translations = {
+        pt: {
+            loginTitle: "Acesso seguro",
+            loginSubtitle: "Aceda à sua conta agrícola",
+            emailLabel: "E-mail",
+            passwordLabel: "Senha",
+            tokenLabel: "Código de verificação (2FA)",
+            tokenHint: "Clique em \"Enviar código\" para receber (simulação) um token de 6 dígitos.",
+            btnText: "Entrar na plataforma",
+            demoNote: "🔐 Credencial de teste: demo@agro.com | Senha: Demo@123 | (após enviar código, use o token gerado)",
+            strengthPlaceholder: "Força: —",
+            weak: "Fraca",
+            medium: "Média",
+            strong: "Forte",
+            emailRequired: "E-mail é obrigatório",
+            emailInvalid: "Formato de e-mail inválido",
+            tokenInvalid: "Token deve conter 6 dígitos numéricos",
+            loginError: "❌ Falha: verifique e-mail, força da senha (mín. Média), token e perfil selecionado.",
+            codeSent: "📧 Código enviado para {email} (simulação): {code}",
+            profileLabel: "Perfil de acesso"
+        },
+        en: {
+            loginTitle: "Secure Access",
+            loginSubtitle: "Access your farming account",
+            emailLabel: "Email",
+            passwordLabel: "Password",
+            tokenLabel: "Verification code (2FA)",
+            tokenHint: "Click \"Send code\" to receive (simulation) a 6-digit token.",
+            btnText: "Sign in",
+            demoNote: "🔐 Test credentials: demo@agro.com | Password: Demo@123 | (after sending code, use the generated token)",
+            strengthPlaceholder: "Strength: —",
+            weak: "Weak",
+            medium: "Medium",
+            strong: "Strong",
+            emailRequired: "Email is required",
+            emailInvalid: "Invalid email format",
+            tokenInvalid: "Token must be 6 numeric digits",
+            loginError: "❌ Authentication failed: check email, password strength (min. Medium), token and profile.",
+            codeSent: "📧 Code sent to {email} (simulation): {code}",
+            profileLabel: "Access profile"
+        },
+        es: {
+            loginTitle: "Acceso Seguro",
+            loginSubtitle: "Acceda a su cuenta agrícola",
+            emailLabel: "Correo",
+            passwordLabel: "Contraseña",
+            tokenLabel: "Código de verificación (2FA)",
+            tokenHint: "Haga clic en \"Enviar código\" para recibir (simulación) un token de 6 dígitos.",
+            btnText: "Iniciar sesión",
+            demoNote: "🔐 Credencial de prueba: demo@agro.com | Contraseña: Demo@123 | (después de enviar código, use el token generado)",
+            strengthPlaceholder: "Fortaleza: —",
+            weak: "Débil",
+            medium: "Media",
+            strong: "Fuerte",
+            emailRequired: "El correo es obligatorio",
+            emailInvalid: "Formato de correo inválido",
+            tokenInvalid: "El token debe tener 6 dígitos numéricos",
+            loginError: "❌ Fallo: verifique correo, fortaleza de contraseña (min. Media), token y perfil.",
+            codeSent: "📧 Código enviado a {email} (simulación): {code}",
+            profileLabel: "Perfil de acceso"
+        }
+    };
+
+    let currentLang = localStorage.getItem('agroLang') || 'pt';
+    let isDark = localStorage.getItem('agroTheme') === 'dark';
+    let currentVerificationCode = null;
+
+    // DOM Elements
+    const themeBtn = document.getElementById('themeToggleBtn');
+    const emailInput = document.getElementById('emailInput');
+    const passwordInput = document.getElementById('passwordInput');
+    const tokenInput = document.getElementById('tokenInput');
+    const profileSelect = document.getElementById('profileSelect');
+    const strengthBar = document.getElementById('strengthBar');
+    const strengthText = document.getElementById('strengthText');
+    const loginForm = document.getElementById('loginForm');
+    const loginBtn = document.getElementById('loginBtn');
+    const btnTextSpan = document.getElementById('btnText');
+    const btnSpinner = document.getElementById('btnSpinner');
+    const emailError = document.getElementById('emailError');
+    const tokenError = document.getElementById('tokenError');
+    const profileError = document.getElementById('profileError');
+    const sendCodeBtn = document.getElementById('sendCodeBtn');
+    const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+    const globalErrorDiv = document.getElementById('globalErrorMessage');
+
+    const i18nElements = {
+        loginTitle: document.getElementById('loginTitle'),
+        loginSubtitle: document.getElementById('loginSubtitle'),
+        emailLabel: document.getElementById('emailLabel'),
+        passwordLabel: document.getElementById('passwordLabel'),
+        tokenLabel: document.getElementById('tokenLabel'),
+        tokenHint: document.getElementById('tokenHint'),
+        demoNote: document.getElementById('demoNote'),
+        profileLabel: document.getElementById('profileLabel')
+    };
+
+    function applyLanguage() {
+        const t = translations[currentLang];
+        if (i18nElements.loginTitle) i18nElements.loginTitle.innerText = t.loginTitle;
+        if (i18nElements.loginSubtitle) i18nElements.loginSubtitle.innerText = t.loginSubtitle;
+        if (i18nElements.emailLabel) i18nElements.emailLabel.innerText = t.emailLabel;
+        if (i18nElements.passwordLabel) i18nElements.passwordLabel.innerText = t.passwordLabel;
+        if (i18nElements.tokenLabel) i18nElements.tokenLabel.innerText = t.tokenLabel;
+        if (i18nElements.tokenHint) i18nElements.tokenHint.innerText = t.tokenHint;
+        if (i18nElements.demoNote) i18nElements.demoNote.innerText = t.demoNote;
+        if (i18nElements.profileLabel) i18nElements.profileLabel.innerText = t.profileLabel;
+        if (btnTextSpan) btnTextSpan.innerText = t.btnText;
+        updateStrengthTextAndBar();
+    }
+
+    function checkPasswordStrength(password) {
+        let score = 0;
+        if (!password) return { score: 0, level: 'weak' };
+        if (password.length >= 6) score++;
+        if (password.length >= 10) score++;
+        if (/[A-Z]/.test(password)) score++;
+        if (/[0-9]/.test(password)) score++;
+        if (/[^A-Za-z0-9]/.test(password)) score++;
+        let level = 'weak';
+        if (score >= 4) level = 'strong';
+        else if (score >= 2) level = 'medium';
+        else level = 'weak';
+        return { score: Math.min(100, score * 20), level };
+    }
+
+    function updateStrengthTextAndBar() {
+        const pwd = passwordInput.value;
+        const { score, level } = checkPasswordStrength(pwd);
+        strengthBar.style.width = `${score}%`;
+        const t = translations[currentLang];
+        let levelText = '';
+        let color = '';
+        if (level === 'weak') { levelText = t.weak; color = 'var(--progress-weak)'; }
+        else if (level === 'medium') { levelText = t.medium; color = 'var(--progress-medium)'; }
+        else { levelText = t.strong; color = 'var(--progress-strong)'; }
+        strengthText.innerText = pwd ? `${t.strengthPlaceholder.split(':')[0]}: ${levelText}` : t.strengthPlaceholder;
+        strengthBar.style.backgroundColor = color;
+        return level;
+    }
+
+    function validateEmail() {
+        const email = emailInput.value.trim();
+        if (!email) {
+            emailError.innerText = translations[currentLang].emailRequired;
+            return false;
+        }
+        const emailRegex = /^[^\s@]+@([^\s@]+\.)+[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            emailError.innerText = translations[currentLang].emailInvalid;
+            return false;
+        }
+        emailError.innerText = '';
+        return true;
+    }
+
+    function validateToken() {
+        const token = tokenInput.value.trim();
+        if (token.length === 0) {
+            tokenError.innerText = '';
+            return false;
+        }
+        const isValid = /^\d{6}$/.test(token);
+        if (!isValid) {
+            tokenError.innerText = translations[currentLang].tokenInvalid;
+            return false;
+        }
+        if (currentVerificationCode && token !== currentVerificationCode) {
+            tokenError.innerText = "Código inválido. Peça um novo.";
+            return false;
+        }
+        tokenError.innerText = '';
+        return true;
+    }
+
+    function validateProfile() {
+        const profile = profileSelect.value;
+        if (!profile) {
+            profileError.innerText = "Selecione um perfil (Vendedor ou Comprador)";
+            return false;
+        }
+        profileError.innerText = '';
+        return true;
+    }
+
+    function showGlobalError(message) {
+        globalErrorDiv.innerText = message;
+        globalErrorDiv.style.display = 'block';
+        setTimeout(() => {
+            globalErrorDiv.style.display = 'none';
+        }, 5000);
+    }
+
+    function sendVerificationCode() {
+        if (!validateEmail()) {
+            showGlobalError(translations[currentLang].emailInvalid);
+            return;
+        }
+        const email = emailInput.value.trim();
+        const randomCode = Math.floor(100000 + Math.random() * 900000).toString();
+        currentVerificationCode = randomCode;
+        const t = translations[currentLang];
+        const msg = t.codeSent.replace('{email}', email).replace('{code}', randomCode);
+        alert(msg);
+        tokenError.innerText = '';
+        tokenInput.value = '';
+    }
+
+    async function authenticate(email, password, token) {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                const emailValid = email && /^[^\s@]+@([^\s@]+\.)+[^\s@]+$/.test(email);
+                const pwdStrength = checkPasswordStrength(password).level;
+                const tokenValid = token && currentVerificationCode && token === currentVerificationCode;
+                const isTestAccount = (email === 'demo@agro.com' && password === 'Demo@123');
+                if (emailValid && (pwdStrength === 'medium' || pwdStrength === 'strong' || isTestAccount) && tokenValid) {
+                    resolve({ success: true });
+                } else {
+                    resolve({ success: false, error: translations[currentLang].loginError });
+                }
+            }, 500);
+        });
+    }
+
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        globalErrorDiv.style.display = 'none';
+        
+        const isEmailOk = validateEmail();
+        const isTokenOk = validateToken();
+        const isProfileOk = validateProfile();
+        const password = passwordInput.value;
+        const strengthLevel = checkPasswordStrength(password).level;
+        let pwdOk = (strengthLevel === 'medium' || strengthLevel === 'strong');
+        if (emailInput.value.trim() === 'demo@agro.com' && password === 'Demo@123') pwdOk = true;
+
+        if (!isEmailOk || !isTokenOk || !pwdOk || !isProfileOk) {
+            showGlobalError(translations[currentLang].loginError);
+            return;
+        }
+
+        btnTextSpan.classList.add('d-none');
+        btnSpinner.classList.remove('d-none');
+        loginBtn.disabled = true;
+
+        const emailVal = emailInput.value.trim();
+        const tokenVal = tokenInput.value.trim();
+        const result = await authenticate(emailVal, password, tokenVal);
+
+        btnTextSpan.classList.remove('d-none');
+        btnSpinner.classList.add('d-none');
+        loginBtn.disabled = false;
+
+        if (result.success) {
+            const chosenProfile = profileSelect.value; // "vendedor" ou "comprador"
+            if (chosenProfile === 'vendedor') {
+                window.location.href = "vendedor_dashboard.html"; // Altere para o URL real do dashboard do vendedor
+            } else {
+                window.location.href = "422.html"; // Altere para o URL real do dashboard do comprador
+            }
+        } else {
+            showGlobalError(result.error);
+        }
+    });
+
+    sendCodeBtn.addEventListener('click', () => {
+        sendVerificationCode();
+    });
+
+    emailInput.addEventListener('input', () => { validateEmail(); });
+    tokenInput.addEventListener('input', () => { validateToken(); });
+    profileSelect.addEventListener('change', () => { validateProfile(); });
+    passwordInput.addEventListener('input', () => { updateStrengthTextAndBar(); });
+
+    function setTheme(enableDark) {
+        if (enableDark) {
+            document.body.classList.add('dark');
+            localStorage.setItem('agroTheme', 'dark');
+            themeBtn.querySelector('i').classList.remove('bi-moon-stars');
+            themeBtn.querySelector('i').classList.add('bi-brightness-high-fill');
+        } else {
+            document.body.classList.remove('dark');
+            localStorage.setItem('agroTheme', 'light');
+            themeBtn.querySelector('i').classList.remove('bi-brightness-high-fill');
+            themeBtn.querySelector('i').classList.add('bi-moon-stars');
+        }
+    }
+    themeBtn.addEventListener('click', () => { isDark = !isDark; setTheme(isDark); });
+
+    document.querySelectorAll('.lang-option').forEach(option => {
+        option.addEventListener('click', (e) => {
+            e.preventDefault();
+            currentLang = option.getAttribute('data-lang');
+            localStorage.setItem('agroLang', currentLang);
+            applyLanguage();
+            validateEmail();
+            validateToken();
+            updateStrengthTextAndBar();
+        });
+    });
+
+    togglePasswordBtn.addEventListener('click', () => {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        const icon = togglePasswordBtn.querySelector('i');
+        if (type === 'text') {
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        } else {
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        }
+    });
+
+    // Inicializações
+    if (isDark) setTheme(true); else setTheme(false);
+    applyLanguage();
+    updateStrengthTextAndBar();
+    tokenInput.addEventListener('input', function(e) {
+        this.value = this.value.replace(/\D/g, '').slice(0,6);
+        validateToken();
+    });
+
+    const style = document.createElement('style');
+    style.textContent = `
+        .dropdown-item { color: var(--text-primary); }
+        .dropdown-item:hover { background: var(--border-light); color: var(--accent-green); }
+        .input-group-text { background: var(--input-bg); color: var(--text-secondary); }
+    `;
+    document.head.appendChild(style);
+</script>
+</body>
+</html>

@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>AgroLux · Campanha Visual + Imagem Inteligente · Multi-Moeda</title>
+    <!-- Bootstrap 5 + Icons + Fonts -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: url('images/Bg-entregas.jpg') no-repeat center center fixed;
+            background-size: cover;
+            padding: 1.5rem 1rem;
+            transition: background-color 0.3s ease, color 0.2s ease;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: -1;
+            backdrop-filter: blur(2px);
+        }
+
+        body.light-theme {
+            --bg-glass: rgba(255, 255, 255, 0.75);
+            --bg-glass-solid: rgba(255, 255, 248, 0.9);
+            --text-color: #1e2a1e;
+            --border-color: rgba(200, 220, 180, 0.6);
+            --card-shadow: 0 12px 30px rgba(0, 32, 0, 0.08);
+            --input-bg: rgba(255, 255, 240, 0.9);
+            --badge-bg: #e9f4e5;
+            --badge-color: #1c6917;
+        }
+        body.dark-theme {
+            --bg-glass: rgba(20, 25, 18, 0.85);
+            --bg-glass-solid: rgba(30, 35, 28, 0.95);
+            --text-color: #eef5e9;
+            --border-color: rgba(80, 100, 70, 0.7);
+            --card-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+            --input-bg: rgba(45, 50, 40, 0.9);
+            --badge-bg: #2c3e2b;
+            --badge-color: #c8e6c5;
+        }
+        body {
+            background-color: #0a2f0a;
+            color: var(--text-color);
+        }
+        .glass-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            border-radius: 32px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow);
+            transition: transform 0.25s ease, box-shadow 0.3s ease;
+        }
+        .glass-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.15);
+        }
+        .input-modern, .form-select, textarea {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 12px 18px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            color: var(--text-color);
+        }
+        .input-modern:focus, .form-select:focus, textarea:focus {
+            border-color: #3ba82c;
+            box-shadow: 0 0 0 3px rgba(59, 168, 44, 0.2);
+            background: var(--bg-glass-solid);
+        }
+        .section-title {
+            font-weight: 700;
+            font-size: 1.35rem;
+            background: linear-gradient(135deg, #2e7d32, #6fbf4c);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-premium {
+            border-radius: 40px;
+            padding: 12px 28px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .btn-primary-premium {
+            background: linear-gradient(95deg, #2b7325, #4cb848);
+            border: none;
+            color: white;
+            box-shadow: 0 8px 18px rgba(40, 100, 20, 0.25);
+        }
+        .platform-card {
+            cursor: pointer;
+            border-radius: 28px;
+            background: var(--bg-glass-solid);
+            border: 2px solid transparent;
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            text-align: center;
+            padding: 18px 8px;
+            color: var(--text-color);
+        }
+        .platform-card.selected {
+            border-color: #34a853;
+            background: rgba(52, 168, 83, 0.2);
+            box-shadow: 0 8px 20px rgba(52, 168, 83, 0.3);
+        }
+        .progress-bar-custom {
+            height: 8px;
+            border-radius: 12px;
+            background: #deedd9;
+        }
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #2e7d32, #6fbf4c);
+            border-radius: 12px;
+            transition: width 0.4s ease;
+        }
+        .toast-notify {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1090;
+            min-width: 260px;
+        }
+        .glass-nav {
+            background: var(--bg-glass);
+            backdrop-filter: blur(16px);
+            border-radius: 48px;
+            padding: 0.6rem 1.5rem;
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+        .avatar-icon {
+            width: 42px;
+            height: 42px;
+            background: #2e7d32;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+        }
+        .theme-toggle {
+            background: var(--input-bg);
+            border-radius: 60px;
+            padding: 6px 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .fade-up {
+            animation: fadeUp 0.5s ease-out;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(18px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        .badge-ai {
+            background: var(--badge-bg);
+            color: var(--badge-color);
+            border-radius: 40px;
+            padding: 6px 14px;
+        }
+        .preview-card {
+            background: var(--bg-glass-solid);
+            border-radius: 28px;
+            padding: 1rem;
+        }
+        .cursor-pointer {
+            cursor: pointer;
+        }
+        .logo-point { width: 100px; height: 50px; }
+        .campaign-img-preview {
+            max-width: 100%;
+            border-radius: 24px;
+            box-shadow: 0 12px 20px rgba(0,0,0,0.2);
+            border: 2px solid rgba(255,215,0,0.3);
+        }
+        .share-img-btn {
+            transition: 0.2s;
+            border-radius: 60px;
+        }
+        .currency-badge {
+            font-size: 0.85rem;
+            background: rgba(46,125,50,0.2);
+            border-radius: 40px;
+            padding: 4px 12px;
+        }
+        @media (max-width: 768px) {
+            body { padding: 1rem 0.75rem; }
+        }
+    </style>
+</head>
+<body class="light-theme">
+<div class="container-lg fade-up">
+    <!-- HEADER -->
+    <div class="glass-nav d-flex flex-wrap justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+            <div>
+                <h5 class="mb-0 fw-bold" style="color: #2e7d32;">
+                    <a href="#"><img src="images/Lux-logo-bg.png" class="logo-point" onerror="this.style.display='none'" alt="logo"/></a>
+                </h5>
+                <nav aria-label="breadcrumb"><ol class="breadcrumb bg-transparent mb-0 small"><li class="breadcrumb-item active text-dark fw-semibold">Criar Campanha Visual</li></ol></nav>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-3 mt-2 mt-sm-0">
+            <div class="theme-toggle d-flex align-items-center gap-2" id="themeToggleBtn"><i class="fas fa-sun" id="sunIcon"></i><i class="fas fa-moon" id="moonIcon" style="display: none;"></i><span class="d-none d-sm-inline" id="themeText">Claro</span></div>
+            <div class="dropdown"><button class="btn btn-outline-success rounded-pill dropdown-toggle" type="button" data-bs-toggle="dropdown"><i class="fas fa-globe"></i> <span id="currentLangLabel">PT</span></button>
+                <ul class="dropdown-menu dropdown-menu-end"><li><a class="dropdown-item" data-lang="pt">🇵🇹 Português</a></li><li><a class="dropdown-item" data-lang="en">🇬🇧 Inglês</a></li><li><a class="dropdown-item" data-lang="fr">🇫🇷 Francês</a></li></ul>
+            </div>
+            <div class="position-relative cursor-pointer" id="notificationBell"><i class="fas fa-bell fa-lg text-success"></i><span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notifBadge" style="font-size: 0.65rem;">3</span></div>
+            
+            <!--
+            <div class="dropdown">
+                <div class="avatar-icon" data-bs-toggle="dropdown">
+                    <i class="fas fa-user-alt"></i></div>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#"><i class="fas fa-user-circle"></i> Meu Perfil</a></li><li><a class="dropdown-item" href="#"><i class="fas fa-chart-line"></i> Minhas Campanhas</a></li><li><hr class="dropdown-divider"></li><li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt"></i> Sair</a></li></ul>
+            </div>
+            -->
+        </div>
+    </div>
+
+    <div class="mb-4"><h1 class="display-6 fw-bold" style="color: #2b5e1e;"><i class="fas fa-bullhorn me-3 text-success"></i><span id="mainTitle">Criar Campanha</span></h1><p class="text-muted"><span id="subtitleText">Promova seus produtos e aumente suas vendas</span></p></div>
+    
+    <div class="glass-card p-3 mb-4"><div class="d-flex justify-content-between"><span><i class="fas fa-chart-line me-2 text-success"></i> <span id="progressLabel">Completude da campanha</span></span><span id="progressPercent" class="fw-bold">0%</span></div><div class="progress-bar-custom mt-2"><div id="campaignProgressFill" class="progress-fill"></div></div></div>
+
+    <form id="campaignForm">
+        <div class="glass-card p-4 mb-4"><div class="section-title"><i class="fas fa-info-circle"></i> <span data-i18n="infoCampaign">Informações da Campanha</span></div>
+            <div class="row g-4"><div class="col-md-6"><input type="text" class="form-control input-modern" id="campaignName" placeholder="Nome da campanha *"></div><div class="col-md-6"><select class="form-select input-modern" id="campaignType"><option>Promoção</option><option>Desconto</option><option>Oferta Relâmpago</option><option>Novo Produto</option><option>Campanha Sazonal</option></select></div>
+            <div class="col-md-6"><input type="text" class="form-control input-modern" id="objective" placeholder="Objetivo (ex: aumentar vendas)"></div><div class="col-md-6"><textarea rows="2" class="form-control input-modern" id="shortDesc" placeholder="Descrição curta"></textarea></div></div>
+        </div>
+        
+        <!-- Produto a Promover: AGORA É INPUT DIGITÁVEL -->
+        <div class="glass-card p-4 mb-4"><div class="section-title"><i class="fas fa-apple-alt"></i> Produto a Promover</div>
+            <div class="row g-4">
+                <div class="col-md-4"><input type="text" class="form-control input-modern" id="productName" placeholder="Nome do produto *" value="Café Especial"></div>
+                <div class="col-md-4"><select class="form-select input-modern" id="categorySelect"><option>Grãos</option><option>Frutas</option><option>Hortaliças</option><option>Orgânicos</option></select></div>
+                <div class="col-md-4"><input type="number" class="form-control input-modern" id="quantityAvail" value="350" placeholder="Quantidade"></div>
+                
+                <!-- Seletor de Moeda -->
+                <div class="col-12">
+                    <div class="d-flex flex-wrap align-items-center gap-3 mt-2 mb-2">
+                        <div class="fw-semibold"><i class="fas fa-coins text-success"></i> Moeda da campanha:</div>
+                        <select id="currencySelector" class="form-select form-select-sm w-auto input-modern" style="width: auto;">
+                            <option value="BRL">🇧🇷 Real (R$)</option>
+                            <option value="USD">🇺🇸 Dólar (US$)</option>
+                            <option value="EUR">🇪🇺 Euro (€)</option>
+                            <option value="KZ">🇦🇴 Kwanza (Kz)</option>
+                        </select>
+                        <div class="currency-badge"><i class="fas fa-info-circle"></i> <span id="currencyHelperText">Insira os valores na moeda selecionada</span></div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3"><input type="text" class="form-control input-modern" id="normalPrice" placeholder="Preço normal" value="49.90"></div>
+                <div class="col-md-3"><input type="text" class="form-control input-modern" id="promoPrice" placeholder="Preço promocional" value="39.90"></div>
+                <div class="col-md-3"><input type="number" class="form-control input-modern" id="discountPercent" step="0.1" placeholder="Desconto %"></div>
+                <div class="col-md-3 small text-muted align-self-center" id="currencyNote">💱 Use o campo ao lado para definir sua moeda local</div>
+            </div>
+        </div>
+        
+        <div class="glass-card p-4 mb-4">
+            <div class="section-title"><i class="fas fa-users"></i> Público-Alvo</div><div class="row g-4"><div class="col-md-4"><input class="form-control input-modern" id="city" placeholder="Cidade / Província" value="Malanje - Angola"></div><div class="col-md-4"><select class="form-select input-modern" id="clientType"><option>Consumidor Final</option><option>Revendedor</option><option>Restaurante</option><option>Supermercado</option></select></div><div class="col-md-4"><input class="form-control input-modern" id="regionSeg" placeholder="Segmentação regional"></div></div></div>
+        <div class="glass-card p-4 mb-4">
+            <div class="section-title"><i class="fab fa-facebook"></i> Escolha da Plataforma</div><div class="row g-3 text-center" id="platformContainer"><div class="col-6 col-md-3"><div class="platform-card" data-platform="facebook"><i class="fab fa-facebook fa-2x"></i><h6>Facebook</h6></div></div><div class="col-6 col-md-3"><div class="platform-card" data-platform="instagram"><i class="fab fa-instagram fa-2x"></i><h6>Instagram</h6></div></div><div class="col-6 col-md-3"><div class="platform-card" data-platform="whatsapp"><i class="fab fa-whatsapp fa-2x"></i><h6>WhatsApp</h6></div></div><div class="col-6 col-md-3"><div class="platform-card" data-platform="multi"><i class="fas fa-share-alt fa-2x"></i><h6>Publicação Simultânea</h6></div></div></div></div>
+        <div class="glass-card p-4 mb-4"><div class="section-title"><i class="fas fa-pen-fancy"></i> Conteúdo Publicitário</div><div class="row g-3"><div class="col-md-6"><input class="form-control input-modern" id="adTitle" placeholder="Título do anúncio"></div><div class="col-md-6"><textarea rows="2" class="form-control input-modern" id="adText" placeholder="Texto principal"></textarea></div><div class="col-12"><div class="d-flex flex-wrap gap-2"><span class="fw-semibold">Frases sugeridas:</span><span class="badge bg-success-subtle text-success cursor-pointer phrase-suggestion">🌾 Produto fresco direto do campo!</span><span class="badge bg-success-subtle text-success cursor-pointer phrase-suggestion">🚚 Entrega rápida e segura</span><span class="badge bg-success-subtle text-success cursor-pointer phrase-suggestion">💚 Apoie o agricultor local</span></div><div class="input-group mt-2"><input type="text" class="form-control input-modern" id="hashTags" placeholder="#agricultura #vendaonline"><button class="btn btn-outline-success" type="button" id="generateAILegend"><i class="fas fa-magic"></i> Gerar legenda com IA</button></div></div></div></div>
+        <div class="glass-card p-4 mb-4"><div class="section-title"><i class="fas fa-camera"></i> Mídia e Pré-visualização</div><div class="row"><div class="col-md-5"><label>Upload Imagem (para o post visual)</label><input type="file" class="form-control mb-2" id="uploadImage" accept="image/*"><label>Upload Vídeo</label><input type="file" class="form-control" id="uploadVideo" accept="video/*"><label class="mt-2">Banner:</label><select class="form-select input-modern" id="bannerSelect"><option>Colheita Premium</option><option>Verde Sustentável</option><option>Oferta Relâmpago</option></select></div><div class="col-md-7"><div class="preview-card"><div class="d-flex gap-2"><i class="fab fa-instagram"></i><span class="fw-bold">Prévia</span></div><img id="previewImg" src="https://placehold.co/600x400/e8f5e9/2e7d32?text=Imagem+da+colheita" class="img-fluid rounded-4 mt-2" style="max-height:150px; object-fit:cover;"><div class="mt-1"><strong id="previewTitle">Título</strong><p id="previewText" class="small">...</p></div></div></div></div></div>
+        <div class="glass-card p-4 mb-4"><div class="section-title"><i class="fas fa-calendar-alt"></i> Agendamento</div><div class="row g-3"><div class="col-md-4"><input type="date" class="form-control input-modern" id="publishDate"></div><div class="col-md-4"><input type="time" class="form-control input-modern" id="publishTime"></div><div class="col-md-4"><div class="alert alert-success p-2 text-center">⏰ Melhor horário: <strong id="bestHourSuggestion">18:00 - 20:00</strong></div></div><div><div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="scheduleType" id="publishNow" checked><label>Publicar agora</label></div><div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="scheduleType" id="scheduleLater"><label>Agendar</label></div></div></div></div>
+        <div class="glass-card p-4 mb-4"><div class="section-title"><i class="fas fa-chart-simple"></i> Investimento</div><div class="row"><div class="col-md-4"><div class="form-check"><input class="form-check-input" type="radio" name="investType" id="freeRadio" checked><label>Gratuita</label></div></div><div class="col-md-4"><div class="form-check"><input class="form-check-input" type="radio" name="investType" id="paidRadio"><label>Patrocinada</label></div></div><div class="col-md-4"><input type="number" class="form-control input-modern" id="investValue" placeholder="Valor" disabled></div><div class="col-md-6 mt-2"><input type="text" class="form-control input-modern" id="durationCampaign" placeholder="Duração (ex: 7 dias)"></div></div></div>
+        <div class="glass-card p-4 mb-4"><div class="section-title"><i class="fas fa-chart-line"></i> Monitoramento Estimado</div><div class="row text-center g-3" id="metricsCards"><div class="col-6 col-md-3"><div class="bg-white bg-opacity-25 rounded-4 p-3"><i class="fas fa-eye fa-2x text-success"></i><h4 id="visualizacoes">1.2K</h4><span>Visualizações</span></div></div><div class="col-6 col-md-3"><div class="bg-white bg-opacity-25 rounded-4 p-3"><i class="fas fa-chart-simple fa-2x text-success"></i><h4 id="alcance">890</h4><span>Alcance</span></div></div><div class="col-6 col-md-3"><div class="bg-white bg-opacity-25 rounded-4 p-3"><i class="fas fa-mouse-pointer fa-2x text-success"></i><h4 id="cliques">210</h4><span>Cliques</span></div></div><div class="col-6 col-md-3"><div class="bg-white bg-opacity-25 rounded-4 p-3"><i class="fas fa-hand-holding-heart fa-2x text-success"></i><h4 id="interesse">85</h4><span>Interesse</span></div></div></div></div>
+        <div class="glass-card p-4 mb-4"><div class="d-flex justify-content-between"><span><i class="fas fa-brain text-success"></i> <strong>Assistente IA de Marketing</strong></span><button type="button" class="btn btn-sm btn-outline-success" id="showAIModalBtn"><i class="fas fa-lightbulb"></i> Dicas automáticas</button></div><p id="iaSuggestionText" class="mt-2 mb-0 small">💡 Dica: Adicione urgência na oferta para conversão.</p></div>
+        <div class="d-flex flex-wrap gap-3 justify-content-between mt-3"><div><button type="button" class="btn btn-secondary btn-premium" id="draftBtn"><i class="fas fa-save"></i> Salvar Rascunho</button><button type="button" class="btn btn-info btn-premium text-white" id="previewBtn"><i class="fas fa-eye"></i> Pré-visualizar</button></div><div><button type="button" class="btn btn-danger btn-premium" id="cancelBtn"><i class="fas fa-times"></i> Cancelar</button><button type="button" class="btn btn-primary-premium btn-premium" id="publishBtn"><i class="fas fa-rocket"></i> Publicar Agora</button></div></div>
+    </form>
+</div>
+
+<!-- MODAIS -->
+<div class="modal fade" id="successModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content rounded-4" style="background: var(--bg-glass-solid);"><div class="modal-body text-center p-4" id="dynamicSuccessModalBody"><i class="fas fa-spinner fa-pulse fa-3x text-success mb-3"></i><h4>Gerando arte da campanha...</h4></div></div></div></div>
+<div class="modal fade" id="previewModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>Pré-visualização</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="previewModalContent"></div></div></div></div>
+<div class="toast-notify" id="liveToast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // CÓDIGO ORIGINAL PRESERVADO + CORREÇÕES
+    let selectedPlatforms = [];
+    let currentLang = 'pt';
+    const translations = { pt: { mainTitle: "Criar Campanha", subtitle: "Promova seus produtos e aumente suas vendas", progressLabel: "Completude da campanha", successMsg: "Campanha publicada com sucesso!"}, en: { mainTitle: "Create Campaign", subtitle: "Promote your products and boost sales", progressLabel: "Campaign completeness", successMsg: "Campaign successfully published!"}, fr: { mainTitle: "Créer une campagne", subtitle: "Promouvoir vos produits et augmenter les ventes", progressLabel: "Complétude de la campagne", successMsg: "Campagne publiée avec succès!"} };
+    function applyLanguage() { document.getElementById("mainTitle").innerText = translations[currentLang].mainTitle; document.getElementById("subtitleText").innerText = translations[currentLang].subtitle; document.getElementById("progressLabel").innerText = translations[currentLang].progressLabel; }
+    document.querySelectorAll("[data-lang]").forEach(el => el.addEventListener("click", (e) => { currentLang = e.target.getAttribute("data-lang"); applyLanguage(); showToast(`Idioma alterado para ${currentLang.toUpperCase()}`, "success"); }));
+    const body = document.body; const themeToggle = document.getElementById("themeToggleBtn"); const sunIcon = document.getElementById("sunIcon"), moonIcon = document.getElementById("moonIcon"), themeText = document.getElementById("themeText");
+    function setTheme(theme) { body.classList.remove("light-theme", "dark-theme"); body.classList.add(theme); if(theme === "light-theme") { sunIcon.style.display = "inline-block"; moonIcon.style.display = "none"; themeText.innerText = "Claro"; } else { sunIcon.style.display = "none"; moonIcon.style.display = "inline-block"; themeText.innerText = "Escuro"; } localStorage.setItem("agroTheme", theme); }
+    themeToggle.addEventListener("click", () => { if(body.classList.contains("light-theme")) setTheme("dark-theme"); else setTheme("light-theme"); });
+    if(localStorage.getItem("agroTheme") === "dark-theme") setTheme("dark-theme"); else setTheme("light-theme");
+    let notifCount = 3; document.getElementById("notificationBell").addEventListener("click", () => { showToast("🔔 Você tem 3 novas interações na última campanha!", "info"); notifCount=0; document.getElementById("notifBadge").style.display="none"; });
+    const updateProgress = () => { 
+        let filled = 0; 
+        if(document.getElementById('campaignName').value.trim() !== "") filled++; 
+        if(document.getElementById('campaignType').value) filled++; 
+        if(document.getElementById('productName').value.trim() !== "") filled++; 
+        if(parseFloat(document.getElementById('promoPrice').value) > 0) filled++; 
+        if(document.getElementById('city').value.trim() !== "") filled++; 
+        if(selectedPlatforms.length > 0) filled++; 
+        let percent = Math.round((filled/6)*100); 
+        document.getElementById('progressPercent').innerText = percent+"%"; 
+        document.getElementById('campaignProgressFill').style.width = percent+"%"; 
+    };
+    function showToast(msg, type='success'){ let toastDiv = document.getElementById('liveToast'); toastDiv.innerHTML = `<div class="toast show bg-${type === 'success' ? 'success' : 'danger'} text-white border-0"><div class="toast-body">${msg} <button type="button" class="btn-close btn-close-white float-end" data-bs-dismiss="toast"></button></div></div>`; setTimeout(()=>{if(toastDiv.firstChild) toastDiv.firstChild.classList.remove('show');}, 3500);}
+    function renderPlatformSelection(){ 
+        document.querySelectorAll('.platform-card').forEach(card=>{ 
+            let plat = card.getAttribute('data-platform'); 
+            if(plat!=='multi') { 
+                if(selectedPlatforms.includes(plat)) card.classList.add('selected'); 
+                else card.classList.remove('selected'); 
+            } 
+        }); 
+        if(selectedPlatforms.length === 3 && selectedPlatforms.includes('facebook') && selectedPlatforms.includes('instagram') && selectedPlatforms.includes('whatsapp')) 
+            document.querySelector('.platform-card[data-platform="multi"]').classList.add('selected'); 
+        else 
+            document.querySelector('.platform-card[data-platform="multi"]').classList.remove('selected'); 
+        updateProgress(); 
+    }
+    document.querySelectorAll('.platform-card').forEach(card=>{ 
+        card.addEventListener('click',()=>{ 
+            let platform = card.getAttribute('data-platform'); 
+            if(platform === 'multi'){ 
+                if(selectedPlatforms.length === 3 && selectedPlatforms.includes('facebook')&&selectedPlatforms.includes('instagram')&&selectedPlatforms.includes('whatsapp')) 
+                    selectedPlatforms = []; 
+                else 
+                    selectedPlatforms = ['facebook','instagram','whatsapp']; 
+            } else { 
+                if(selectedPlatforms.includes(platform)) 
+                    selectedPlatforms = selectedPlatforms.filter(p=>p!==platform); 
+                else 
+                    selectedPlatforms.push(platform); 
+            } 
+            renderPlatformSelection(); 
+            showToast(`Plataformas: ${selectedPlatforms.length ? selectedPlatforms.join(', ') : 'Nenhuma'}`, 'success'); 
+        }); 
+    });
+    const normalPrice = document.getElementById('normalPrice'), promoPrice = document.getElementById('promoPrice'), discountPercent = document.getElementById('discountPercent');
+    function updateDiscountFromPrices(){ let normal = parseFloat(normalPrice.value)||0, promo = parseFloat(promoPrice.value)||0; if(normal && promo && normal>0) discountPercent.value = ((normal - promo)/normal*100).toFixed(1); else discountPercent.value = 0; updateMetrics();}
+    function updatePromoFromDiscount(){ let normal = parseFloat(normalPrice.value)||0, disc = parseFloat(discountPercent.value)||0; if(normal>0 && disc>=0) promoPrice.value = (normal * (1 - disc/100)).toFixed(2); updateMetrics();}
+    normalPrice.addEventListener('input',updateDiscountFromPrices); promoPrice.addEventListener('input',updateDiscountFromPrices); discountPercent.addEventListener('input',updatePromoFromDiscount);
+    function updateMetrics(){ let visual = Math.floor((parseFloat(promoPrice.value)||20) * 25 + Math.random()*200); document.getElementById('visualizacoes').innerHTML = visual>999 ? (visual/1000).toFixed(1)+"K" : visual; document.getElementById('alcance').innerHTML = Math.floor(visual*0.7); document.getElementById('cliques').innerHTML = Math.floor(visual*0.23); document.getElementById('interesse').innerHTML = Math.floor(visual*0.09); }
+    setInterval(updateMetrics, 4000);
+    document.getElementById('uploadImage').addEventListener('change',(e)=>{ if(e.target.files[0]){ let reader = new FileReader(); reader.onload = ev=>{ document.getElementById('previewImg').src = ev.target.result; }; reader.readAsDataURL(e.target.files[0]); } });
+    function updatePreview(){ document.getElementById('previewTitle').innerText = document.getElementById('adTitle').value || "Título do anúncio"; document.getElementById('previewText').innerText = document.getElementById('adText').value || "Seu texto aparecerá aqui..."; }
+    document.getElementById('adTitle').addEventListener('input',updatePreview); document.getElementById('adText').addEventListener('input',updatePreview);
+    document.querySelectorAll('.phrase-suggestion').forEach(span=>{ span.addEventListener('click',()=>{ let txtarea = document.getElementById('adText'); txtarea.value += (txtarea.value?" ":"")+span.innerText; updatePreview(); }); });
+    document.getElementById('generateAILegend').addEventListener('click',()=>{ 
+        let product = document.getElementById('productName').value; 
+        let type = document.getElementById('campaignType').value; 
+        let legend = `🌿 ${type} imperdível! ${product} fresquinho, direto do campo. ${discountPercent.value}% OFF! Garanta já. #agroforte`; 
+        document.getElementById('adText').value = legend; 
+        document.getElementById('hashTags').value = "#agriculturadigital #vendasocial"; 
+        updatePreview(); 
+        showToast("Legenda gerada por IA", "success"); 
+    });
+    document.getElementById('draftBtn').addEventListener('click',()=>{ showToast("Rascunho salvo localmente!", "success"); });
+    document.getElementById('cancelBtn').addEventListener('click',()=>{ if(confirm("Limpar todos os dados?")) document.getElementById('campaignForm').reset(); selectedPlatforms=[]; renderPlatformSelection(); updateProgress(); showToast("Campos resetados"); });
+    document.getElementById('previewBtn').addEventListener('click',()=>{ 
+        let content = `<strong>Campanha:</strong> ${document.getElementById('campaignName').value || "Sem nome"}<br><strong>Produto:</strong> ${document.getElementById('productName').value}<br><strong>Texto:</strong> ${document.getElementById('adText').value}<br><strong>Plataformas:</strong> ${selectedPlatforms.join(', ')||"nenhuma"}`; 
+        document.getElementById('previewModalContent').innerHTML = content; 
+        new bootstrap.Modal(document.getElementById('previewModal')).show(); 
+    });
+    document.getElementById('paidRadio').addEventListener('change',()=>{ document.getElementById('investValue').disabled = false; }); document.getElementById('freeRadio').addEventListener('change',()=>{ document.getElementById('investValue').disabled = true; });
+    document.getElementById('showAIModalBtn').addEventListener('click',()=>{ showToast("📢 Invista em vídeos curtos e use #Sustentável para maior engajamento.", "success"); document.getElementById('iaSuggestionText').innerHTML = "🤖 IA: Vídeos da colheita aumentam conversão em 37%."; });
+    setInterval(()=>{ let h = new Date().getHours(); document.getElementById('bestHourSuggestion').innerText = (h>=6 && h<12) ? "10h - 12h" : "18h - 21h (pico)"; }, 1000);
+    
+    // ========== MOEDA ==========
+    const currencySelector = document.getElementById('currencySelector');
+    const normalPriceField = document.getElementById('normalPrice');
+    const promoPriceField = document.getElementById('promoPrice');
+    const investValueField = document.getElementById('investValue');
+    const currencyNoteSpan = document.getElementById('currencyNote');
+    const currencyConfig = {
+        BRL: { symbol: "R$", label: "Real (R$)", placeholderPreco: "Preço normal (R$)", placeholderPromo: "Preço promo (R$)", placeholderInvest: "Valor (R$)" },
+        USD: { symbol: "US$", label: "Dólar (US$)", placeholderPreco: "Normal price (USD)", placeholderPromo: "Promo price (USD)", placeholderInvest: "Amount (USD)" },
+        EUR: { symbol: "€", label: "Euro (€)", placeholderPreco: "Preço normal (€)", placeholderPromo: "Preço promocional (€)", placeholderInvest: "Valor (€)" },
+        KZ: { symbol: "Kz", label: "Kwanza (Kz)", placeholderPreco: "Preço normal (Kz)", placeholderPromo: "Preço promocional (Kz)", placeholderInvest: "Valor (Kz)" }
+    };
+    function updateCurrencyUI() {
+        const selected = currencySelector.value;
+        const cfg = currencyConfig[selected];
+        if (!cfg) return;
+        normalPriceField.placeholder = cfg.placeholderPreco;
+        promoPriceField.placeholder = cfg.placeholderPromo;
+        if (investValueField) investValueField.placeholder = cfg.placeholderInvest;
+        currencyNoteSpan.innerHTML = `💱 Moeda ativa: ${cfg.symbol} · Insira os valores diretamente nesta moeda.`;
+    }
+    currencySelector.addEventListener('change', () => {
+        updateCurrencyUI();
+        showToast(`Moeda alterada para ${currencyConfig[currencySelector.value].label}. Os números permanecem os mesmos, insira valores na nova moeda.`, "info");
+        updatePreview();
+    });
+    
+    // ========== GERAÇÃO DE IMAGEM (com produto digitável e moeda) ==========
+    window.generateCampaignImage = async function() {
+        return new Promise(async (resolve) => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 1080; canvas.height = 1080;
+            
+            const product = document.getElementById('productName').value || "Produto";
+            const titleAd = document.getElementById('adTitle').value || "🏆 Oferta Especial";
+            const desc = document.getElementById('adText').value || "Produto fresco direto do campo";
+            let normal = parseFloat(document.getElementById('normalPrice').value).toFixed(2);
+            let promo = parseFloat(document.getElementById('promoPrice').value).toFixed(2);
+            let discount = document.getElementById('discountPercent').value;
+            if(!discount || discount === "0") discount = ((normal-promo)/normal*100).toFixed(0);
+            const productImageSrc = document.getElementById('previewImg').src;
+            const selectedCurrency = currencySelector.value;
+            const currencySymbol = currencyConfig[selectedCurrency]?.symbol || "R$";
+            
+            const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            grad.addColorStop(0, '#14532d');
+            grad.addColorStop(1, '#2b7a3e');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "rgba(255,215,0,0.1)";
+            for(let i=0;i<200;i++){ ctx.beginPath(); ctx.arc(Math.random()*canvas.width, Math.random()*canvas.height, 2, 0, Math.PI*2); ctx.fill(); }
+            
+            let img = new Image();
+            img.crossOrigin = "Anonymous";
+            await new Promise(r => { img.onload = r; img.onerror = r; img.src = productImageSrc !== "https://placehold.co/600x400/e8f5e9/2e7d32?text=Imagem+da+colheita" ? productImageSrc : "https://placehold.co/800x800/2c5e2a/ffffff?text=🌱+Produto+Fresco"; setTimeout(r, 300); });
+            ctx.save();
+            ctx.shadowBlur = 0;
+            const imgSize = 500;
+            const imgX = (canvas.width - imgSize)/2;
+            const imgY = 120;
+            ctx.beginPath(); ctx.ellipse(imgX+imgSize/2, imgY+imgSize/2, imgSize/2, imgSize/2, 0, 0, Math.PI*2); ctx.closePath(); ctx.clip();
+            ctx.drawImage(img, imgX, imgY, imgSize, imgSize);
+            ctx.restore();
+            
+            const discValue = parseInt(discount) || 0;
+            ctx.shadowBlur = 12; ctx.shadowColor = "black";
+            ctx.beginPath(); ctx.arc(860, 160, 80, 0, Math.PI*2); ctx.fillStyle = "#ffb347"; ctx.fill(); ctx.fillStyle = "#c23b22"; ctx.beginPath(); ctx.arc(860, 160, 72, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = "white"; ctx.font = "bold 44px 'Poppins'"; ctx.fillText(`${discValue}%`, 800, 188); ctx.font = "bold 28px 'Poppins'"; ctx.fillStyle = "white"; ctx.fillText("OFF", 828, 230);
+            ctx.fillStyle = "white"; ctx.font = "bold 28px 'Poppins'"; ctx.fillText("🔥", 820, 122);
+            
+            ctx.font = "800 64px 'Poppins'"; ctx.fillStyle = "#FFF7E6"; ctx.shadowBlur = 6; ctx.fillText(product, 80, canvas.height-400);
+            ctx.font = "500 44px 'Inter'"; ctx.fillStyle = "#FFE484"; ctx.fillText(titleAd, 80, canvas.height-320);
+            ctx.font = "400 38px 'Inter'"; ctx.fillStyle = "#E6FFE6"; ctx.fillText(desc.substring(0,55), 80, canvas.height-240);
+            ctx.font = "380 55px 'Inter'"; ctx.fillStyle = "#CCCCCC"; ctx.fillText(`De: ${currencySymbol} ${normal}`, 80, canvas.height-130);
+            ctx.font = "bold 68px 'Poppins'"; ctx.fillStyle = "#FFD966"; ctx.fillText(`Por: ${currencySymbol} ${promo}`, 80, canvas.height-50);
+            ctx.font = "bold 36px 'Inter'"; ctx.fillStyle = "#ffffffcc"; ctx.fillText("🛒 Garanta já →", canvas.width-320, canvas.height-70);
+            
+            ctx.fillStyle = "rgba(0,0,0,0.5)";
+            ctx.fillRect(0, canvas.height-170, canvas.width, 170);
+            ctx.fillStyle = "#fff"; ctx.font = "26px 'Inter'"; ctx.fillText(`AgroLux • ${currencySymbol} ${selectedCurrency}`, 80, canvas.height-25);
+            ctx.font = "24px 'Inter'"; ctx.fillStyle = "#f5f5dc"; ctx.fillText("#campanhavisual", canvas.width-250, canvas.height-30);
+            const dataURL = canvas.toDataURL('image/png');
+            resolve(dataURL);
+        });
+    };
+    
+    // ========== FUNÇÕES DE PARTILHA DIRETA POR PLATAFORMA ==========
+    function shareOnFacebook(text, imageBlob) {
+        // Fallback: sharer.php com texto e imagem não é suportado diretamente, então abrimos com a legenda.
+        const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}&quote=${encodeURIComponent(text)}`;
+        window.open(url, '_blank', 'width=600,height=400');
+        showToast("Redirecionando para Facebook... compartilhe a imagem manualmente.", "info");
+    }
+    function shareOnWhatsapp(text, imageBlob) {
+        // O WhatsApp Web aceita texto + imagem? Melhor enviar texto e orientar a enviar a imagem.
+        const url = `https://wa.me/?text=${encodeURIComponent(text + " (imagem em anexo)")}`;
+        window.open(url, '_blank');
+        showToast("Abriu o WhatsApp. Envie a imagem que você baixou junto com a legenda.", "info");
+    }
+    function shareOnInstagram(text) {
+        // Não há URL direta para postar no Instagram; orientamos o usuário.
+        showToast("📸 Para Instagram: baixe a imagem e publique manualmente no app. A legenda foi copiada!", "info");
+    }
+    
+    // ========== PUBLICAÇÃO COM BOTÕES ESPECÍFICOS PARA PLATAFORMAS SELECIONADAS ==========
+    const publishBtn = document.getElementById('publishBtn');
+    let successModalBs = new bootstrap.Modal(document.getElementById('successModal'));
+    publishBtn.addEventListener('click', async (e) => {
+        if(!document.getElementById('campaignName').value.trim()){ showToast("Informe o nome da campanha!", "danger"); return; }
+        if(selectedPlatforms.length===0){ showToast("Selecione pelo menos uma plataforma!", "danger"); return; }
+        publishBtn.disabled = true; publishBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Gerando imagem da campanha...';
+        let generatedImage = null;
+        try { generatedImage = await window.generateCampaignImage(); } catch(err){ console.warn(err); }
+        publishBtn.disabled = false; publishBtn.innerHTML = '<i class="fas fa-rocket"></i> Publicar Agora';
+        if(!generatedImage) { showToast("Erro ao gerar imagem, tente novamente", "danger"); return; }
+        const selectedCurrencySymbol = currencyConfig[currencySelector.value]?.symbol || "R$";
+        const captionText = `🌟 ${document.getElementById('adTitle').value || "Oferta Especial"} 🌟\n${document.getElementById('adText').value}\n💰 De ${selectedCurrencySymbol} ${normalPrice.value} por apenas ${selectedCurrencySymbol} ${promoPrice.value} (${discountPercent.value || ((parseFloat(normalPrice.value)-parseFloat(promoPrice.value))/parseFloat(normalPrice.value)*100).toFixed(0)}% OFF)\n👉 Compartilhe esta imagem e mostre a oferta! #AgroLux`;
+        
+        // Montar modal com botões específicos para cada plataforma selecionada
+        let platformButtons = '';
+        if (selectedPlatforms.includes('facebook')) {
+            platformButtons += `<button class="btn btn-primary share-img-btn" id="shareFbBtn"><i class="fab fa-facebook"></i> Partilhar no Facebook</button> `;
+        }
+        if (selectedPlatforms.includes('instagram')) {
+            platformButtons += `<button class="btn btn-danger share-img-btn" id="shareIgBtn"><i class="fab fa-instagram"></i> Partilhar no Instagram</button> `;
+        }
+        if (selectedPlatforms.includes('whatsapp')) {
+            platformButtons += `<button class="btn btn-success share-img-btn" id="shareWppBtn" style="background:#25D366;"><i class="fab fa-whatsapp"></i> Partilhar no WhatsApp</button> `;
+        }
+        platformButtons += `<button class="btn btn-secondary share-img-btn" id="copyCaptionBtn"><i class="fas fa-copy"></i> Copiar Legenda</button>
+                            <button class="btn btn-secondary share-img-btn" id="downloadImgBtn"><i class="fas fa-download"></i> Baixar Imagem</button>`;
+        
+        const modalBody = document.getElementById('dynamicSuccessModalBody');
+        modalBody.innerHTML = `
+            <i class="fas fa-check-circle fa-3x text-success mb-2"></i>
+            <h4 class="fw-bold">Campanha visual gerada!</h4>
+            <p class="small">Moeda: ${currencyConfig[currencySelector.value].label} · Toque na imagem para baixar.</p>
+            <img src="${generatedImage}" class="campaign-img-preview img-fluid mb-3" style="max-height: 380px; margin:0 auto; cursor:pointer;" id="modalGenImage">
+            <div class="d-flex flex-wrap justify-content-center gap-3 mt-2">
+                ${platformButtons}
+            </div>
+            <p class="mt-3 text-muted small">💡 A imagem exibe os preços na moeda ${currencyConfig[currencySelector.value].label}.</p>
+            <button class="btn btn-outline-secondary mt-2" data-bs-dismiss="modal">Fechar</button>
+        `;
+        successModalBs.show();
+        
+        const downloadBtn = document.getElementById('downloadImgBtn');
+        const copyBtn = document.getElementById('copyCaptionBtn');
+        const imgElement = document.getElementById('modalGenImage');
+        downloadBtn.onclick = () => { const link = document.createElement('a'); link.download = `campanha_agrolux_${Date.now()}.png`; link.href = generatedImage; link.click(); showToast("Imagem baixada! Compartilhe agora.", "success"); };
+        copyBtn.onclick = () => { navigator.clipboard.writeText(captionText); showToast("Legenda copiada! Cole na sua publicação.", "success"); };
+        imgElement.onclick = () => downloadBtn.click();
+        
+        // Botões específicos
+        if (selectedPlatforms.includes('facebook')) {
+            document.getElementById('shareFbBtn').onclick = () => shareOnFacebook(captionText);
+        }
+        if (selectedPlatforms.includes('instagram')) {
+            document.getElementById('shareIgBtn').onclick = () => shareOnInstagram(captionText);
+        }
+        if (selectedPlatforms.includes('whatsapp')) {
+            document.getElementById('shareWppBtn').onclick = () => shareOnWhatsapp(captionText);
+        }
+        showToast(`✅ Campanha publicada! Use os botões para partilhar nas redes selecionadas.`, "success");
+    });
+    
+    // Inicializações
+    updateCurrencyUI();
+    updateDiscountFromPrices(); 
+    renderPlatformSelection(); 
+    updatePreview(); 
+    updateProgress(); 
+    applyLanguage();
+    setInterval(()=>{ if(document.getElementById("notifBadge")){ document.getElementById("notifBadge").innerText = "2"; } }, 200);
+</script>
+</body>
+</html>
