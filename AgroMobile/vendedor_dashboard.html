@@ -13,13 +13,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Times New Roman', Times, serif;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box;
+        font-family: 'Times New Roman', Times, serif;}
         body {
             font-family: 'Inter', sans-serif;
             color: #EFFAF5;
@@ -27,9 +22,8 @@
             height: 100vh;
             overflow: hidden;
             position: relative;
-            overflow-x: hidden;
+            font-family: 'Times New Roman', Times, serif;
         }
-
         /* Carrossel de fundo */
         .carousel-bg {
             position: fixed;
@@ -112,7 +106,7 @@
         .sidebar-brand { padding: 24px 20px; font-size: 1.6rem; font-weight: 800; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(90, 180, 120, 0.3); }
         .nav-link { color: #E2F0E8; padding: 12px 20px; margin: 4px 8px; display: flex; align-items: center; gap: 14px; font-weight: 500; border-radius: 12px; }
         .nav-link.active { background: rgba(111, 222, 156, 0.2); border-left: 3px solid #6FDE9C; }
-        .menu-icon { width: 28px; font-size: 1.2rem; text-align: center; }
+        .menu-icon { width: 28px; font-size: 1.2rem; }
         .sidebar-footer { margin-top: auto; padding: 20px; font-size: 0.7rem; text-align: center; border-top: 1px solid rgba(90, 180, 120, 0.2); }
         .main-content {
             flex: 1;
@@ -145,9 +139,7 @@
             backdrop-filter: blur(12px);
             background: rgba(18, 32, 28, 0.65);
             border: 1px solid rgba(90, 180, 120, 0.3);
-            font-size: clamp(0.75rem, 3vw, 0.95rem);
-            flex-wrap: wrap;
-            gap: 12px;
+            font-size: 0.95rem;
         }
         .card-flat {
             background: rgba(18, 32, 28, 0.7);
@@ -158,56 +150,12 @@
             transition: 0.2s;
             height: 100%;
         }
-        .stat-value {
-            font-size: clamp(1.8rem, 6vw, 2.4rem);
-            font-weight: 800;
-            background: linear-gradient(135deg, #E3FFED, #A5E0BB);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            line-height: 1.2;
-        }
-        .farm-map-real {
-            height: 250px;
-            width: 100%;
-            background: #1A2E26;
-            border-radius: 16px;
-            border: none;
-        }
-        .product-item {
-            background: rgba(255,255,255,0.05);
-            border-radius: 16px;
-            padding: 12px;
-            margin-bottom: 12px;
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            transition: 0.2s;
-            gap: 10px;
-        }
-        .product-item > div:first-child {
-            flex: 1;
-            min-width: 150px;
-        }
-        .product-actions i, .share-buttons i {
-            margin: 0 6px;
-            cursor: pointer;
-            opacity: 0.7;
-            transition: 0.2s;
-            font-size: 1.2rem;
-        }
-        .product-actions i:hover, .share-buttons i:hover { opacity: 1; color: #6FDE9C; }
-        .btn-outline-glass {
-            background: transparent;
-            border: 1px solid rgba(111, 222, 156, 0.6);
-            color: inherit;
-            padding: 6px 16px;
-            transition: 0.2s;
-            border-radius: 40px;
-            white-space: nowrap;
-        }
+        .stat-value { font-size: 2.4rem; font-weight: 800; background: linear-gradient(135deg, #E3FFED, #A5E0BB); -webkit-background-clip: text; background-clip: text; color: transparent; line-height: 1.2; }
+        .farm-map-real { height: 250px; width: 100%; background: #1A2E26; border-radius: 16px; border: none; }
+        .product-item { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
+        .product-actions i { margin: 0 6px; cursor: pointer; opacity: 0.7; transition: 0.2s; }
+        .product-actions i:hover { opacity: 1; color: #6FDE9C; }
+        .btn-outline-glass { background: transparent; border: 1px solid rgba(111, 222, 156, 0.6); color: inherit; padding: 6px 16px; transition: 0.2s; border-radius: 40px; }
         .btn-outline-glass:hover { background: rgba(111, 222, 156, 0.2); }
         .theme-switch-wrapper { display: flex; align-items: center; }
         .theme-switch { position: relative; display: inline-block; width: 60px; height: 30px; }
@@ -218,40 +166,21 @@
         input:checked + .slider:before { transform: translateX(30px); }
         .avatar-img { width: 42px; height: 42px; object-fit: cover; border-radius: 50%; border: 1px solid #6FDE9C; cursor: pointer; }
         .real-clock { font-family: monospace; font-size: 0.8rem; background: rgba(0,0,0,0.3); padding: 4px 12px; border-radius: 40px; }
-        .dropdown-menu { background: rgba(20, 35, 30, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(111, 222, 156, 0.5); border-radius: 20px; box-shadow: 0 12px 28px rgba(0,0,0,0.3); padding: 8px; }
+        .dropdown-menu {
+            background: rgba(20, 35, 30, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(111, 222, 156, 0.5);
+            border-radius: 20px;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.3);
+            padding: 8px;
+        }
         .dropdown-item { border-radius: 12px; color: #EFFAF5; transition: 0.2s; }
         .dropdown-item:hover { background: rgba(111, 222, 156, 0.2); color: #6FDE9C; }
-        /* RESPONSIVIDADE: MOBILE FIRST */
         @media (max-width: 768px) {
-            .sidebar {
-                position: fixed;
-                left: -280px;
-                top: 0;
-                height: 100%;
-                width: 260px;
-                transition: left 0.3s ease;
-                z-index: 1050;
-            }
+            .sidebar { position: fixed; left: -280px; top: 0; height: 100%; width: 260px; transition: left 0.3s ease; z-index: 1050; }
             .sidebar.mobile-open { left: 0; }
             .menu-toggle { display: block !important; }
-            .topbar { padding: 12px 16px; }
-            .datetime-extenso { flex-direction: column; text-align: center; margin: 8px 12px 0 12px; }
-            .product-item { flex-direction: column; align-items: flex-start; }
-            .product-item > div:last-child { align-self: flex-end; width: 100%; display: flex; justify-content: space-between; margin-top: 8px; }
-            .share-buttons, .product-actions { display: flex; gap: 12px; }
-            .chat-widget { width: calc(100% - 24px); right: 12px; left: 12px; bottom: 80px; max-width: 400px; margin: 0 auto; }
-            .floating-social { bottom: 16px; right: 16px; gap: 8px; }
-            .social-icon { width: 42px; height: 42px; font-size: 1.3rem; }
             .stat-value { font-size: 1.8rem; }
-            .card-flat h5 { font-size: 1.1rem; }
-            .sidebar-brand { padding: 16px; font-size: 1.3rem; }
-            .btn-outline-glass { padding: 4px 12px; font-size: 0.85rem; white-space: normal; }
-        }
-        @media (max-width: 480px) {
-            .topbar { flex-direction: column; align-items: stretch; text-align: center; }
-            .topbar .d-flex:last-child { justify-content: center; flex-wrap: wrap; }
-            .theme-switch-wrapper, .dropdown, .real-clock { margin: 4px 0; }
-            .farm-map-real { height: 200px; }
         }
         .menu-toggle { display: none; font-size: 1.5rem; cursor: pointer; background: none; border: none; color: #6FDE9C; }
         .modal-content { background: #1A2E26; color: #EFFAF5; border-radius: 24px; }
@@ -338,78 +267,44 @@
             text-align: left;
             color: #000000;
         }
-        .chat-input-area {
+        .logo-maker, .logo-panel { border-radius: 50px; width: 30px; height: 30px; }
+        .chat-input-area { 
             display: flex;
-            border-top: 1px solid rgba(111,222,156,0.4);
+            border-top: 1px solid rgba(111,222,156,0.4); 
             padding: 8px;
             gap: 6px;
         }
-        .chat-input-area input {
-            flex: 1;
-            background: rgba(255,255,255,0.1);
-            border: none;
-            outline: none;
-            color: inherit;
-            padding: 8px 12px;
-            border-radius: 50px;
-            min-width: 0;
-        }
-        .product-image-thumb {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-right: 10px;
-        }
+        .chat-input-area input { flex: 1; background: rgba(255,255,255,0.1); border: none; outline: none; color: inherit; padding: 8px 12px; border-radius: 50px; }
+        .product-image-thumb { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; margin-right: 10px; }
         .share-buttons i { font-size: 1.2rem; margin: 0 4px; cursor: pointer; color: #6FDE9C; }
-        .btn-outline-adaptive {
+        .btn-outline-adaptive { 
             background: transparent;
-            border: 1px solid #6FDE9C;
-            border-radius: 40px;
-            padding: 4px 12px;
-            color: inherit;
-            text-decoration: none;
-            font-size: 0.8rem;
-        }
-        .logo-maker {
-            border-radius: 50px;
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
-        }
-        .logo-panel {
-            border-radius: 50px;
-            width: 30px;
-            height: 30px;
+            border: 1px solid #6FDE9C; border-radius: 40px; 
+            padding: 4px 12px; color: inherit; text-decoration: none; font-size: 0.8rem; }
+        
+              /* Outher CSS */
+    .logo-maker{
+      border-radius: 50px;
+      width: 50px;
+      height: 50px;
+    }
+    
+    .logo-panel{
+      border-radius: 50px;
+      width: 30px;
+      height: 30px;
+    }
+        
+        .logo-panel { 
+            width: 24px;
+            height: 24px; 
             vertical-align: middle;
+            margin-right: 5px; 
         }
+        
         .logo-point {
-            max-width: 100px;
-            height: auto;
-        }
-        img, svg {
-            max-width: 100%;
-            height: auto;
-        }
-        .container-especialista {
-            text-align: center;
-            padding: 6px;
-            border-top: 1px solid rgba(111,222,156,0.3);
-        }
-        #salesChartCanvas {
-            max-height: 200px;
-            width: 100% !important;
-        }
-        .form-control, .form-select {
-            background-color: rgba(0,0,0,0.2);
-            border: 1px solid rgba(111,222,156,0.5);
-            color: inherit;
-        }
-        body.light .form-control, body.light .form-select {
-            background-color: rgba(0,0,0,0.05);
-        }
-        .modal-body .form-control {
-            margin-bottom: 12px;
+            width: 100px; 
+            height: 50px;
         }
     </style>
 </head>
@@ -425,17 +320,17 @@
     </div>
 
     <div class="app-container">
+        <!-- SIDEBAR -->
         <aside class="sidebar" id="mainSidebar">
             <div class="sidebar-brand"><span>AgroLux Vendedor</span></div>
             <div class="d-flex justify-content-end p-2">
-                <i class="fas fa-chevron-left" id="compactSidebarBtn" style="cursor:pointer; color:#6FDE9C;"></i>
-            </div>
+                <i class="fas fa-chevron-left" id="compactSidebarBtn" style="cursor:pointer; color:#6FDE9C;"></i></div>
             <nav class="nav flex-column">
-                <a href="#" class="nav-link active"><i class="fas fa-tachometer-alt menu-icon"></i> <span>Dashboard</span></a>
-                <a href="MyProducts.html" class="nav-link"><i class="fas fa-boxes menu-icon"></i> <span>Meus Produtos</span></a>
-                <a href="forum.html" class="nav-link"><i class="fas fa-chart-line menu-icon"></i> <span>Vendas</span></a>
-                <a href="map-market.html" class="nav-link"><i class="fas fa-store menu-icon"></i> <span>Mercado</span></a>
-                <a href="403.html" class="nav-link"><i class="fas fa-users menu-icon"></i> <span>Compradores</span></a>
+                <a href="#" class="nav-link active"><i class="fas fa-tachometer-alt menu-icon"></i> <span id="menuDashboard">Dashboard</span></a>
+                <a href="MyProducts.html" class="nav-link"><i class="fas fa-boxes menu-icon"></i> <span id="menuProdutos">Meus Productos</span></a>
+                <a href="forum.html" class="nav-link"><i class="fas fa-chart-line menu-icon"></i> <span id="menuVendas">Vendas</span></a>
+                <a href="map-market.html" class="nav-link"><i class="fas fa-store menu-icon"></i> <span id="menuMercado">Mercado</span></a>
+                <a href="403.html" class="nav-link"><i class="fas fa-users menu-icon"></i> <span id="menuCompradores">Compradores</span></a>
             </nav>
             <div class="sidebar-footer"><i class="fas fa-cloud-sun"></i> Safra 2026</div>
         </aside>
@@ -444,11 +339,10 @@
             <div class="topbar">
                 <div class="d-flex align-items-center gap-3">
                     <div class="menu-toggle" id="mobileMenuToggle">
-                        <i class="fas fa-bars fa-lg"></i>
-                    </div>
+                        <i class="fas fa-bars fa-lg"></i></div>
                     <h5 class="mb-0">
-                        <a href="index.html">
-                            <img src="images/Lux-logo-bg.png" class="logo-point" onerror="this.style.display='none'" alt="AgroLux">
+                        <a href="index.html" >
+                            <img src="images/Lux-logo-bg.png" class="logo-point" onerror="this.style.display='none'"/>
                         </a>
                     </h5>
                 </div>
@@ -461,32 +355,33 @@
                     <div class="theme-switch-wrapper">
                         <label class="theme-switch">
                             <input type="checkbox" id="themeToggleCheckbox">
-                            <div class="slider">
-                                <i class="fas fa-sun"></i>
-                                <i class="fas fa-moon"></i>
-                            </div>
-                        </label>
-                    </div>
+                        <div class="slider">
+                            <i class="fas fa-sun"></i>
+                            <i class="fas fa-moon"></i>
+                        </div>
+                        </label></div>
                     <div class="dropdown">
                         <button class="btn-outline-glass dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-globe"></i> <span id="langLabel">PT</span></button>
                         <ul class="dropdown-menu dropdown-menu-dark"><li><a class="dropdown-item lang-opt" data-lang="pt">🇵🇹 Português</a></li><li><a class="dropdown-item lang-opt" data-lang="en">🇺🇸 English</a></li></ul>
                     </div>
                     <div class="dropdown">
-                        <img id="profileAvatar" class="avatar-img" src="https://randomuser.me/api/portraits/men/32.jpg" data-bs-toggle="dropdown" alt="Avatar">
+                        <img id="profileAvatar" class="avatar-img" src="https://randomuser.me/api/portraits/men/32.jpg" data-bs-toggle="dropdown">
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" id="profileOption"><i class="fas fa-id-card"></i> Meu Perfil</a></li>
                             <li><a class="dropdown-item" id="changeAvatarOption"><i class="fas fa-camera"></i> Alterar foto</a></li>
-                            <li><a href="change-password.html" class="dropdown-item" id="changePasswordOption"><i class="fas fa-key"></i> Alterar senha</a></li>
+                            <li>
+                                <a href="change-password.html" class="dropdown-item" id="changePasswordOption">
+                                <i class="fas fa-key"></i> Alterar senha
+                                </a>
+                            </li>
+                            
                             <li><hr class="dropdown-divider"></li>
                             <li><a href="logout.html" class="dropdown-item" id="logoutOption"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
                         </ul>
                     </div>
                 </div>
             </div>
-            <div class="datetime-extenso d-flex justify-content-between flex-wrap">
-                <span><i class="far fa-calendar-alt me-2"></i> <span id="fullDateExtenso">Carregando...</span></span>
-                <span><i class="far fa-clock me-2"></i> <span id="fullTimeExtenso">--:--:--</span></span>
-            </div>
+            <div class="datetime-extenso d-flex justify-content-between"><span><i class="far fa-calendar-alt me-2"></i> <span id="fullDateExtenso">Carregando...</span></span><span><i class="far fa-clock me-2"></i> <span id="fullTimeExtenso">--:--:--</span></span></div>
             <div class="p-3" style="overflow-y: auto;">
                 <div class="row mb-4"><div class="col-12"><div class="card-flat"><h4><span id="welcomeMsg">Seja Bem-Vindo(a)</span>, <span id="farmerName">Agricultor</span>!</h4><p id="welcomeSub">Bem-vindo ao seu painel de gestão. Publique produtos, acompanhe vendas e conecte-se.</p></div></div></div>
                 <div class="row g-3 mb-4">
@@ -495,48 +390,54 @@
                     <div class="col-md-4 col-sm-6"><div class="card-flat text-center"><i class="fas fa-check-circle fa-2x"></i><div class="stat-value" id="produtosAtivosCard">0</div><p>Produtos Ativos</p></div></div>
                 </div>
                 <div class="row g-3 mb-4">
-                    <div class="col-md-6"><div class="card-flat"><h5><i class="fas fa-plus-circle"></i> Publicar novo produto</h5><button class="btn-outline-glass w-100 mt-2" id="openPublishModalBtn"><i class="fas fa-plus"></i> Adicionar Produto</button></div></div>
+                    <div class="col-md-6"><div class="card-flat"><h5><i class="fas fa-plus-circle"></i>
+                        Publicar novo produto</h5><button class="btn-outline-glass w-100 mt-2" id="openPublishModalBtn">
+                        <i class="fas fa-plus"></i> Adicionar Produto</button></div></div>
                     <div class="col-md-6"><div class="card-flat"><h5><i class="fas fa-map-marker-alt"></i> Localização da sua fazenda</h5><div id="realMap" class="farm-map-real"></div><div class="mt-2 small text-center">Huambo, Angola</div></div></div>
                 </div>
                 <div class="row"><div class="col-12"><div class="card-flat"><h5><i class="fas fa-list-ul"></i> Meus Produtos</h5><div id="productsListContainer"><p class="text-muted">Nenhum produto publicado ainda.</p></div></div></div></div>
-                <div class="row g-3 mt-2"><div class="col-md-12"><div class="card-flat"><h5>Vendas Simuladas (últimos 7 dias)</h5><canvas id="salesChartCanvas" style="max-height:200px; width:100%"></canvas></div></div></div>
-                <div class="text-center small mt-3 pb-3"><a href="contract.html">© 2026 AgroLux Angola</a></div>
+                <div class="row g-3 mt-2"><div class="col-md-12"><div class="card-flat"><h5>Vendas Simuladas (últimos 7 dias)</h5><canvas id="salesChartCanvas" height="180" style="max-height:200px;"></canvas></div></div></div>
+                <div class="text-center small mt-3 pb-3"><a href="contract.html" >© 2026 AgroLux Angola</a></div>
             </div>
         </div>
     </div>
 
-    <!-- MODAIS -->
-    <div class="modal fade" id="profileEditModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><i class="fas fa-user-edit"></i> Editar Perfil</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="text" id="editNome" class="form-control mb-2" placeholder="Nome completo"><input type="tel" id="editTelefone" class="form-control mb-2" placeholder="Telefone"><input type="text" id="editFazenda" class="form-control mb-2" placeholder="Localização da fazenda"><textarea id="editBio" class="form-control mb-2" rows="2" placeholder="Biografia"></textarea><label class="form-label">Foto de perfil</label><input type="file" id="editAvatarInput" accept="image/*" class="form-control"></div><div class="modal-footer flex-wrap gap-2"><button type="button" class="btn-outline-glass" id="deleteProfileBtn" style="border-color:#dc3545;"><i class="fas fa-trash-alt"></i> Eliminar Conta</button><button type="button" class="btn-outline-glass" data-bs-dismiss="modal">Cancelar</button><button type="button" class="btn-outline-glass" id="saveProfileBtn">Guardar</button></div></div></div></div>
+    <!-- MODAIS DE PERFIL -->
+    <div class="modal fade" id="profileEditModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><i class="fas fa-user-edit"></i> Editar Perfil</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="text" id="editNome" class="form-control mb-2" placeholder="Nome completo"><input type="tel" id="editTelefone" class="form-control mb-2" placeholder="Telefone"><input type="text" id="editFazenda" class="form-control mb-2" placeholder="Localização da fazenda"><textarea id="editBio" class="form-control mb-2" rows="2" placeholder="Biografia"></textarea><label class="form-label">Foto de perfil</label><input type="file" id="editAvatarInput" accept="image/*" class="form-control"></div><div class="modal-footer"><button type="button" class="btn-outline-glass" id="deleteProfileBtn" style="border-color:#dc3545;"><i class="fas fa-trash-alt"></i> Eliminar Conta</button><button type="button" class="btn-outline-glass" data-bs-dismiss="modal">Cancelar</button><button type="button" class="btn-outline-glass" id="saveProfileBtn">Guardar Alterações</button></div></div></div></div>
     
     <div class="modal fade" id="deleteProfileConfirmModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title text-danger"><i class="fas fa-exclamation-triangle"></i> Eliminar Conta</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><p>Tem certeza que deseja eliminar permanentemente a sua conta e todos os seus produtos? Esta ação é irreversível.</p></div><div class="modal-footer"><button class="btn-outline-glass" data-bs-dismiss="modal">Cancelar</button><button class="btn-outline-glass" id="confirmDeleteAccountBtn" style="background:#dc3545; color:white;">Sim, Eliminar</button></div></div></div></div>
 
+    <!-- MODAIS PRODUTO: EDITAR + ELIMINAR -->
     <div class="modal fade" id="editProductModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><i class="fas fa-edit"></i> Editar Produto</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="text" id="editProdNome" class="form-control mb-2" placeholder="Nome"><input type="number" id="editProdPreco" class="form-control mb-2" placeholder="Preço (Kz)"><input type="number" id="editProdQtd" class="form-control mb-2" placeholder="Quantidade"><select id="editProdCategoria" class="form-control mb-2"><option>Hortícolas</option><option>Cereais</option><option>Frutas</option><option>Outros</option></select><label>Imagem atual</label><div id="editProdImgPreview"></div><input type="file" id="editProdImagem" accept="image/*" class="form-control"></div><div class="modal-footer"><button class="btn-outline-glass" data-bs-dismiss="modal">Cancelar</button><button class="btn-outline-glass" id="saveProductEditBtn">Guardar</button></div></div></div></div>
     
     <div class="modal fade" id="deleteProductModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title text-danger"><i class="fas fa-trash-alt"></i> Eliminar Produto</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><p>Deseja realmente eliminar este produto?</p></div><div class="modal-footer"><button class="btn-outline-glass" data-bs-dismiss="modal">Cancelar</button><button class="btn-outline-glass" id="confirmDeleteProductBtn">Eliminar</button></div></div></div></div>
 
-    <div class="modal fade" id="publishModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Publicar novo produto</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input id="prodNome" class="form-control mb-2" placeholder="Nome"><input id="prodPreco" class="form-control mb-2" placeholder="Preço (Kz)"><input id="prodQuantidade" class="form-control mb-2" placeholder="Quantidade"><select id="prodCategoria" class="form-control mb-2"><option>Hortícolas</option><option>Cereais</option><option>Frutas</option><option>Outros</option></select><input type="file" id="prodImagem" accept="image/*" class="form-control"><div id="imagePreview"></div></div><div class="modal-footer"><button class="btn-outline-glass" data-bs-dismiss="modal">Cancelar</button><button class="btn-outline-glass" id="confirmPublishBtn">Publicar</button></div></div></div></div>
-    
-    <div class="modal fade" id="shareModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Partilhar produto</h5></div><div class="modal-body text-center"><p>Produto publicado com sucesso!</p><div class="d-flex justify-content-around flex-wrap gap-2"><button id="shareFacebookBtn" class="btn-outline-glass"><i class="fab fa-facebook"></i> Facebook</button><button id="shareWhatsAppBtn" class="btn-outline-glass"><i class="fab fa-whatsapp"></i> WhatsApp</button><button id="shareInstagramBtn" class="btn-outline-glass"><i class="fab fa-instagram"></i> Instagram</button></div></div><div class="modal-footer"><button class="btn-outline-glass" data-bs-dismiss="modal">Fechar</button></div></div></div></div>
-
+    <!-- MODAL PUBLICAÇÃO E PARTILHA (existente) -->
+    <div class="modal fade" id="publishModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Publicar novo produto</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input id="prodNome" class="form-control mb-2" placeholder="Nome"><input id="prodPreco" class="form-control mb-2" placeholder="Preço (Kz)">
+        <input id="prodQuantidade" class="form-control mb-2" placeholder="Quantidade">
+        <select id="prodCategoria" class="form-control mb-2"><option>Hortícolas</option><option>Cereais</option><option>Frutas</option>
+            <option>Outros</option></select><input type="file" id="prodImagem" accept="image/*" class="form-control"><div id="imagePreview"></div></div><div class="modal-footer"><button class="btn-outline-glass" data-bs-dismiss="modal">Cancelar</button><button class="btn-outline-glass" id="confirmPublishBtn">Publicar</button></div></div></div></div>
+    <div class="modal fade" id="shareModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Partilhar produto</h5></div><div class="modal-body text-center"><p>Produto publicado com sucesso!</p><div class="d-flex justify-content-around"><button id="shareFacebookBtn" class="btn-outline-glass"><i class="fab fa-facebook"></i> Facebook</button><button id="shareWhatsAppBtn" class="btn-outline-glass"><i class="fab fa-whatsapp"></i> WhatsApp</button><button id="shareInstagramBtn" class="btn-outline-glass"><i class="fab fa-instagram"></i> Instagram</button></div></div><div class="modal-footer"><button class="btn-outline-glass" data-bs-dismiss="modal">Fechar</button></div></div></div></div>
     <div class="modal fade" id="renewSessionModal" data-bs-backdrop="static" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Sessão a expirar</h5></div><div class="modal-body"><p>Faltam 2 minutos. Renovar?</p></div><div class="modal-footer"><button id="renewNoBtn" class="btn-outline-glass">Sair</button><button id="renewYesBtn" class="btn-outline-glass">Renovar</button></div></div></div></div>
 
+    <!-- ELEMENTOS FLUTUANTES -->
     <div class="floating-social">
         <a href="https://facebook.com/agrolux.ao" target="_blank" class="social-icon"><i class="fab fa-facebook-f"></i></a>
         <a href="https://instagram.com/agrolux.ao" target="_blank" class="social-icon"><i class="fab fa-instagram"></i></a>
         <a href="https://wa.me/244923456789" target="_blank" class="social-icon"><i class="fab fa-whatsapp"></i></a>
         <div class="social-icon chatbot-btn" id="chatWidgetBtn">
-            <img class="logo-maker" src="images/agri-bot.png" alt="Bot">
-        </div>
+            <img class="logo-maker" src="images/agri-bot.png"/> </div>
     </div>
 
+    <!-- CHATBOT AVANÇADO -->
     <div id="chatWidget" class="chat-widget">
         <div class="chat-header">
-            <span><img class="logo-panel" src="images/agri-bot.png" onerror="this.src='https://via.placeholder.com/24'" alt="Bot"> AgroBot</span>
+            <span><img class="logo-panel" src="images/agri-bot.png" onerror="this.src='https://via.placeholder.com/24'"> AgroBot</span>
             <i class="fas fa-times" id="closeChatBtn" style="cursor:pointer;"></i>
         </div>
         <div id="chatMessages" class="chat-messages"></div>
         <div class="container-especialista text-center">
-            <a href="front-ia.html" class="btn-outline-adaptive" id="falarEspecialista">Falar com Especialista</a>
+            <a href="front-ia.html" class="btn btn-outline-adaptive" id="falarEspecialista">Falar com Especialista</a>
         </div>
         <div class="chat-input-area">
             <input type="text" id="chatInput" placeholder="Pergunte...">
@@ -548,7 +449,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // DADOS PERFIL E PRODUTOS (simulação persistente)
+        // DADOS PERFIL
         let userProfile = JSON.parse(localStorage.getItem("agrolux_userProfile")) || { nome: "António Diogo", telefone: "+244 938 089 671", fazenda: "Huambo, Angola", bio: "Agricultor focado em produção sustentável.", avatar: null };
         let produtos = JSON.parse(localStorage.getItem("produtos_vendedor")) || [];
         let vendasSimuladas = [12500, 14800, 13200, 18900, 21000, 24500, 22800];
@@ -556,12 +457,13 @@
         let timeLeftSeconds = 900, timerInterval = null, renewalModalShown = false, renewModalInstance = null, salesChart = null;
         let editProductIndex = null, deleteProductIndex = null;
 
+        // Atualizar UI nome do agricultor
         function atualizarPerfilUI() { 
-            document.getElementById('farmerName').innerText = userProfile.nome || "Agricultor"; 
-            if(userProfile.avatar) document.getElementById('profileAvatar').src = userProfile.avatar; 
-        }
+            document.getElementById('farmerName').innerText = userProfile.nome || "Agricultor"; if(userProfile.avatar) 
+                document.getElementById('profileAvatar').src = userProfile.avatar; }
         function salvarPerfilLocal() { localStorage.setItem("agrolux_userProfile", JSON.stringify(userProfile)); atualizarPerfilUI(); }
 
+        // Abrir modal editar perfil
         document.getElementById('profileOption').addEventListener('click', () => {
             document.getElementById('editNome').value = userProfile.nome || '';
             document.getElementById('editTelefone').value = userProfile.telefone || '';
@@ -579,29 +481,32 @@
             else { salvarPerfilLocal(); bootstrap.Modal.getInstance(document.getElementById('profileEditModal')).hide(); }
         });
         document.getElementById('deleteProfileBtn').addEventListener('click', () => { bootstrap.Modal.getInstance(document.getElementById('profileEditModal')).hide(); new bootstrap.Modal(document.getElementById('deleteProfileConfirmModal')).show(); });
-        document.getElementById('confirmDeleteAccountBtn').addEventListener('click', () => { localStorage.clear(); alert("Conta eliminada. A página será recarregada."); location.reload(); });
+        document.getElementById('confirmDeleteAccountBtn').addEventListener('click', () => {
+            localStorage.clear(); alert("Conta eliminada. A página será recarregada."); location.reload();
+        });
         document.getElementById('changeAvatarOption').addEventListener('click', (e) => { e.preventDefault(); document.getElementById('avatarUpload').click(); });
         document.getElementById('avatarUpload').addEventListener('change', (e) => { if(e.target.files[0]){ const reader = new FileReader(); reader.onload = ev => { userProfile.avatar = ev.target.result; salvarPerfilLocal(); }; reader.readAsDataURL(e.target.files[0]); } });
-        
-        atualizarPerfilUI();
+        const savedAvatar = localStorage.getItem('userAvatar'); if(savedAvatar) userProfile.avatar = savedAvatar; atualizarPerfilUI();
 
+        // MODAIS PRODUTO: Edit
         window.editarProdutoModal = (idx) => { editProductIndex = idx; const p = produtos[idx]; document.getElementById('editProdNome').value = p.nome; document.getElementById('editProdPreco').value = p.preco; document.getElementById('editProdQtd').value = p.quantidade; document.getElementById('editProdCategoria').value = p.categoria; document.getElementById('editProdImgPreview').innerHTML = p.imagem ? `<img src="${p.imagem}" style="max-width:80px; border-radius:8px;">` : ''; document.getElementById('editProdImagem').value = ''; new bootstrap.Modal(document.getElementById('editProductModal')).show(); };
         document.getElementById('saveProductEditBtn').addEventListener('click', () => { if(editProductIndex !== null) { const p = produtos[editProductIndex]; p.nome = document.getElementById('editProdNome').value; p.preco = parseFloat(document.getElementById('editProdPreco').value); p.quantidade = parseInt(document.getElementById('editProdQtd').value); p.categoria = document.getElementById('editProdCategoria').value; const file = document.getElementById('editProdImagem').files[0]; if(file) { const reader = new FileReader(); reader.onload = ev => { p.imagem = ev.target.result; localStorage.setItem("produtos_vendedor", JSON.stringify(produtos)); renderizarProdutos(); bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide(); }; reader.readAsDataURL(file); } else { localStorage.setItem("produtos_vendedor", JSON.stringify(produtos)); renderizarProdutos(); bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide(); } } });
         window.removerProdutoModal = (idx) => { deleteProductIndex = idx; new bootstrap.Modal(document.getElementById('deleteProductModal')).show(); };
         document.getElementById('confirmDeleteProductBtn').addEventListener('click', () => { if(deleteProductIndex !== null) { produtos.splice(deleteProductIndex,1); localStorage.setItem("produtos_vendedor", JSON.stringify(produtos)); renderizarProdutos(); bootstrap.Modal.getInstance(document.getElementById('deleteProductModal')).hide(); } });
 
+        // Funções de apoio product
         function renderizarProdutos() {
             const container = document.getElementById('productsListContainer');
             if(produtos.length === 0) { container.innerHTML = '<p class="text-muted">Nenhum produto ainda. Adicione um!</p>'; atualizarResumo(); return; }
             let html = '';
             produtos.forEach((prod, idx) => {
                 let imgHtml = prod.imagem ? `<img src="${prod.imagem}" class="product-image-thumb">` : '<i class="fas fa-image fa-2x" style="margin-right:10px;"></i>';
-                html += `<div class="product-item"><div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">${imgHtml}<div><strong>${escapeHtml(prod.nome)}</strong><br><small>${prod.categoria} • ${prod.preco} Kz • ${prod.quantidade} un.</small></div></div><div><div class="share-buttons"><i class="fab fa-facebook-f" onclick="shareProduct(${idx},'facebook')"></i><i class="fab fa-whatsapp" onclick="shareProduct(${idx},'whatsapp')"></i><i class="fab fa-instagram" onclick="shareProduct(${idx},'instagram')"></i></div><div class="product-actions mt-1"><i class="fas fa-edit" onclick="editarProdutoModal(${idx})"></i><i class="fas fa-trash-alt" onclick="removerProdutoModal(${idx})"></i></div></div></div>`;
+                html += `<div class="product-item"><div style="display:flex; align-items:center;">${imgHtml}<div><strong>${escapeHtml(prod.nome)}</strong><br><small>${prod.categoria} • ${prod.preco} Kz • ${prod.quantidade} un.</small></div></div><div><div class="share-buttons"><i class="fab fa-facebook-f" onclick="shareProduct(${idx},'facebook')"></i><i class="fab fa-whatsapp" onclick="shareProduct(${idx},'whatsapp')"></i><i class="fab fa-instagram" onclick="shareProduct(${idx},'instagram')"></i></div><div class="product-actions mt-1"><i class="fas fa-edit" onclick="editarProdutoModal(${idx})"></i><i class="fas fa-trash-alt" onclick="removerProdutoModal(${idx})"></i></div></div></div>`;
             });
             container.innerHTML = html;
             atualizarResumo(); atualizarGraficoVendas();
         }
-        function escapeHtml(str) { return String(str).replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; return '&gt;';}); }
+        function escapeHtml(str) { return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; return '&gt;';}); }
         function atualizarResumo() { const total = produtos.length, ativos = produtos.filter(p=>p.ativo!==false).length, totalVendas = produtos.reduce((acc,p)=> acc + (p.preco * (p.quantidade||10)*0.3),0); document.getElementById('totalProdutosCard').innerText = total; document.getElementById('produtosAtivosCard').innerText = ativos; document.getElementById('totalVendasCard').innerText = Math.floor(totalVendas).toLocaleString(); }
         function atualizarGraficoVendas() { const ctx = document.getElementById('salesChartCanvas').getContext('2d'); const fator = Math.min(3, produtos.length+1)*0.5+0.5; const dados = vendasSimuladas.map(v=>Math.floor(v*fator)); if(salesChart) salesChart.destroy(); salesChart = new Chart(ctx, { type:'bar', data:{ labels:['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'], datasets:[{ label:'Vendas (Kz)', data:dados, backgroundColor:'#6FDE9C', borderRadius:8 }] }, options:{ responsive:true, maintainAspectRatio:true, plugins:{ legend:{ labels:{ color: document.body.classList.contains('light')?'#143523':'#ddd' } } } } }); }
         window.shareProduct = (idx, platform) => { const prod = produtos[idx]; const text = `🌾 ${prod.nome} - ${prod.preco} Kz - ${prod.quantidade} un. Compre na AgroLux!`; const url = location.href; if(platform==='facebook') window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`); else if(platform==='whatsapp') window.open(`https://wa.me/?text=${encodeURIComponent(text+' '+url)}`); else if(platform==='instagram') { if(navigator.share) navigator.share({ title:prod.nome, text }); else alert(`Copie: ${text} ${url}`); } };
@@ -609,40 +514,83 @@
         document.getElementById('openPublishModalBtn').onclick = () => new bootstrap.Modal(document.getElementById('publishModal')).show();
         document.getElementById('confirmPublishBtn').addEventListener('click',()=>{ const nome=document.getElementById('prodNome').value.trim(), preco=document.getElementById('prodPreco').value, qtd=document.getElementById('prodQuantidade').value, categoria=document.getElementById('prodCategoria').value, file=document.getElementById('prodImagem').files[0]; if(!nome||!preco) { alert("Preencha nome e preço"); return; } const finish=(img)=>{ adicionarProduto(nome,preco,qtd,categoria,img); document.getElementById('prodNome').value=''; document.getElementById('prodPreco').value=''; document.getElementById('prodQuantidade').value=''; document.getElementById('prodImagem').value=''; document.getElementById('imagePreview').innerHTML=''; bootstrap.Modal.getInstance(document.getElementById('publishModal')).hide(); new bootstrap.Modal(document.getElementById('shareModal')).show(); }; if(file){ const reader=new FileReader(); reader.onload=e=>finish(e.target.result); reader.readAsDataURL(file); } else finish(null); });
         document.getElementById('shareFacebookBtn').onclick = () => { if(produtos.length) shareProduct(produtos.length-1,'facebook'); }; document.getElementById('shareWhatsAppBtn').onclick = () => { if(produtos.length) shareProduct(produtos.length-1,'whatsapp'); }; document.getElementById('shareInstagramBtn').onclick = () => { if(produtos.length) shareProduct(produtos.length-1,'instagram'); };
-        
+        // TIMER
         const timerProgress = document.getElementById('timerProgressCircle'); const timerTextSpan = document.getElementById('timerText'); const circumference = 2*Math.PI*21; if(timerProgress) timerProgress.style.strokeDasharray=circumference;
         function updateTimerUI(){ let mins=Math.floor(timeLeftSeconds/60), secs=timeLeftSeconds%60; timerTextSpan.innerText=`${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`; let percent=timeLeftSeconds/900; let offset=circumference*(1-percent); if(timerProgress) timerProgress.style.strokeDashoffset=offset; if(timeLeftSeconds<=0){ clearInterval(timerInterval); window.location.href="408.html"; } }
         function renewSession(){ timeLeftSeconds=900; renewalModalShown=false; updateTimerUI(); if(renewModalInstance) renewModalInstance.hide(); if(timerInterval) clearInterval(timerInterval); startTimer(); }
         function checkAndShowRenewalModal(){ if(timeLeftSeconds===120 && !renewalModalShown){ renewalModalShown=true; const modalEl=document.getElementById('renewSessionModal'); renewModalInstance=new bootstrap.Modal(modalEl,{backdrop:'static'}); renewModalInstance.show(); } }
         function startTimer(){ if(timerInterval) clearInterval(timerInterval); timerInterval=setInterval(()=>{ if(timeLeftSeconds>0){ timeLeftSeconds--; updateTimerUI(); checkAndShowRenewalModal(); } else { clearInterval(timerInterval); window.location.href="408.html"; } },1000); }
         document.getElementById('renewYesBtn').addEventListener('click', renewSession); document.getElementById('renewNoBtn').addEventListener('click',()=>window.location.href="408.html"); document.getElementById('timerWidget').addEventListener('click', renewSession);
-        
+        // Mapa, clima, data
         function initRealMap(){ const container=document.getElementById('realMap'); if(!container) return; const map=L.map('realMap').setView([-12.78,15.74],12); L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map); L.marker([-12.78,15.74]).addTo(map).bindPopup('📍 Sua fazenda - Huambo').openPopup(); }
         async function fetchWeather(){ try{ const res=await fetch('https://api.open-meteo.com/v1/forecast?latitude=-12.78&longitude=15.74&current_weather=true'); const data=await res.json(); document.getElementById('weatherTemp').innerHTML=`${Math.round(data.current_weather.temperature)}°C`; let desc=data.current_weather.weathercode===0?'Céu limpo':data.current_weather.weathercode<=3?'Nublado':'Chuva'; document.getElementById('weatherDesc').innerHTML=desc; } catch(e){ document.getElementById('weatherDesc').innerHTML='ensolarado'; document.getElementById('weatherTemp').innerHTML='27°C'; } }
         function updateDateTimeExtenso(){ const now=new Date(); document.getElementById('fullDateExtenso').innerHTML=now.toLocaleDateString('pt-PT',{weekday:'long',year:'numeric',month:'long',day:'numeric'}).replace(/^\w/,c=>c.toUpperCase()); document.getElementById('fullTimeExtenso').innerHTML=now.toLocaleTimeString('pt-PT'); }
-        
+        // TEMA
         const themeCheckbox=document.getElementById('themeToggleCheckbox'); function applyTheme(isLight){ if(isLight) document.body.classList.add('light'); else document.body.classList.remove('light'); themeCheckbox.checked=isLight; localStorage.setItem('theme',isLight?'light':'dark'); if(salesChart){ salesChart.options.plugins.legend.labels.color=isLight?'#143523':'#ddd'; salesChart.update(); } }
         themeCheckbox.addEventListener('change',function(){ applyTheme(!document.body.classList.contains('light')); }); if(localStorage.getItem('theme')==='light') applyTheme(true); else applyTheme(false);
+        // Idioma
+        function setLanguage(lang){ currentLang=lang; applyTranslations(); } function applyTranslations(){ const t={pt:{welcomeMsg:"Seja Bem-Vindo(a)",welcomeSub:"Bem-vindo ao seu painel de gestão."},en:{welcomeMsg:"Welcome",welcomeSub:"Welcome to your management panel."}}; document.getElementById('welcomeMsg').innerText=(t[currentLang]?.welcomeMsg)||t.pt.welcomeMsg; document.getElementById('welcomeSub').innerText=(t[currentLang]?.welcomeSub)||t.pt.welcomeSub; document.getElementById('langLabel').innerText=currentLang==='pt'?'PT':'EN'; } setLanguage('pt'); document.querySelectorAll('.lang-opt').forEach(opt=>opt.addEventListener('click',()=>setLanguage(opt.getAttribute('data-lang'))));
         
-        function setLanguage(lang){ currentLang=lang; const t={pt:{welcomeMsg:"Seja Bem-Vindo(a)",welcomeSub:"Bem-vindo ao seu painel de gestão."},en:{welcomeMsg:"Welcome",welcomeSub:"Welcome to your management panel."}}; document.getElementById('welcomeMsg').innerText=(t[currentLang]?.welcomeMsg)||t.pt.welcomeMsg; document.getElementById('welcomeSub').innerText=(t[currentLang]?.welcomeSub)||t.pt.welcomeSub; document.getElementById('langLabel').innerText=currentLang==='pt'?'PT':'EN'; } setLanguage('pt'); document.querySelectorAll('.lang-opt').forEach(opt=>opt.addEventListener('click',()=>setLanguage(opt.getAttribute('data-lang'))));
-        
-        // CHATBOT
+         // ========== CHATBOT ==========
         const chatWidgetDiv = document.getElementById("chatWidget");
         const chatWidgetBtn = document.getElementById("chatWidgetBtn");
         const closeChatBtn = document.getElementById("closeChatBtn");
         const chatMessagesDiv = document.getElementById("chatMessages");
         const chatInputField = document.getElementById("chatInput");
         const chatSendBtn = document.getElementById("chatSend");
-        function addMessage(text, isUser) { const wrapper = document.createElement("div"); wrapper.className = `chat-msg-wrapper ${isUser ? "chat-msg-user" : "chat-msg-bot"}`; const bubble = document.createElement("div"); bubble.className = isUser ? "chat-bubble-user" : "chat-bubble-bot"; if (isUser) bubble.innerHTML = `<strong><img class="logo-panel" src="images/user.png" onerror="this.style.display='none'"> Você:</strong> ${text}`; else bubble.innerHTML = `<strong><img class="logo-panel" src="images/agri-bot.png" onerror="this.src='https://via.placeholder.com/24'"> AgroBot:</strong> ${text}`; wrapper.appendChild(bubble); chatMessagesDiv.appendChild(wrapper); chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight; }
-        const conversaPT = { ola: ["Olá! Como vai a lida? Precisa de ajuda com alguma cultura?", "Oi! Estou aqui. Diga-me o que se passa."], bem: ["Que bom! Em que posso ajudá-lo hoje?", "Fico contente! Alguma dúvida específica?"], obrigado: ["De nada! Estou sempre aqui.", "Disponha! Volte sempre."], quem_sou: ["Sou o AgroBot, assistente virtual para agricultores angolanos."], rentabilidade: ["💸 Rentabilidade: Reduz custos com adubos químicos, aumenta produtividade. Quer um exemplo?"], confiabilidade: ["🔒 Confiabilidade: Aconselho sobre a melhor altura para vender, preços do SIMA."], decisao: ["🧠 Tomada de decisão: Pergunte 'Devo plantar milho ou feijão?' eu analiso e dou resposta prática."] };
-        function detectarIntencao(q) { if(/(^|\s)(oi|ol[aá]|boa tarde|bom dia|olá)(\s|$)/i.test(q)) return "ola"; if(/(tudo bem|como est[aá]s|como vai)/i.test(q)) return "bem"; if(/(obrigado|obrigada|valeu)/i.test(q)) return "obrigado"; if(/(quem és|quem é você)/i.test(q)) return "quem_sou"; if(/(rentabilidade|lucro|ganhar dinheiro)/i.test(q)) return "rentabilidade"; if(/(confiabilidade|confiança|segurança)/i.test(q)) return "confiabilidade"; if(/(decisão|tomar decisão|decidir)/i.test(q)) return "decisao"; return null; }
-        function getRespostaAgricola(pergunta, lang) { const q = pergunta.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); const intencao = detectarIntencao(q); if (intencao && lang === 'pt' && conversaPT[intencao]) { const arr = conversaPT[intencao]; return arr[Math.floor(Math.random() * arr.length)]; } if (q.includes('milho')) return "🌽 Milho: Plante Out-Nov, solo com composto. Colheita 4-5 meses."; if (q.includes('mandioca')) return "🌿 Mandioca: Plante antes das chuvas (Ago-Set). Covas com cinzas."; if (q.includes('compostagem')) return "♻️ Composto: Misture verde + seco, vire a cada 15 dias."; if (q.includes('preço') || q.includes('mercado')) return "📈 Os preços sobem na seca (Maio-Ago). Acompanhe o SIMA."; if (q.includes('praga')) return "🐛 Calda de alho + pimenta + cinza. Roteção de culturas."; return "🤖 Tenho conhecimento em nutrição de plantas, compostagem, épocas de plantio, clima e mercado. Pergunte sobre milho, mandioca, preços, pragas ou rentabilidade."; }
+
+        function addMessage(text, isUser) {
+            const wrapper = document.createElement("div");
+            wrapper.className = `chat-msg-wrapper ${isUser ? "chat-msg-user" : "chat-msg-bot"}`;
+            const bubble = document.createElement("div");
+            bubble.className = isUser ? "chat-bubble-user" : "chat-bubble-bot";
+            if (isUser) bubble.innerHTML = `<strong><img class="logo-panel" src="images/user.png" onerror="this.style.display='none'"> Você:</strong> ${text}`;
+            else bubble.innerHTML = `<strong><img class="logo-panel" src="images/agri-bot.png" onerror="this.src='https://via.placeholder.com/24'"> AgroBot:</strong> ${text}`;
+            wrapper.appendChild(bubble);
+            chatMessagesDiv.appendChild(wrapper);
+            chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+        }
+
+        const conversaPT = {
+            ola: ["Olá! Como vai a lida? Precisa de ajuda com alguma cultura?", "Oi! Estou aqui. Diga-me o que se passa – desde preparar a terra até vender."],
+            bem: ["Que bom! Em que posso ajudá-lo hoje? Pode perguntar sobre milho, compostagem, mercado.", "Fico contente! Alguma dúvida específica?"],
+            obrigado: ["De nada! Estou sempre aqui.", "Disponha! Volte sempre."],
+            quem_sou: ["Sou o AgroBot, assistente virtual para agricultores angolanos. Ensino sobre solos, culturas, adubos naturais e rentabilidade."],
+            rentabilidade: ["💸 Rentabilidade: Reduz custos com adubos químicos, aumenta produtividade, melhora preços de venda. Quer um exemplo prático?"],
+            confiabilidade: ["🔒 Confiabilidade: Aconselho sobre a melhor altura para vender, preços do SIMA, evito intermediários. Que cultura lhe interessa?"],
+            decisao: ["🧠 Tomada de decisão: Pergunte 'Devo plantar milho ou feijão este mês?' ou 'Quando vender?'. Eu analiso e dou resposta prática."]
+        };
+        function detectarIntencao(q) {
+            if(/(^|\s)(oi|ol[aá]|boa tarde|bom dia|olá)(\s|$)/i.test(q)) return "ola";
+            if(/(tudo bem|como est[aá]s|como vai)/i.test(q)) return "bem";
+            if(/(obrigado|obrigada|valeu)/i.test(q)) return "obrigado";
+            if(/(quem és|quem é você)/i.test(q)) return "quem_sou";
+            if(/(rentabilidade|lucro|ganhar dinheiro)/i.test(q)) return "rentabilidade";
+            if(/(confiabilidade|confiança|segurança)/i.test(q)) return "confiabilidade";
+            if(/(decisão|tomar decisão|decidir)/i.test(q)) return "decisao";
+            return null;
+        }
+        function getRespostaAgricola(pergunta, lang) {
+            const q = pergunta.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            const intencao = detectarIntencao(q);
+            if (intencao && lang === 'pt' && conversaPT[intencao]) {
+                const arr = conversaPT[intencao];
+                return arr[Math.floor(Math.random() * arr.length)];
+            }
+            if (q.includes('milho')) return "🌽 Milho: Plante Out-Nov, solo com composto. Colheita 4-5 meses.";
+            if (q.includes('mandioca')) return "🌿 Mandioca: Plante antes das chuvas (Ago-Set). Covas com cinzas.";
+            if (q.includes('compostagem')) return "♻️ Composto: Misture verde + seco, vire a cada 15 dias. Em 2-3 meses pronto.";
+            if (q.includes('preço') || q.includes('mercado')) return "📈 Os preços sobem na seca (Maio-Ago). Acompanhe o SIMA.";
+            if (q.includes('praga')) return "🐛 Calda de alho + pimenta + cinza. Roteção de culturas.";
+            return "🤖 Tenho conhecimento em nutrição de plantas, compostagem, épocas de plantio, clima e mercado. Pergunte sobre milho, mandioca, preços, pragas ou rentabilidade.";
+        }
         function botReply(userMessage) { addMessage(getRespostaAgricola(userMessage, currentLang), false); }
-        chatWidgetBtn.addEventListener("click", () => { chatWidgetDiv.style.display = chatWidgetDiv.style.display === "flex" ? "none" : "flex"; if(chatMessagesDiv.children.length === 0) addMessage(currentLang === 'pt' ? "🌱 Olá, sou o seu conselheiro agrícola para Angola. Pergunte o que quiser!" : "🌱 Hello, I am your farming advisor for Angola.", false); });
+
+        chatWidgetBtn.addEventListener("click", () => { chatWidgetDiv.style.display = chatWidgetDiv.style.display === "flex" ? "none" : "flex"; if(chatMessagesDiv.children.length === 0) addMessage(currentLang === 'pt' ? "🌱 Olá, sou o seu conselheiro agrícola para Angola. Pergunte o que quiser!" : "🌱 Hello, I am your farming advisor for Angola. Ask me anything!", false); });
         closeChatBtn.addEventListener("click", () => { chatWidgetDiv.style.display = "none"; });
         chatSendBtn.addEventListener("click", () => { const msg = chatInputField.value.trim(); if(!msg) return; addMessage(msg, true); chatInputField.value = ""; botReply(msg); });
         chatInputField.addEventListener("keypress", (e) => { if(e.key === "Enter") chatSendBtn.click(); });
-        
+        // Inicialização
         renderizarProdutos();
         startTimer();
         fetchWeather();
@@ -651,6 +599,8 @@
         updateDateTimeExtenso(); 
         setInterval(updateDateTimeExtenso,1000);
         
+        
+        // SIDEBAR MOBILE
         const sidebar = document.getElementById('mainSidebar');
         document.getElementById('compactSidebarBtn').addEventListener('click', () => sidebar.classList.toggle('collapsed'));
         document.getElementById('mobileMenuToggle').addEventListener('click', () => sidebar.classList.toggle('mobile-open'));
