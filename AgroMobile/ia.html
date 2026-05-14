@@ -18,8 +18,10 @@
             background: url('images/campos.jpg') center/cover no-repeat fixed;
             backdrop-filter: blur(2px);
             transition: all 0.2s ease;
-            height: 100vh;
-            overflow: hidden;
+            /* Garantir rolagem vertical em todos os dispositivos */
+            overflow-y: auto;
+            height: auto;
+            min-height: 100vh;
         }
         body::before {
             content: "";
@@ -63,11 +65,22 @@
             color: white;
         }
         .app-container {
-            height: 100vh;
-            overflow: hidden;
+            min-height: 100vh;
+            overflow: visible;
             position: relative;
             z-index: 2;
             padding: 16px;
+        }
+        /* Desktop layout fixo (sem rolagem da página, apenas rolagem interna) */
+        @media (min-width: 769px) {
+            body {
+                overflow: hidden;
+                height: 100vh;
+            }
+            .app-container {
+                height: 100vh;
+                overflow: hidden;
+            }
         }
         .sidebar-desktop {
             width: 280px;
@@ -78,13 +91,13 @@
             backdrop-filter: blur(16px);
             border-radius: 28px;
             border: 1px solid rgba(255,255,240,0.5);
+            overflow-y: auto;   /* Rolagem interna do sidebar */
         }
         body.dark-theme .sidebar-desktop {
             background: rgba(25, 35, 20, 0.65);
         }
         .chat-main {
             flex: 1;
-            height: calc(100vh - 32px);
             display: flex;
             flex-direction: column;
             background: rgba(255, 255, 245, 0.35);
@@ -92,6 +105,12 @@
             border-radius: 28px;
             border: 1px solid rgba(255,255,210,0.6);
             overflow: hidden;
+        }
+        /* Em desktop, altura fixa para o chat-main */
+        @media (min-width: 769px) {
+            .chat-main {
+                height: calc(100vh - 32px);
+            }
         }
         body.dark-theme .chat-main {
             background: rgba(20, 28, 16, 0.5);
@@ -160,40 +179,10 @@
             backdrop-filter: blur(12px);
             border: 1px solid rgba(210,230,170,0.5);
             color: white;
+            max-height: 90vh;
+            overflow-y: auto;
         }
-        @media (max-width: 768px) {
-            .app-container { padding: 8px; }
-            .sidebar-desktop { display: none; }
-        }
-        .offcanvas-glass {
-            background: rgba(30, 40, 25, 0.9);
-            backdrop-filter: blur(20px);
-            color: white;
-        }
-        .theme-toggle-icon {
-            cursor: pointer;
-            font-size: 1.4rem;
-        }
-        .farm-info {
-            background: rgba(255,255,200,0.2);
-            border-radius: 16px;
-            padding: 8px;
-            margin-top: 10px;
-        }
-        .chip-suggestion {
-            background: rgba(80,120,70,0.3);
-            border-radius: 40px;
-            padding: 6px 14px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            cursor: pointer;
-            display: inline-block;
-        }
-        .chip-suggestion:hover {
-            background: #5e8b56aa;
-            color: white;
-        }
-        /* Estilo extra para botões de histórico */
+        /* Botões de histórico responsivos */
         .history-buttons {
             display: flex;
             gap: 8px;
@@ -204,33 +193,52 @@
             font-size: 0.75rem;
             flex: 1;
         }
-        
-         /* Outher CSS */
-    .logo-maker{
-      border-radius: 50px;
-      width: 50px;
-      height: 50px;
-    }
-    
-    .logo-panel{
-      border-radius: 50px;
-      width: 30px;
-      height: 30px;
-    }
-        
-        .logo-map{
-          border-radius: 50px;
-      width: 35px;
-      height: 35px;  
+        /* Estilos para offcanvas mobile (rolagem garantida) */
+        .offcanvas-glass {
+            background: rgba(30, 40, 25, 0.9);
+            backdrop-filter: blur(20px);
+            color: white;
         }
-        
-           /* Página principal – BioRisk */
+        .offcanvas-body {
+            overflow-y: auto;
+        }
+        /* Chips de sugestão responsivos */
+        .chip-suggestion {
+            background: rgba(80,120,70,0.3);
+            border-radius: 40px;
+            padding: 6px 14px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-block;
+            margin-bottom: 6px;
+        }
+        .chip-suggestion:hover {
+            background: #5e8b56aa;
+            color: white;
+        }
+        /* Imagens circulares */
+        .logo-maker{
+            border-radius: 50px;
+            width: 50px;
+            height: 50px;
+        }
+        .logo-panel{
+            border-radius: 50px;
+            width: 30px;
+            height: 30px;
+        }
+        .logo-map{
+            border-radius: 50px;
+            width: 35px;
+            height: 35px;  
+        }
+        /* Página principal – BioRisk (já existente) */
         .page-content {
             max-width: 1300px;
             margin: 0 auto;
             text-align: center;
         }
-
         .hero {
             background: linear-gradient(105deg, #0f3b2c 0%, #1b5e4a 100%);
             border-radius: 48px;
@@ -239,18 +247,15 @@
             box-shadow: 0 25px 40px -12px rgba(0,0,0,0.25);
             margin-bottom: 2.5rem;
         }
-
         .hero h1 {
             font-size: 2.6rem;
             font-weight: 800;
             letter-spacing: -0.3px;
         }
-
         .hero h1 i {
             margin-right: 12px;
             color: #f5b042;
         }
-
         .hero p {
             font-size: 1.2rem;
             margin-top: 0.8rem;
@@ -259,7 +264,6 @@
             margin-left: auto;
             margin-right: auto;
         }
-
         .aviso-transparencia {
             background: rgba(255,255,245,0.15);
             display: inline-block;
@@ -270,29 +274,24 @@
             margin-top: 1rem;
             backdrop-filter: blur(2px);
         }
-
         .aviso-transparencia i {
             margin-right: 6px;
         }
-
         .grade-servicos {
             margin-top: 2rem;
         }
-
         .grade-servicos h2 {
             font-size: 1.9rem;
             color: #1e3a2f;
             margin-bottom: 1.5rem;
             font-weight: 700;
         }
-
         .cards-negocios {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             gap: 1.8rem;
         }
-
         .card-negocio {
             background: white;
             border-radius: 32px;
@@ -304,35 +303,29 @@
             cursor: pointer;
             border: 1px solid #dce5e0;
         }
-
         .card-negocio i {
             font-size: 2.6rem;
             color: #c27e2e;
             margin-bottom: 0.8rem;
         }
-
         .card-negocio h3 {
             font-size: 1.3rem;
             color: #1c473a;
             margin-bottom: 0.5rem;
         }
-
         .card-negocio p {
             font-size: 0.85rem;
             color: #4f5a55;
         }
-
         .card-negocio:hover {
             transform: translateY(-7px);
             background: #fffcf0;
             box-shadow: 0 22px 30px rgba(0,0,0,0.1);
             border-color: #edd18e;
         }
-
         .cta-principal {
             margin: 2.5rem auto 1rem;
         }
-
         .btn-outline {
             background: transparent;
             border: 2px solid #c27e2e;
@@ -347,15 +340,13 @@
             align-items: center;
             gap: 12px;
         }
-
         .btn-outline:hover {
             background: #c27e2e;
             color: white;
             border-color: #c27e2e;
             transform: scale(1.02);
         }
-
-        /* ===== MODAL DESTACANDO VANTAGENS DO BIORISK ===== */
+        /* ===== MODAL BIORISK RESPONSIVO COM ROLAGEM ===== */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -366,11 +357,11 @@
             backdrop-filter: blur(6px);
             display: none;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start; /* permitir rolagem quando conteúdo for grande */
             z-index: 2000;
             padding: 1.5rem;
+            overflow-y: auto;
         }
-
         .modal-card {
             max-width: 920px;
             width: 100%;
@@ -379,8 +370,8 @@
             overflow: hidden;
             box-shadow: 0 32px 55px rgba(0, 0, 0, 0.4);
             animation: modalFadeUp 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            margin: auto;
         }
-
         @keyframes modalFadeUp {
             from {
                 opacity: 0;
@@ -391,12 +382,10 @@
                 transform: translateY(0) scale(1);
             }
         }
-
         .modal-flex {
             display: flex;
             flex-wrap: wrap;
         }
-
         .modal-imagem {
             flex: 0.9;
             background: #1f3d31;
@@ -406,13 +395,11 @@
             display: flex;
             align-items: stretch;
         }
-
         .img-wrapper {
             width: 100%;
             display: flex;
             flex-direction: column;
         }
-
         .img-biorisk {
             width: 100%;
             height: 100%;
@@ -420,7 +407,6 @@
             display: block;
             flex: 1;
         }
-
         .overlay-social {
             position: absolute;
             top: 0;
@@ -430,14 +416,12 @@
             background: linear-gradient(45deg, rgba(0,0,0,0.2) 0%, rgba(27, 94, 74, 0.3) 100%);
             pointer-events: none;
         }
-
         .modal-conteudo {
             flex: 1.2;
             padding: 2rem 2rem;
             background: #fffef9;
             position: relative;
         }
-
         .btn-fechar {
             position: absolute;
             top: 18px;
@@ -456,13 +440,11 @@
             z-index: 10;
             box-shadow: 0 2px 6px rgba(0,0,0,0.06);
         }
-
         .btn-fechar:hover {
             background: #e6e0d0;
             transform: scale(1.02);
             color: #b34e2e;
         }
-
         .titulo-software {
             font-size: 1.9rem;
             font-weight: 800;
@@ -472,25 +454,21 @@
             border-left: 5px solid #f5b042;
             padding-left: 18px;
         }
-
         .titulo-software i {
             color: #f5b042;
             margin-right: 8px;
             font-size: 1.7rem;
         }
-
         .descricao-principal {
             font-size: 0.95rem;
             color: #2a3b2e;
             margin: 0.5rem 0 1rem 0;
             line-height: 1.45;
         }
-
         .lista-vantagens-biorisk {
             list-style: none;
             margin: 1rem 0 1.2rem 0;
         }
-
         .lista-vantagens-biorisk li {
             margin-bottom: 12px;
             font-size: 0.9rem;
@@ -499,13 +477,11 @@
             gap: 12px;
             color: #1f3b1a;
         }
-
         .lista-vantagens-biorisk i {
             color: #f5b042;
             font-size: 1.2rem;
             width: 26px;
         }
-
         .nota-importante {
             background: #fef4e8;
             border-radius: 20px;
@@ -514,12 +490,10 @@
             font-size: 0.8rem;
             border-left: 3px solid #e4a022;
         }
-
         .nota-importante i {
             color: #d48f2b;
             margin-right: 8px;
         }
-
         .btn-acao {
             display: block;
             background: linear-gradient(95deg, #ca9622, #b47c10);
@@ -537,13 +511,11 @@
             color: white;
             letter-spacing: 0.5px;
         }
-
         .btn-acao:hover {
             transform: scale(1.01);
             background: linear-gradient(95deg, #e0a82e, #cc8c1a);
             box-shadow: 0 10px 22px rgba(180, 124, 16, 0.45);
         }
-
         .texto-info {
             font-size: 0.7rem;
             text-align: center;
@@ -555,8 +527,7 @@
             border-radius: 40px;
             margin-top: 14px;
         }
-
-        /* Ícone flutuante com a marca BioRisk - REPOSICIONADO para canto inferior esquerdo */
+        /* Ícone flutuante BioRisk */
         .floating-biorisk {
             position: fixed;
             bottom: 26px;
@@ -574,25 +545,21 @@
             transition: all 0.2s ease;
             animation: softPulse 2.2s infinite;
         }
-
         .floating-biorisk i {
             font-size: 2rem;
             color: #FFDF8c;
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
         }
-
         .floating-biorisk:hover {
             transform: scale(1.08);
             background: linear-gradient(135deg, #2a6b56, #15523f);
             box-shadow: 0 18px 32px rgba(0, 0, 0, 0.35), 0 0 0 4px #ffda77;
         }
-
         @keyframes softPulse {
             0% { box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25), 0 0 0 3px rgba(245,176,66,0.6); }
             50% { box-shadow: 0 16px 28px rgba(0, 0, 0, 0.35), 0 0 0 5px rgba(255, 200, 70, 0.9); }
             100% { box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25), 0 0 0 3px rgba(245,176,66,0.6); }
         }
-
         .floating-biorisk::after {
             content: "BioRisk · Gestão de Pragas";
             position: absolute;
@@ -610,16 +577,17 @@
             transition: 0.2s;
             font-family: 'Segoe UI', system-ui;
         }
-
         .floating-biorisk:hover::after {
             opacity: 1;
             bottom: 70px;
         }
-
-        /* Responsivo */
+        /* Responsivo extra */
         @media (max-width: 780px) {
             body {
-                padding: 1rem;
+                padding: 0;
+            }
+            .app-container {
+                padding: 8px;
             }
             .modal-flex {
                 flex-direction: column;
@@ -644,7 +612,6 @@
                 width: 220px;
             }
         }
-
         @media (max-width: 560px) {
             .card-negocio {
                 width: 100%;
@@ -666,6 +633,14 @@
             .floating-biorisk i {
                 font-size: 1.6rem;
             }
+            .modal-card {
+                border-radius: 24px;
+            }
+        }
+        /* Garantir que modais Bootstrap também rolem */
+        .modal-body {
+            max-height: 70vh;
+            overflow-y: auto;
         }
     </style>
 </head>
@@ -679,10 +654,9 @@
                 <h3 class="fw-bold mb-0" style="color: #2f5e2a;">🌿AgroLux</h3>
                 <i id="desktopThemeIcon" class="bi bi-moon-stars-fill ms-auto theme-toggle-icon" style="color: #eedb6d;"></i>
             </div>
-        <div id="mobileHistoryList" class="mt-2"></div>
+            <div id="mobileHistoryList" class="mt-2"></div>
             <button id="farmBtnSide" class="btn btn-outline-success mb-3 rounded-pill" data-bs-toggle="modal" data-bs-target="#farmModal"><i class="bi bi-building"></i> Minha Fazenda</button>
             
-            <!-- DOIS BOTÕES ADICIONADOS: GUARDAR HISTÓRICO E LIMPAR HISTÓRICO -->
             <div class="history-buttons">
                 <button id="saveHistoryBtnDesktop" class="btn btn-outline-info btn-sm rounded-pill"><i class="bi bi-save"></i> Guardar Histórico</button>
                 <button id="clearHistoryBtnDesktop" class="btn btn-outline-danger btn-sm rounded-pill"><i class="bi bi-trash3"></i> Limpar Histórico</button>
@@ -754,7 +728,6 @@
     <div class="offcanvas-body">
         <button id="farmBtnMobile" class="btn btn-outline-success w-100 rounded-pill mb-3" data-bs-toggle="modal" data-bs-target="#farmModal"><i class="bi bi-building"></i> Minha Fazenda</button>
         
-        <!-- DOIS BOTÕES ADICIONADOS TAMBÉM NO MENU MOBILE -->
         <div class="history-buttons mb-3">
             <button id="saveHistoryBtnMobile" class="btn btn-outline-info btn-sm rounded-pill w-50"><i class="bi bi-save"></i> Guardar</button>
             <button id="clearHistoryBtnMobile" class="btn btn-outline-danger btn-sm rounded-pill w-50"><i class="bi bi-trash3"></i> Limpar</button>
@@ -812,8 +785,7 @@
     </div>
 </div>
     
-    <!-- =========================================HTML5 CODE============================================== -->
-     <!-- MODAL PRINCIPAL – VANTAGENS DO BIORISK (Risco Biológico e Controle de Pragas) -->
+    <!-- MODAL PRINCIPAL – VANTAGENS DO BIORISK -->
     <div id="modalBioRisk" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-flex">
@@ -853,8 +825,7 @@
                     </div>
                     
                     <button class="btn-acao">
-                        <a href="riscos-biologico.html" ><i class="bi bi-whatsapp"></i> Testar plataforma de gestão gratuitamente</a>
-                        
+                        <a href="riscos-biologico.html"><i class="bi bi-whatsapp"></i> Testar plataforma de gestão gratuitamente</a>
                     </button>
                     <div class="texto-info">
                         <i class="bi bi-clock"></i> Ativação imediata · Planos para prefeituras, cooperativas e consultores · 30 dias grátis
@@ -864,7 +835,7 @@
         </div>
     </div>
 
-    <!-- Ícone flutuante para abrir o modal a qualquer momento (reposicionado para canto inferior esquerdo) -->
+    <!-- Ícone flutuante BioRisk -->
     <div class="floating-biorisk" id="floatingBioRiskBtn" aria-label="Abrir BioRisk" title="BioRisk - Controle integrado de pragas">
         <i class="bi bi-bug"></i>
     </div>
@@ -923,7 +894,7 @@
         return canvas.toDataURL();
     }
 
-    // ======================= RESPOSTAS INTELIGENTES (NLP) =======================
+    // ======================= RESPOSTAS INTELIGENTES =======================
     function saudacao() {
         const hora = new Date().getHours();
         if (hora < 12) return "Bom dia";
@@ -966,9 +937,8 @@
         return null;
     }
 
-    // ======================= GERENCIAMENTO DO CHAT (SIMPLES E FUNCIONAL) =======================
-    let messages = []; // armazena {role, text, imageUrl}
-
+    // ======================= GERENCIAMENTO DO CHAT =======================
+    let messages = [];
     const chatContainer = document.getElementById('chatMessagesContainer');
     const userInput = document.getElementById('userInput');
     const sendBtn = document.getElementById('sendBtn');
@@ -1004,14 +974,12 @@
         addMessage('user', text);
         userInput.value = '';
 
-        // Pensamento
         addMessage('assistant', '✍️ A analisar a sua pergunta...');
 
         setTimeout(() => {
-            messages.pop(); // remove pensamento
+            messages.pop();
             const resposta = responder(text);
             const imagem = imagemParaPergunta(text);
-            // Se for simulação, abre o modal
             if (/(simular|produtividade|simulação)/.test(text.toLowerCase())) {
                 const modalEl = new bootstrap.Modal(document.getElementById('simulacaoModal'));
                 modalEl.show();
@@ -1020,29 +988,25 @@
         }, 500);
     }
 
-    // ======================= FUNÇÕES PARA GUARDAR E LIMPAR HISTÓRICO (NOVAS) =======================
+    // ======================= GUARDAR E LIMPAR HISTÓRICO =======================
     function guardarHistorico() {
         if (messages.length === 0) {
             alert("Não há mensagens para guardar no histórico.");
             return;
         }
-        // Salva o array messages no localStorage
         localStorage.setItem('agrolux_historico_salvo', JSON.stringify(messages));
-        alert("✅ Histórico guardado com sucesso! As conversas atuais foram salvas.");
+        alert("✅ Histórico guardado com sucesso!");
     }
 
     function limparHistorico() {
-        if (confirm("⚠️ Tem certeza que deseja limpar TODO o histórico de mensagens? Esta ação não pode ser desfeita.")) {
-            // Limpa o array de mensagens e coloca uma mensagem inicial padrão
+        if (confirm("⚠️ Tem certeza que deseja limpar TODO o histórico de mensagens?")) {
             messages = [];
             addMessage('assistant', '🌾 Histórico limpo! Sou AgroLux, seu assistente do campo. Pergunte sobre calendário agrícola, manejo do solo, insumos, clima ou peça recomendações personalizadas.');
-            // Opcional: remove também o salvamento anterior
             localStorage.removeItem('agrolux_historico_salvo');
             alert("🗑️ Histórico de mensagens foi limpo.");
         }
     }
 
-    // Carregar histórico salvo automaticamente ao iniciar (se existir)
     function carregarHistoricoSalvo() {
         const saved = localStorage.getItem('agrolux_historico_salvo');
         if (saved) {
@@ -1056,7 +1020,7 @@
         }
     }
 
-    // ======================= EVENTOS =======================
+    // Eventos dos botões
     sendBtn.addEventListener('click', sendMessage);
     userInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
     document.querySelectorAll('.chip-suggestion').forEach(chip => {
@@ -1067,7 +1031,6 @@
         });
     });
 
-    // Associar botões de guardar e limpar (desktop e mobile)
     const saveDesktop = document.getElementById('saveHistoryBtnDesktop');
     const clearDesktop = document.getElementById('clearHistoryBtnDesktop');
     const saveMobile = document.getElementById('saveHistoryBtnMobile');
@@ -1077,7 +1040,6 @@
     if (saveMobile) saveMobile.addEventListener('click', guardarHistorico);
     if (clearMobile) clearMobile.addEventListener('click', limparHistorico);
 
-    // Mensagem inicial apenas se não houver histórico salvo
     if (!localStorage.getItem('agrolux_historico_salvo')) {
         addMessage('assistant', '🌱 Olá! Sou o AgroLux. Pergunte-me sobre solo, clima, pragas, irrigação, mercado ou peça um mapa mental. Estou aqui para ajudar!');
     } else {
@@ -1104,7 +1066,7 @@
     document.querySelectorAll('.theme-toggle-icon').forEach(btn => btn.addEventListener('click', toggleTheme));
     initTheme();
 
-    // ======================= FAZENDA (localStorage) =======================
+    // ======================= FAZENDA =======================
     let farmData = { name: "", location: "", crops: [], area: 0 };
     function loadFarmData() {
         const stored = localStorage.getItem('agrolux_farm');
@@ -1176,193 +1138,62 @@
         });
     }
     
-    //===================================================== OUTHERS JS ===========================================//
-    function switchConversation(id) {
-        if (currentConvId === id) return;
-        currentConvId = id;
-        loadCurrentConversation();
-        saveConversations();
-        renderHistoryList();
-    }
-
-    function deleteConversation(id) {
-        if (conversations.length === 1) { alert("Mantenha pelo menos uma conversa ativa."); return; }
-        const idx = conversations.findIndex(c => c.id === id);
-        if (idx !== -1) conversations.splice(idx, 1);
-        if (currentConvId === id) {
-            currentConvId = conversations[0].id;
-            loadCurrentConversation();
-        }
-        saveConversations();
-        renderHistoryList();
-    }
-
-    function newConversation() {
-        const newId = 'conv_' + Date.now();
-        const newConv = { id: newId, name: 'Nova conversa', messages: [{ role: 'assistant', text: '🌾 Olá! Sou AgroLux, seu assistente do campo. Pergunte sobre calendário agrícola, manejo do solo, insumos, clima ou peça recomendações personalizadas.' }] };
-        conversations.unshift(newConv);
-        currentConvId = newId;
-        currentMessages = [...newConv.messages];
-        saveConversations();
-        renderMessages();
-        renderHistoryList();
-    }
-    
-       function renderHistoryList() {
-        const historyHtml = conversations.map(conv => `
-            <div class="history-item d-flex justify-content-between align-items-center ${conv.id === currentConvId ? 'active' : ''}" data-id="${conv.id}">
-                <span><i class="bi bi-chat-text"></i> ${escapeHtml(conv.name)}</span>
-                <i class="bi bi-trash3 text-danger small delete-history" data-id="${conv.id}" style="cursor:pointer;"></i>
-            </div>
-        `).join('');
-        if (historyDiv) historyDiv.innerHTML = historyHtml || '<div class="text-muted small">Nenhuma conversa</div>';
-        if (mobileHistoryDiv) mobileHistoryDiv.innerHTML = historyHtml || '<div class="text-muted">Sem conversas</div>';
-        document.querySelectorAll('.history-item').forEach(el => {
-            el.addEventListener('click', (e) => {
-                if (e.target.classList.contains('delete-history')) return;
-                const id = el.getAttribute('data-id');
-                if (id) switchConversation(id);
-            });
-        });
-        document.querySelectorAll('.delete-history').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const id = btn.getAttribute('data-id');
-                if (id && confirm('Remover este histórico?')) deleteConversation(id);
-            });
-        });
-    }
-    
-    //=========================================================JS===============================================================//
+    // ======================= MODAL BIORISK COM ROLAGEM E INTERVALO =======================
     (function() {
-            // Elementos do modal BioRisk
-            const modal = document.getElementById('modalBioRisk');
-            const btnFechar = document.getElementById('fecharModalBioRisk');
-            const floatingBtn = document.getElementById('floatingBioRiskBtn');
-            const btnCtaPrincipal = document.getElementById('btnAbrirModalPrincipal');
-            const btnAcaoModal = document.getElementById('btnQueroBioRisk');
-            const cardsAbrir = document.querySelectorAll('.card-negocio[data-modal="abrir"]');
+        const modal = document.getElementById('modalBioRisk');
+        const btnFechar = document.getElementById('fecharModalBioRisk');
+        const floatingBtn = document.getElementById('floatingBioRiskBtn');
+        let timeoutModal = null;
+        const INTERVALO_MS = 10 * 60 * 1000;
+        const STORAGE_KEY = 'biorisk_ultimo_fechamento';
 
-            // Configuração do reaparecimento a cada 10 minutos
-            let timeoutModal = null;
-            const INTERVALO_MS = 10 * 60 * 1000; // 10 minutos
-            const STORAGE_KEY = 'biorisk_ultimo_fechamento';
+        function abrirModal() {
+            if (!modal) return;
+            if (modal.style.display === 'flex') return;
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
 
-            function abrirModal() {
-                if (!modal) return;
-                if (modal.style.display === 'flex') return;
-                modal.style.display = 'flex';
-                document.body.style.overflow = 'hidden';
+        function fecharModal() {
+            if (!modal) return;
+            if (modal.style.display !== 'flex') return;
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+            const agora = Date.now();
+            localStorage.setItem(STORAGE_KEY, agora.toString());
+            if (timeoutModal) clearTimeout(timeoutModal);
+            timeoutModal = setTimeout(() => {
+                abrirModal();
+                timeoutModal = null;
+            }, INTERVALO_MS);
+        }
+
+        function inicializarModalComIntervalo() {
+            const ultimoFechamento = localStorage.getItem(STORAGE_KEY);
+            if (!ultimoFechamento) {
+                abrirModal();
+                return;
             }
-
-            function fecharModal() {
-                if (!modal) return;
-                if (modal.style.display !== 'flex') return;
-                
-                modal.style.display = 'none';
-                document.body.style.overflow = '';
-                
-                const agora = Date.now();
-                localStorage.setItem(STORAGE_KEY, agora.toString());
-                
-                if (timeoutModal) {
-                    clearTimeout(timeoutModal);
-                    timeoutModal = null;
-                }
-                
-                // Reaparece automaticamente após 10 minutos
+            const tempoDecorrido = Date.now() - parseInt(ultimoFechamento, 10);
+            if (tempoDecorrido >= INTERVALO_MS) {
+                abrirModal();
+            } else {
+                const tempoRestante = INTERVALO_MS - tempoDecorrido;
                 timeoutModal = setTimeout(() => {
                     abrirModal();
                     timeoutModal = null;
-                }, INTERVALO_MS);
+                }, tempoRestante);
             }
+        }
 
-            // Inicialização considerando a última vez que o modal foi fechado
-            function inicializarModalComIntervalo() {
-                const ultimoFechamento = localStorage.getItem(STORAGE_KEY);
-                if (!ultimoFechamento) {
-                    abrirModal();
-                    return;
-                }
-                const tempoDecorrido = Date.now() - parseInt(ultimoFechamento, 10);
-                if (tempoDecorrido >= INTERVALO_MS) {
-                    abrirModal();
-                } else {
-                    const tempoRestante = INTERVALO_MS - tempoDecorrido;
-                    timeoutModal = setTimeout(() => {
-                        abrirModal();
-                        timeoutModal = null;
-                    }, tempoRestante);
-                }
-            }
-
-            // Eventos de fechamento
-            if (btnFechar) {
-                btnFechar.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    fecharModal();
-                });
-            }
-            
-            // Fechar ao clicar no overlay escuro
-            if (modal) {
-                modal.addEventListener('click', (e) => {
-                    if (e.target === modal) {
-                        fecharModal();
-                    }
-                });
-            }
-            
-            // Impedir propagação dentro do card do modal
-            const modalCard = document.querySelector('.modal-card');
-            if (modalCard) {
-                modalCard.addEventListener('click', (e) => e.stopPropagation());
-            }
-            
-            // Tecla ESC fecha o modal
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && modal && modal.style.display === 'flex') {
-                    fecharModal();
-                }
-            });
-            
-            // Botão flutuante – abre o modal instantaneamente
-            if (floatingBtn) {
-                floatingBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    if (modal && modal.style.display !== 'flex') {
-                        abrirModal();
-                    }
-                });
-            }
-            
-            // Botão principal da página "Conhecer ferramentas de gestão de risco"
-            if (btnCtaPrincipal) {
-                btnCtaPrincipal.addEventListener('click', () => {
-                    abrirModal();
-                });
-            }
-            
-            // Todos os cards de funcionalidades abrem o modal
-            cardsAbrir.forEach(card => {
-                card.addEventListener('click', () => {
-                    abrirModal();
-                });
-            });
-            
-            // Ação do botão dentro do modal (simular interesse / cadastro)
-            if (btnAcaoModal) {
-                btnAcaoModal.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    alert("🐜 Obrigado pelo interesse! Em breve você receberá acesso à plataforma BioRisk — gestão de risco biológico, alertas de focos e controle integrado de pragas via redes sociais.");
-                    fecharModal(); // opcional: fecha o modal após o clique
-                });
-            }
-            
-            // Inicia o modal com as regras de reaparecimento (10 minutos)
-            inicializarModalComIntervalo();
-        })();
+        if (btnFechar) btnFechar.addEventListener('click', (e) => { e.preventDefault(); fecharModal(); });
+        if (modal) modal.addEventListener('click', (e) => { if (e.target === modal) fecharModal(); });
+        const modalCard = document.querySelector('.modal-card');
+        if (modalCard) modalCard.addEventListener('click', (e) => e.stopPropagation());
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal && modal.style.display === 'flex') fecharModal(); });
+        if (floatingBtn) floatingBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); if (modal && modal.style.display !== 'flex') abrirModal(); });
+        inicializarModalComIntervalo();
+    })();
 </script>
 </body>
 </html>
