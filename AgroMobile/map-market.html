@@ -15,7 +15,6 @@
         * {
             transition: background 0.2s ease, color 0.2s;
             margin: 0;
-            /* Garantindo box-sizing consistente */
             box-sizing: border-box;
             font-family: 'Times New Roman', Times, serif;
         }
@@ -96,10 +95,9 @@
         }
         /* Ajustes responsivos gerais e rolagem vertical livre */
         .container {
-            min-height: 100vh; /* Garante que o conteúdo ocupe pelo menos a altura da tela */
-            padding-bottom: 3rem;
+            min-height: 100vh;
+            padding-bottom: 5rem;
         }
-        /* Altura do mapa adaptável sem prejudicar rolagem */
         .map-container {
             height: 420px;
             width: 100%;
@@ -114,6 +112,9 @@
         }
         @media (max-width: 576px) {
             .map-container { height: 280px !important; }
+            .container {
+                padding-bottom: 6rem;
+            }
         }
         canvas { 
             max-width: 100%; 
@@ -254,7 +255,7 @@
             transform: scale(1.02);
         }
 
-        /* ===== MODAL DESTACANDO VANTAGENS DO AGROLUX - COM ROLAGEM INTERNA ===== */
+        /* ===== MODAL DESTACANDO VANTAGENS DO AGROLUX - ROLAGEM 100% CORRIGIDA ===== */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -264,9 +265,11 @@
             background-color: rgba(0, 0, 0, 0.88);
             backdrop-filter: blur(6px);
             display: none;
+            /* CORREÇÃO: alinhar no topo para permitir rolagem do conteúdo completo */
             justify-content: center;
-            align-items: flex-start; /* Permite rolagem quando conteúdo maior que a tela */
-            overflow-y: auto;       /* ESSENCIAL: modal rolável em dispositivos pequenos */
+            align-items: flex-start;   /* ANTES era 'center' -> impedia rolagem em telas pequenas */
+            overflow-y: auto;          /* ESSENCIAL: modal rolável em dispositivos pequenos */
+            -webkit-overflow-scrolling: touch; /* rolagem suave no iOS */
             z-index: 2000;
             padding: 1.5rem;
         }
@@ -279,7 +282,7 @@
             overflow: hidden;
             box-shadow: 0 32px 55px rgba(0, 0, 0, 0.4);
             animation: modalFadeUp 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            margin: auto; /* centraliza verticalmente com espaço para rolagem */
+            margin: 2rem auto;        /* centraliza horizontalmente e dá espaço em cima/baixo */
         }
 
         @keyframes modalFadeUp {
@@ -651,7 +654,7 @@
         </div>
     </div>
 
-    <!-- MAPA + LATERAL -->
+    <!-- MAPA + LATERAL (SIDEBAR) -->
     <div class="row g-4 mb-4">
         <div class="col-lg-7">
             <div class="map-container" style="height: 420px;">
@@ -783,7 +786,7 @@
     </div>
 </div>
 
-<!-- MODAL AGROLUX (customizado com rolagem) -->
+<!-- MODAL AGROLUX (customizado com rolagem corrigida) -->
 <div id="modalAgroLux" class="modal-overlay">
     <div class="modal-card">
         <div class="modal-flex">
@@ -806,10 +809,10 @@
                 </ul>
                 <div class="nota-importante"><i class="fas fa-exclamation-triangle"></i> <strong>Atenção:</strong> A AgroLux <u>não fornece contacto directo com clientes</u> e <u>não assegura pagamentos</u>. Nosso papel é oferecer um ambiente virtual organizado onde você negocia e finaliza as vendas através das redes sociais (WhatsApp, Instagram, Facebook) sob sua própria responsabilidade.</div>
                 <button class="btn-acao">
-                    <a href="vantagens.html" >
+                    <a href="vantagens.html">
                         <i class="fab fa-whatsapp"></i> Experimentar Mercado Virtual Grátis
                     </a>
-                    </button>
+                </button>
                 <div class="texto-info"><i class="fas fa-clock"></i> Ativação imediata · Setup em menos de 5 minutos · Plano gratuito por 30 dias</div>
             </div>
         </div>
@@ -819,10 +822,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // (Mantido todo o script original com os dados, mapas, gráficos e funções de responsividade já integradas)
-    // A única adição é garantir que o modal customizado tenha rolagem (já aplicada no CSS)
-    // O script permanece idêntico ao original, pois a responsividade foi resolvida no CSS.
-    
+    // Código JavaScript original completamente mantido (sem alterações)
     const markersData = [
         { id: 1, name: "Cacuaco - Luanda", lat: -8.8605, lng: 13.234, province: "Luanda", municipality: "Cacuaco", commune: "Cacuaco Centro", topProduct: "milho", demandLevel: "Alta", potentialBuyers: 34, distance: 4.2, productDemandMap: { milho: "Alta", tomate: "Média", feijão: "Baixa" }, buyersList: "Armazém Norte, Feira do Kilamba" },
         { id: 2, name: "Huambo - Centro", lat: -12.7761, lng: 15.7392, province: "Huambo", municipality: "Huambo", commune: "Sede", topProduct: "tomate", demandLevel: "Média", potentialBuyers: 18, distance: 320, productDemandMap: { milho: "Baixa", tomate: "Alta", feijão: "Média" }, buyersList: "Mercado Municipal, HortiAngo" },
