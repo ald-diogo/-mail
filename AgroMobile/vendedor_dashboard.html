@@ -20,14 +20,20 @@
             font-family: 'Times New Roman', Times, serif; 
         }
 
+        /* Garantir que html e body ocupem 100% da altura para permitir scroll correto */
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             color: #EFFAF5;
             transition: background 0.3s ease, color 0.2s;
-            min-height: 100vh;
             background: #0A1210;
             position: relative;
             overflow-x: hidden;
+            overflow-y: auto; /* Scroll geral apenas se necessário, mas conteúdo interno será scrollable */
         }
 
         /* Carrossel de fundo */
@@ -92,8 +98,10 @@
         }
         .app-container {
             display: flex;
-            min-height: 100vh;
+            height: 100%;
             width: 100%;
+            position: relative;
+            overflow: hidden; /* Impede scroll duplicado, o conteúdo interno rola */
         }
         .sidebar {
             width: 260px;
@@ -104,9 +112,8 @@
             transition: width 0.3s, left 0.3s;
             overflow-y: auto;
             z-index: 1000;
-            height: 100vh;
-            position: sticky;
-            top: 0;
+            height: 100%;
+            position: relative;
         }
         .sidebar.collapsed { width: 80px; }
         .sidebar.collapsed .sidebar-brand span,
@@ -123,13 +130,16 @@
             background: rgba(10, 18, 16, 0.4);
             position: relative;
             z-index: 1;
-            min-height: 100vh;
+            height: 100%;
+            overflow: hidden; /* O scroll interno fica no .content-scroll */
         }
-        /* Scroll apenas no conteúdo interno */
+        /* Área com scroll garantido */
         .main-content .content-scroll {
             flex: 1;
             overflow-y: auto;
+            overflow-x: hidden;
             padding-bottom: 30px;
+            -webkit-overflow-scrolling: touch; /* Suavidade no iOS */
         }
         .topbar {
             padding: 12px 24px;
@@ -144,6 +154,7 @@
             position: sticky;
             top: 0;
             z-index: 1010;
+            flex-shrink: 0;
         }
         .datetime-extenso {
             margin: 12px 20px 0 20px;
